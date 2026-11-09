@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.local
+.env.*.local
+public/monaco/
+playwright-report/
+test-results/
+/blob-report/
+/playwright/.cache/
+.harness-tmp/
