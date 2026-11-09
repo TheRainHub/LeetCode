@@ -18,6 +18,8 @@ export interface ReadinessEstimate {
 
 /** Minimum share of focus topics with evidence before an estimate is shown. */
 export const MIN_COVERAGE_FOR_ESTIMATE = 0.25;
+/** …and a minimum absolute number of started topics, so tiny tracks can't produce confident numbers. */
+export const MIN_STARTED_FOR_ESTIMATE = 3;
 
 /**
  * Weighted readiness estimate for a company track. This is a model-based
@@ -29,7 +31,7 @@ export function estimateReadiness(topics: readonly FocusTopicState[]): Readiness
   const started = topics.filter((t) => t.status !== "not_started").length;
   const ready = topics.filter((t) => t.status === "interview_ready").length;
   const coverage = total === 0 ? 0 : started / total;
-  if (total === 0 || coverage < MIN_COVERAGE_FOR_ESTIMATE) {
+  if (total === 0 || coverage < MIN_COVERAGE_FOR_ESTIMATE || started < MIN_STARTED_FOR_ESTIMATE) {
     return { estimate: null, coverage, readyTopics: ready, startedTopics: started, totalTopics: total };
   }
   const weightSum = topics.reduce((s, t) => s + t.weight, 0);

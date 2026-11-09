@@ -1,10 +1,16 @@
+import { analytics } from "./messages/analytics";
 import { common } from "./messages/common";
+import { companiesMsg } from "./messages/companies";
 import { dashboard } from "./messages/dashboard";
+import { experience } from "./messages/experience";
 import { interviews } from "./messages/interviews";
+import { knowledge } from "./messages/knowledge";
 import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
 import { practice } from "./messages/practice";
 import { review } from "./messages/review";
+import { schedule } from "./messages/schedule";
+import { settings } from "./messages/settings";
 import type { Locale } from "./define";
 
 /**
@@ -19,6 +25,12 @@ const bundles = {
   labs,
   review,
   interviews,
+  schedule,
+  companies: companiesMsg,
+  experience,
+  analytics,
+  settings,
+  knowledge,
 } as const;
 
 type Bundles = typeof bundles;
