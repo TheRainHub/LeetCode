@@ -1,6 +1,9 @@
 import { common } from "./messages/common";
 import { dashboard } from "./messages/dashboard";
+import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
+import { practice } from "./messages/practice";
+import { review } from "./messages/review";
 import type { Locale } from "./define";
 
 /**
@@ -11,6 +14,9 @@ const bundles = {
   common,
   dashboard,
   learn,
+  practice,
+  labs,
+  review,
 } as const;
 
 type Bundles = typeof bundles;

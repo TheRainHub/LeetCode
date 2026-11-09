@@ -3,7 +3,7 @@
 import { Menu, Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Kbd } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n/client";
@@ -34,9 +34,14 @@ export function Sidebar({ aiEnabled }: { aiEnabled: boolean }) {
   const pathname = usePathname();
   const { m } = useI18n();
   const [open, setOpen] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
   const focusMode = pathname.startsWith("/practice/problems/");
 
-  useEffect(() => setOpen(false), [pathname]);
+  // Close the mobile drawer after navigation (state adjusted during render, not in an effect).
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
 
   const content = (
     <div className="flex h-full flex-col gap-4 px-3 py-4">

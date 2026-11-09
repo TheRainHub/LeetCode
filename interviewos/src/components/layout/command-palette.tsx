@@ -79,8 +79,6 @@ export function CommandPalette({ extra }: { extra: PaletteEntry[] }) {
     };
   }, [router]);
 
-  useEffect(() => setIndex(0), [query]);
-
   return (
     <D.Root open={open} onOpenChange={setOpen}>
       <D.Portal>
@@ -105,7 +103,10 @@ export function CommandPalette({ extra }: { extra: PaletteEntry[] }) {
           <input
             autoFocus
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setIndex(0);
+            }}
             placeholder={`${m.common.labels.search}…`}
             aria-label={m.common.labels.search}
             className="h-11 w-full border-b border-border bg-transparent px-4 text-sm outline-none placeholder:text-subtle-foreground"
