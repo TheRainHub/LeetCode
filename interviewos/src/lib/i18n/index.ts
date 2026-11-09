@@ -1,5 +1,6 @@
 import { common } from "./messages/common";
 import { dashboard } from "./messages/dashboard";
+import { interviews } from "./messages/interviews";
 import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
 import { practice } from "./messages/practice";
@@ -17,6 +18,7 @@ const bundles = {
   practice,
   labs,
   review,
+  interviews,
 } as const;
 
 type Bundles = typeof bundles;
