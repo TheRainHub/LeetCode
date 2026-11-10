@@ -9,7 +9,7 @@ depth: full
 practice: conceptual
 summary: Cache-aside, write-through and write-behind, TTLs and invalidation, stampedes, hot keys and what to cache at each layer.
 prerequisites: [sql-queries]
-problems: [lru-cache]
+problems: []
 objectives:
   - Choose a caching pattern (cache-aside, read/write-through, write-behind) and justify it
   - Design invalidation with TTLs, explicit deletes or versioned keys, and reason about staleness
@@ -97,7 +97,7 @@ cards:
 
 ### Eviction
 
-LRU/LFU when memory is full (see the **LRU cache** problem). Size memory for the working set, not the whole dataset.
+LRU/LFU when memory is full — an LRU cache is a hash map plus a doubly linked list giving O(1) get/put. Size memory for the working set, not the whole dataset.
 
 ### Measuring
 
@@ -136,6 +136,6 @@ Single-flight here is per process; across many instances a short Redis lock (`SE
 
 ## Practical exercises
 
-1. Implement the **LRU cache** problem and explain how Redis approximates LRU.
+1. Implement an LRU cache (hash map + doubly linked list) in Java or TypeScript with unit tests, and explain how Redis approximates LRU by sampling keys.
 2. Sketch the timeline of the set-after-write race with two writers.
 3. Pick an endpoint in a project and estimate hit ratio and DB load reduction.
