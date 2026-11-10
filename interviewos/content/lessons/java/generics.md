@@ -53,7 +53,7 @@ explain:
     - "Concrete example such as copy(List<? super T> dst, List<? extends T> src)"
   model: "Generic types are invariant: if List<Integer> were a List<Number>, I could add a Double through the Number reference and corrupt the integer list. Wildcards give controlled variance. PECS: when a parameter produces values I read, use ? extends T, so List<? extends Number> accepts a List<Integer> and lets me read Numbers but not add. When a parameter consumes values I write, use ? super T, so List<? super Integer> accepts List<Number> or List<Object> and lets me add Integers. Collections.copy(List<? super T> dest, List<? extends T> src) is the textbook example."
 cards:
-  - q: "PECS"
+  - q: "What does PECS stand for?"
     a: "Producer extends, consumer super."
   - q: "Erasure forbids"
     a: "new T(), generic arrays, instanceof with type args, primitives as type args."
