@@ -1,0 +1,193 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Design tokens. Dark is the default theme. */
+:root,
+[data-theme="dark"] {
+  --background: #0c0d10;
+  --surface: #121317;
+  --surface-2: #17191e;
+  --surface-3: #1e2026;
+  --border: #23262d;
+  --border-strong: #31353e;
+  --foreground: #e7e8eb;
+  --muted-foreground: #8d929c;
+  --subtle-foreground: #62666f;
+  --primary: #4c8dff;
+  --primary-hover: #6aa0ff;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgb(76 141 255 / 0.12);
+  --success: #3fb27f;
+  --success-soft: rgb(63 178 127 / 0.12);
+  --warning: #d6a23a;
+  --warning-soft: rgb(214 162 58 / 0.12);
+  --danger: #ef5b5b;
+  --danger-soft: rgb(239 91 91 / 0.12);
+  --ring: rgb(76 141 255 / 0.55);
+  /* Categorical chart slots (validated against #121317: CVD ΔE ≥ 8.4, contrast ≥ 3:1). */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --background: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f3f4f6;
+  --surface-3: #e9ebef;
+  --border: #e3e5e9;
+  --border-strong: #cfd3da;
+  --foreground: #101217;
+  --muted-foreground: #5f6470;
+  --subtle-foreground: #8b909a;
+  --primary: #2563eb;
+  --primary-hover: #1d4fd8;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgb(37 99 235 / 0.09);
+  --success: #1f8a5b;
+  --success-soft: rgb(31 138 91 / 0.1);
+  --warning: #a86d00;
+  --warning-soft: rgb(168 109 0 / 0.1);
+  --danger: #d33a3a;
+  --danger-soft: rgb(211 58 58 / 0.09);
+  --ring: rgb(37 99 235 / 0.45);
+  /* Light steps: slots 3–4 are < 3:1 on white, so charts always ship a legend and a table view. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-slide-up: slide-up 180ms ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: var(--primary-soft);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Long-form lesson typography */
+.prose-lesson {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-quotes: var(--muted-foreground);
+  --tw-prose-bullets: var(--subtle-foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-hr: var(--border);
+  --tw-prose-th-borders: var(--border-strong);
+  --tw-prose-td-borders: var(--border);
+  --tw-prose-pre-bg: var(--surface-2);
+  --tw-prose-pre-code: var(--foreground);
+}
+.prose-lesson :where(code):not(:where(pre code)) {
+  background: var(--surface-3);
+  border-radius: 4px;
+  padding: 0.12em 0.36em;
+  font-size: 0.86em;
+  font-weight: 500;
+}
+.prose-lesson :where(code):not(:where(pre code))::before,
+.prose-lesson :where(code):not(:where(pre code))::after {
+  content: none;
+}
+.prose-lesson pre {
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.prose-lesson table {
+  font-size: 0.86rem;
+}
+
+/* highlight.js tokens tuned to the palette */
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #c792ea; }
+.hljs-string, .hljs-attr { color: #9ece6a; }
+.hljs-number, .hljs-literal { color: #ff9e64; }
+.hljs-comment { color: var(--subtle-foreground); font-style: italic; }
+.hljs-title, .hljs-function .hljs-title { color: #7aa2f7; }
+.hljs-type, .hljs-class .hljs-title { color: #2ac3de; }
+[data-theme="light"] .hljs-keyword, [data-theme="light"] .hljs-built_in { color: #7c3aed; }
+[data-theme="light"] .hljs-string { color: #15803d; }
+[data-theme="light"] .hljs-number { color: #c2410c; }
+[data-theme="light"] .hljs-title { color: #1d4ed8; }
+[data-theme="light"] .hljs-type { color: #0e7490; }
+
+/* react-resizable-panels separators */
+[data-separator] {
+  background: var(--border);
+  transition: background 120ms;
+}
+[data-separator]:hover,
+[data-separator="hover"],
+[data-separator="focus"],
+[data-separator="active"] {
+  background: var(--primary);
+}

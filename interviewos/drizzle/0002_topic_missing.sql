@@ -1,0 +1,1 @@
+ALTER TABLE "topic_progress" ADD COLUMN "missing" jsonb DEFAULT '[]'::jsonb NOT NULL;

@@ -1,0 +1,7 @@
+.next
+node_modules
+public/monaco
+drizzle
+content/**/*.md
+playwright-report
+test-results
