@@ -47,6 +47,18 @@ export async function GET() {
     studySessions: sessions,
     studyTasks: await db.select().from(s.studyTasks).where(inArray(s.studyTasks.sessionId, sessionIds)),
     calendarEvents: await db.select().from(s.calendarEvents).where(eq(s.calendarEvents.userId, userId)),
+    problemBankProgress: await db
+      .select({
+        slug: s.bankProblems.slug,
+        title: s.bankProblems.title,
+        status: s.bankProgress.status,
+        notes: s.bankProgress.notes,
+        solvedAt: s.bankProgress.solvedAt,
+        updatedAt: s.bankProgress.updatedAt,
+      })
+      .from(s.bankProgress)
+      .innerJoin(s.bankProblems, eq(s.bankProblems.id, s.bankProgress.problemId))
+      .where(eq(s.bankProgress.userId, userId)),
     weeklyObjectives: await db.select().from(s.weeklyObjectives).where(eq(s.weeklyObjectives.userId, userId)),
     applications: apps,
     applicationEvents: await db

@@ -1,4 +1,5 @@
 import { analytics } from "./messages/analytics";
+import { bank } from "./messages/bank";
 import { common } from "./messages/common";
 import { companiesMsg } from "./messages/companies";
 import { dashboard } from "./messages/dashboard";
@@ -22,6 +23,7 @@ const bundles = {
   dashboard,
   learn,
   practice,
+  bank,
   labs,
   review,
   interviews,

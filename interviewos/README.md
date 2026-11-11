@@ -19,6 +19,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [AI features (optional)](#ai-features-optional)
 - [How code is executed](#how-code-is-executed)
 - [How progress is measured](#how-progress-is-measured)
+- [Problem bank (optional)](#problem-bank-optional)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
 - [Data, privacy and backups](#data-privacy-and-backups)
@@ -96,7 +97,16 @@ This runs the SQL migrations in `drizzle/` and then the seed. The seed is idempo
 lessons, problems, labs, companies and the plan template by slug and **never overwrites your progress,
 notes, edited projects or company settings**. Re-run it after pulling new content.
 
-### 5. Start the app
+### 5. (Optional) Import the problem bank
+
+```bash
+npm run bank:import
+```
+
+Downloads two public datasets into `.data-sources/` and imports LeetCode problem metadata, per-company
+frequencies and coding patterns. See [Problem bank](#problem-bank-optional). The app works without it.
+
+### 6. Start the app
 
 ```bash
 npm run dev
@@ -192,17 +202,68 @@ invented; a fresh install shows empty states everywhere.
 
 Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Problem bank (optional)
+
+**Practice → Problem bank** lists LeetCode problems from two public GitHub repositories, with filters
+for company, period, difficulty, pattern, LeetCode topic tag, InterviewOS lesson and your own status,
+plus title search and sorting. **Practice → Patterns** groups problems into 16 interview patterns.
+
+| Source                                                                                                                                                                  | What is imported                                                                                                                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [liquidslr/leetcode-company-wise-problems](https://github.com/liquidslr/leetcode-company-wise-problems)                                                                 | For each company and period (last 30 days, 3 months, 6 months, more than 6 months, all time): problem title, link, difficulty, LeetCode tags and a relative frequency |
+| [Chanda-Abdul/Several-Coding-Patterns-…](https://github.com/Chanda-Abdul/Several-Coding-Patterns-for-Solving-Data-Structures-and-Algorithms-Problems-during-Interviews) | Which LeetCode problems belong to each of the 16 patterns; each pattern links back to its notes                                                                       |
+| [algorithm-visualizer/algorithms](https://github.com/algorithm-visualizer/algorithms)                                                                                   | Nothing is imported: 39 curated links to [algorithm-visualizer.org](https://algorithm-visualizer.org/) animations, shown on lessons and patterns                      |
+
+How to read it:
+
+- **Frequency** is relative within one company's list for the selected period: 100 is the problem
+  that company's list reports most often. It is not a probability and cannot be compared across
+  companies. Without a company filter the list is ordered by how many companies include a problem.
+- The dataset's "Acceptance Rate" column is **ignored**: its values (about 0.002–0.009) are not
+  acceptance percentages, and their meaning is not documented.
+- 47 of the 470 company folders contain only empty lists, so 423 companies have data.
+- Problems that appear only in the pattern notes have **unknown** difficulty and no tags rather than
+  guessed values.
+- Statuses (planned, attempted, solved, solved with help) are **self-reported** — you solve these on
+  LeetCode. They show on the bank, pattern, lesson and company pages and are included in the export,
+  but they never count as verified practice for topic readiness. The 10 problems InterviewOS can run
+  itself are marked "Solve in InterviewOS"; attempts there are verified as usual.
+- Company tracks link to dataset lists through `COMPANY_DATASET_NAMES` in `content/problem-bank.ts`.
+  Microsoft and Apple are mapped; CDN77, Second Foundation, Ataccama, Apify and Momence have no list in
+  the dataset, and their pages say so. LeetCode tags and patterns map to lessons in the same file.
+
+Importing:
+
+```bash
+npm run bank:import
+```
+
+- The first run clones the repositories (about 20 MB) into `.data-sources/`, which git ignores. Later
+  runs pull updates. `--no-fetch` uses the existing copies; `--sources <dir>` reads clones from
+  elsewhere.
+- Re-running is safe and takes a few seconds: problems are upserted by slug, company frequencies and
+  pattern links are replaced by the new snapshot, and **your statuses are never modified**. The bank
+  page shows which commit of each source was imported.
+- Only metadata is stored — never problem statements. The datasets are not committed to this
+  repository: neither source repository declares a license, and the pattern notes are based on a paid
+  course, so InterviewOS uses only the problem lists and links back to the notes instead of copying them.
+
+`npm run bank:verify-visualizations` checks every visualizer link against the algorithms repository
+(all 39 exist). Whether algorithm-visualizer.org itself is online could not be checked from the build
+environment.
+
 ## Tests and checks
 
-| Command                            | What it checks                                                                                                                |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `npm run typecheck`                | TypeScript strict (`noUncheckedIndexedAccess`)                                                                                |
-| `npm run lint`                     | ESLint (Next.js + TypeScript rules)                                                                                           |
-| `npm run format:check`             | Prettier                                                                                                                      |
-| `npm test`                         | Vitest: domain logic (SRS, mastery, scheduler, readiness), code runner, i18n parity, content integrity, React component tests |
-| `npm run test:e2e`                 | Playwright: production build, fresh database, mock Anthropic API                                                              |
-| `npm run content:verify-harnesses` | All reference solutions pass in Java, Python and TypeScript                                                                   |
-| `npm run content:check-links`      | Every reading and problem link resolves                                                                                       |
+| Command                              | What it checks                                                                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `npm run typecheck`                  | TypeScript strict (`noUncheckedIndexedAccess`)                                                                                |
+| `npm run lint`                       | ESLint (Next.js + TypeScript rules)                                                                                           |
+| `npm run format:check`               | Prettier                                                                                                                      |
+| `npm test`                           | Vitest: domain logic (SRS, mastery, scheduler, readiness), code runner, i18n parity, content integrity, React component tests |
+| `npm run test:e2e`                   | Playwright: production build, fresh database, mock Anthropic API                                                              |
+| `npm run content:verify-harnesses`   | All reference solutions pass in Java, Python and TypeScript                                                                   |
+| `npm run content:check-links`        | Every reading and problem link resolves                                                                                       |
+| `npm run bank:verify-visualizations` | Every algorithm-visualizer link exists in the algorithms repository                                                           |
 
 ### End-to-end tests
 
@@ -225,7 +286,9 @@ Covered flows: honest empty dashboard → generate plan → mark today unavailab
 the server + interview-mode explanation (and the topic does not become interview-ready from that
 alone); TypeScript solution run in the browser and recorded with a complexity review; mock interview
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
-interface to Russian and back.
+interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
+status, and the matching problems on company and lesson pages. The problem bank is imported from small
+synthetic fixtures in `e2e/fixtures/problem-bank/` — their frequencies are made up.
 
 ## Content
 

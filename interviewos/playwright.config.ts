@@ -33,7 +33,7 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
-      command: `npx tsx e2e/prepare-db.ts && npx tsx scripts/migrate.ts && npx tsx scripts/seed.ts && ${serve}`,
+      command: `npx tsx e2e/prepare-db.ts && npx tsx scripts/migrate.ts && npx tsx scripts/seed.ts && npx tsx scripts/import-problem-bank.ts --sources e2e/fixtures/problem-bank --no-fetch && ${serve}`,
       url: `http://127.0.0.1:${APP_PORT}/settings`,
       timeout: 600_000,
       reuseExistingServer: false,

@@ -30,6 +30,8 @@ import { isAiConfigured } from "@/lib/ai/config";
 import type { TopicStatus } from "@/lib/mastery/status";
 import { cn } from "@/lib/utils";
 import { gradeExplanationAction } from "@/app/learn/ai-actions";
+import { LessonBankPractice } from "@/components/bank/lesson-practice";
+import { getLessonBankPractice } from "@/server/bank";
 import { getLessonPage } from "@/server/learn";
 import { getI18n } from "@/server/user";
 
@@ -74,7 +76,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [{ m }, data] = await Promise.all([getI18n(), getLessonPage(slug)]);
+  const [{ m }, data, bankPractice] = await Promise.all([
+    getI18n(),
+    getLessonPage(slug),
+    getLessonBankPractice(slug, 6),
+  ]);
   if (!data) notFound();
   const L = m.learn.lesson;
   const { lesson } = data;
@@ -185,6 +191,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                         </div>
                       </div>
                     ) : null}
+                    <LessonBankPractice lesson={lesson.slug} practice={bankPractice} m={m} />
                   </Section>
                   <Section id="reading" title={L.readings}>
                     <ul className="flex flex-col gap-2">

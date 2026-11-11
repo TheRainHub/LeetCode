@@ -1,6 +1,7 @@
 import { CircleCheck, CircleDashed, CircleDot, Clock, FlaskConical, Layers } from "lucide-react";
 import Link from "next/link";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
+import { PracticeTabs } from "@/components/practice/practice-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -54,29 +55,7 @@ export default async function PracticePage({
   return (
     <PageContainer>
       <PageHeader title={P.title} description={P.description} />
-      <nav
-        className="border-border bg-surface-2 mb-4 inline-flex gap-0.5 rounded-md border p-0.5"
-        aria-label={P.title}
-      >
-        {TABS.map((t) => (
-          <Link
-            key={t}
-            href={`/practice?tab=${t}`}
-            aria-current={tab === t ? "page" : undefined}
-            className={cn(
-              "flex h-7 items-center gap-1.5 rounded-[5px] px-3 text-xs font-medium",
-              tab === t
-                ? "bg-surface text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {P.tabs[t]}
-            {t === "review" && dueCards.length + dueProblems.length > 0 ? (
-              <Badge tone="primary">{dueCards.length + dueProblems.length}</Badge>
-            ) : null}
-          </Link>
-        ))}
-      </nav>
+      <PracticeTabs current={tab} reviewDue={dueCards.length + dueProblems.length} />
 
       {tab === "problems" ? (
         <>

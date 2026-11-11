@@ -14,11 +14,13 @@ import { StatusBadge } from "@/components/learn/status-badge";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CompanyBankCard } from "@/components/bank/company-bank";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, NotEnoughData } from "@/components/ui/misc";
 import { Progress } from "@/components/ui/progress";
 import { isAiConfigured } from "@/lib/ai/config";
 import { formatDay } from "@/lib/dates";
+import { getBankOverview, getCompanyBankSummary } from "@/server/bank";
 import { getCompanyPage } from "@/server/companies";
 import { getI18n, getToday } from "@/server/user";
 
@@ -30,6 +32,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
   const { company, readiness } = data;
   const active = data.focus.filter((f) => f.weight > 0);
   const excluded = data.focus.filter((f) => f.weight === 0);
+  const [bankOverview, bankSummary] = await Promise.all([
+    getBankOverview(),
+    getCompanyBankSummary(company.id),
+  ]);
 
   return (
     <PageContainer wide>
@@ -247,6 +253,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
             </CardContent>
           </Card>
         </div>
+
+        {bankOverview.problems > 0 ? (
+          <CompanyBankCard summary={bankSummary} m={m} className="lg:col-span-3" />
+        ) : null}
 
         <Card className="lg:col-span-2">
           <CardHeader>
