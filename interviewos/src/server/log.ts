@@ -11,7 +11,10 @@ function write(level: Level, scope: string, message: string, data?: Record<strin
 }
 
 export const log = {
-  info: (scope: string, message: string, data?: Record<string, unknown>) => write("info", scope, message, data),
-  warn: (scope: string, message: string, data?: Record<string, unknown>) => write("warn", scope, message, data),
-  error: (scope: string, message: string, data?: Record<string, unknown>) => write("error", scope, message, data),
+  info: (scope: string, message: string, data?: Record<string, unknown>) =>
+    write("info", scope, message, data),
+  warn: (scope: string, message: string, data?: Record<string, unknown>) =>
+    write("warn", scope, message, data),
+  error: (scope: string, message: string, data?: Record<string, unknown>) =>
+    write("error", scope, message, data),
 };

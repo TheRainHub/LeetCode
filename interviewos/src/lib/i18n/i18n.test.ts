@@ -5,7 +5,8 @@ import { getMessagesFor } from "./index";
 function shape(value: unknown, path = ""): string[] {
   if (typeof value === "function") return [`${path}:fn${value.length}`];
   if (Array.isArray(value)) return [`${path}:array${value.length}`];
-  if (value && typeof value === "object") return Object.entries(value).flatMap(([k, v]) => shape(v, path ? `${path}.${k}` : k));
+  if (value && typeof value === "object")
+    return Object.entries(value).flatMap(([k, v]) => shape(v, path ? `${path}.${k}` : k));
   return [`${path}:${typeof value}`];
 }
 
@@ -24,6 +25,14 @@ describe("i18n", () => {
   });
   it("pluralizes Russian correctly", () => {
     const f = { one: "день", few: "дня", many: "дней" };
-    expect([1, 2, 5, 11, 21, 22, 25].map((n) => plural("ru", n, f))).toEqual(["день", "дня", "дней", "дней", "день", "дня", "дней"]);
+    expect([1, 2, 5, 11, 21, 22, 25].map((n) => plural("ru", n, f))).toEqual([
+      "день",
+      "дня",
+      "дней",
+      "дней",
+      "день",
+      "дня",
+      "дней",
+    ]);
   });
 });

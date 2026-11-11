@@ -3,7 +3,8 @@ import { defineMessages } from "../define";
 export const review = defineMessages(
   {
     title: "Review session",
-    description: "Active recall: answer from memory before revealing. Grade honestly — the schedule adapts to your grade.",
+    description:
+      "Active recall: answer from memory before revealing. Grade honestly — the schedule adapts to your grade.",
     empty: "No cards due. Come back later or start a new lesson to add cards.",
     progress: (i: number, n: number) => `Card ${i} of ${n}`,
     recall: "Answer out loud or in your head, then reveal.",
@@ -29,7 +30,8 @@ export const review = defineMessages(
   },
   {
     title: "Сессия повторения",
-    description: "Активное вспоминание: ответьте по памяти, прежде чем открыть ответ. Оценивайте честно — расписание подстраивается под оценку.",
+    description:
+      "Активное вспоминание: ответьте по памяти, прежде чем открыть ответ. Оценивайте честно — расписание подстраивается под оценку.",
     empty: "Карточек к повторению нет. Загляните позже или начните новый урок.",
     progress: (i: number, n: number) => `Карточка ${i} из ${n}`,
     recall: "Ответьте вслух или мысленно, затем откройте ответ.",

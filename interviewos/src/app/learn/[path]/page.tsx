@@ -17,7 +17,7 @@ export default async function PathPage({ params }: { params: Promise<{ path: str
     <PageContainer>
       <PageHeader
         eyebrow={
-          <Link href="/learn" className="inline-flex items-center gap-1 hover:text-foreground">
+          <Link href="/learn" className="hover:text-foreground inline-flex items-center gap-1">
             <ChevronLeft className="size-3.5" />
             {m.learn.title}
           </Link>
@@ -29,32 +29,47 @@ export default async function PathPage({ params }: { params: Promise<{ path: str
         {data.modules.map((mod, mi) => (
           <section key={mod.id} aria-labelledby={`mod-${mod.id}`}>
             <div className="mb-2 flex items-baseline gap-2">
-              <span className="text-xs tabular-nums text-subtle-foreground">{String(mi + 1).padStart(2, "0")}</span>
+              <span className="text-subtle-foreground text-xs tabular-nums">
+                {String(mi + 1).padStart(2, "0")}
+              </span>
               <h2 id={`mod-${mod.id}`} className="text-sm font-semibold">
                 {mod.title}
               </h2>
-              <span className="text-xs text-muted-foreground">— {mod.description}</span>
+              <span className="text-muted-foreground text-xs">— {mod.description}</span>
             </div>
             {mod.lessons.length === 0 ? (
               <EmptyState title={m.learn.emptyModule} />
             ) : (
-              <Card className="divide-y divide-border">
+              <Card className="divide-border divide-y">
                 {mod.lessons.map((l) => (
-                  <Link key={l.id} href={`/learn/lesson/${l.slug}`} className="flex flex-col gap-1 px-4 py-3 hover:bg-surface-2 sm:flex-row sm:items-center sm:gap-4">
+                  <Link
+                    key={l.id}
+                    href={`/learn/lesson/${l.slug}`}
+                    className="hover:bg-surface-2 flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+                  >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        {l.completedAt ? <CircleCheck className="size-3.5 text-success" aria-label={m.learn.lesson.completed} /> : null}
+                        {l.completedAt ? (
+                          <CircleCheck
+                            className="text-success size-3.5"
+                            aria-label={m.learn.lesson.completed}
+                          />
+                        ) : null}
                         <span className="truncate text-sm font-medium">{l.title}</span>
                       </div>
                       {l.prerequisites.length ? (
-                        <p className="mt-0.5 truncate text-[11px] text-subtle-foreground">
+                        <p className="text-subtle-foreground mt-0.5 truncate text-[11px]">
                           {m.learn.prerequisites}: {l.prerequisites.map((p) => p.title).join(", ")}
                         </p>
                       ) : null}
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <Badge tone="outline">{l.depth === "full" ? m.learn.depth.full : m.learn.depth.concise}</Badge>
-                      <span className="w-14 text-right text-xs tabular-nums text-subtle-foreground">{m.common.minutes(l.minutes)}</span>
+                      <Badge tone="outline">
+                        {l.depth === "full" ? m.learn.depth.full : m.learn.depth.concise}
+                      </Badge>
+                      <span className="text-subtle-foreground w-14 text-right text-xs tabular-nums">
+                        {m.common.minutes(l.minutes)}
+                      </span>
                       <StatusBadge status={l.status} withHelp={false} />
                     </div>
                   </Link>

@@ -17,4 +17,15 @@ export function complexityMatches(claimed: string, expected: string): boolean {
   return normalizeComplexity(claimed) === normalizeComplexity(expected);
 }
 
-export const COMMON_COMPLEXITIES = ["O(1)", "O(log n)", "O(n)", "O(n log n)", "O(n log k)", "O(n²)", "O(m·n)", "O(n·k)", "O(n·k log k)", "O(2ⁿ)"];
+export const COMMON_COMPLEXITIES = [
+  "O(1)",
+  "O(log n)",
+  "O(n)",
+  "O(n log n)",
+  "O(n log k)",
+  "O(n²)",
+  "O(m·n)",
+  "O(n·k)",
+  "O(n·k log k)",
+  "O(2ⁿ)",
+];

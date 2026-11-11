@@ -12,8 +12,12 @@ import { formatDuration } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n/client";
 import { useInterviewMode } from "./lesson-shell";
 
-type AiGrader = (input: { exerciseId: number; response: string }) => Promise<
-  { ok: true; data?: { score: number; rubricChecks: boolean[]; feedback: string } } | { ok: false; error: string }
+type AiGrader = (input: {
+  exerciseId: number;
+  response: string;
+}) => Promise<
+  | { ok: true; data?: { score: number; rubricChecks: boolean[]; feedback: string } }
+  | { ok: false; error: string }
 >;
 
 export function ExplainExercise({
@@ -96,11 +100,11 @@ export function ExplainExercise({
     });
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-4" data-testid="explain-exercise">
+    <div className="border-border bg-surface rounded-lg border p-4" data-testid="explain-exercise">
       <p className="text-sm font-medium">{prompt}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{e.intro}</p>
+      <p className="text-muted-foreground mt-1 text-xs">{e.intro}</p>
       {attempts > 0 ? (
-        <p className="mt-2 text-[11px] text-subtle-foreground">
+        <p className="text-subtle-foreground mt-2 text-[11px]">
           {e.history(attempts)} · best {Math.round(best * 100)}%
         </p>
       ) : null}
@@ -114,10 +118,10 @@ export function ExplainExercise({
 
       {active ? (
         <div className="mt-3 flex flex-col gap-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5">
               <Timer className="size-3.5" />
-              {e.timer}: <span className="tabular-nums text-foreground">{formatDuration(elapsed)}</span>
+              {e.timer}: <span className="text-foreground tabular-nums">{formatDuration(elapsed)}</span>
             </span>
             <Button size="sm" variant="ghost" onClick={() => setActive(false)}>
               {e.cancel}
@@ -131,7 +135,13 @@ export function ExplainExercise({
             placeholder={e.placeholder}
             aria-label={e.placeholder}
           />
-          <Button variant="primary" size="sm" className="self-start" onClick={reveal} disabled={pending || response.trim().length < 40}>
+          <Button
+            variant="primary"
+            size="sm"
+            className="self-start"
+            onClick={reveal}
+            disabled={pending || response.trim().length < 40}
+          >
             {e.done}
           </Button>
         </div>
@@ -140,7 +150,7 @@ export function ExplainExercise({
       {rubric ? (
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">{e.rubric}</p>
+            <p className="text-muted-foreground mb-2 text-xs font-medium">{e.rubric}</p>
             <ul className="flex flex-col gap-1.5">
               {rubric.rubric.map((r, i) => (
                 <li key={i}>
@@ -156,8 +166,16 @@ export function ExplainExercise({
               ))}
             </ul>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge tone="neutral">{Math.round((checks.filter(Boolean).length / Math.max(1, checks.length)) * 100)}%</Badge>
-              <Button size="sm" variant="primary" onClick={() => save("self")} disabled={pending} data-testid="explain-save">
+              <Badge tone="neutral">
+                {Math.round((checks.filter(Boolean).length / Math.max(1, checks.length)) * 100)}%
+              </Badge>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => save("self")}
+                disabled={pending}
+                data-testid="explain-save"
+              >
                 {e.save}
               </Button>
               {aiGrader ? (
@@ -166,22 +184,22 @@ export function ExplainExercise({
                   {pending ? e.aiGrading : e.aiGrade}
                 </Button>
               ) : (
-                <span className="text-[11px] text-subtle-foreground">{e.aiUnavailable}</span>
+                <span className="text-subtle-foreground text-[11px]">{e.aiUnavailable}</span>
               )}
             </div>
             {aiFeedback ? (
-              <div className="mt-3 rounded-md border border-border bg-surface-2 p-3">
+              <div className="border-border bg-surface-2 mt-3 rounded-md border p-3">
                 <p className="mb-1 text-xs font-medium">{e.aiFeedback}</p>
                 <Markdown compact>{aiFeedback}</Markdown>
               </div>
             ) : null}
           </div>
-          <div className="rounded-md border border-border bg-surface-2 p-3">
-            <p className="mb-1 text-xs font-medium text-muted-foreground">{e.modelAnswer}</p>
+          <div className="border-border bg-surface-2 rounded-md border p-3">
+            <p className="text-muted-foreground mb-1 text-xs font-medium">{e.modelAnswer}</p>
             <p className="text-sm leading-relaxed">{rubric.modelAnswer}</p>
             <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-muted-foreground">Your answer</summary>
-              <p className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">{response}</p>
+              <summary className="text-muted-foreground cursor-pointer text-xs">{e.yourAnswer}</summary>
+              <p className="text-muted-foreground mt-2 text-sm whitespace-pre-wrap">{response}</p>
             </details>
           </div>
         </div>

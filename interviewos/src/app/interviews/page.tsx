@@ -16,7 +16,11 @@ import { getI18n, getSettings } from "@/server/user";
 
 export const metadata = { title: "Mock Interviews" };
 
-export default async function InterviewsPage({ searchParams }: { searchParams: Promise<{ company?: string; preset?: string; type?: string }> }) {
+export default async function InterviewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ company?: string; preset?: string; type?: string }>;
+}) {
   const sp = await searchParams;
   const [{ m, locale }, settings, history, companyRows, presetRows] = await Promise.all([
     getI18n(),
@@ -32,11 +36,20 @@ export default async function InterviewsPage({ searchParams }: { searchParams: P
     name: c.name,
     presets: presetRows
       .filter((p) => p.companyId === c.id)
-      .map((p) => ({ id: p.id, title: p.title, type: p.type, difficulty: p.difficulty, durationMinutes: p.durationMinutes, language: p.language })),
+      .map((p) => ({
+        id: p.id,
+        title: p.title,
+        type: p.type,
+        difficulty: p.difficulty,
+        durationMinutes: p.durationMinutes,
+        language: p.language,
+      })),
   }));
   const preset = presetRows.find((p) => String(p.id) === sp.preset);
   const company = companyRows.find((c) => c.slug === sp.company || c.id === preset?.companyId);
-  const type = (INTERVIEW_TYPES as readonly string[]).includes(sp.type ?? "") ? (sp.type as InterviewType) : "algorithms";
+  const type = (INTERVIEW_TYPES as readonly string[]).includes(sp.type ?? "")
+    ? (sp.type as InterviewType)
+    : "algorithms";
 
   return (
     <PageContainer>
@@ -67,20 +80,37 @@ export default async function InterviewsPage({ searchParams }: { searchParams: P
       {history.length === 0 ? (
         <EmptyState title={I.history.empty} />
       ) : (
-        <Card className="divide-y divide-border">
+        <Card className="divide-border divide-y">
           {history.map((h) => (
-            <Link key={h.id} href={`/interviews/${h.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2">
+            <Link
+              key={h.id}
+              href={`/interviews/${h.id}`}
+              className="hover:bg-surface-2 flex items-center gap-3 px-4 py-3"
+            >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">
                   {I.types[h.type]}
                   {h.companyName ? <span className="text-muted-foreground"> · {h.companyName}</span> : null}
                 </p>
-                <p className="text-[11px] text-subtle-foreground">
-                  {h.startedAt.toLocaleString(locale === "ru" ? "ru-RU" : "en-GB", { dateStyle: "medium", timeStyle: "short" })} · {m.common.difficulty[h.difficulty]} ·{" "}
-                  {m.common.minutes(h.durationMinutes)}
+                <p className="text-subtle-foreground text-[11px]">
+                  {h.startedAt.toLocaleString(locale === "ru" ? "ru-RU" : "en-GB", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}{" "}
+                  · {m.common.difficulty[h.difficulty]} · {m.common.minutes(h.durationMinutes)}
                 </p>
               </div>
-              <Badge tone={h.status === "completed" ? "success" : h.status === "in_progress" ? "primary" : h.status === "evaluating" ? "warning" : "neutral"}>
+              <Badge
+                tone={
+                  h.status === "completed"
+                    ? "success"
+                    : h.status === "in_progress"
+                      ? "primary"
+                      : h.status === "evaluating"
+                        ? "warning"
+                        : "neutral"
+                }
+              >
                 {I.history.status[h.status]}
               </Badge>
               <span className="w-12 text-right text-sm font-semibold tabular-nums">{h.score ?? "—"}</span>

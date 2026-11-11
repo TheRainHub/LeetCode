@@ -16,7 +16,9 @@ export function useInterviewMode() {
 /** Provides interview mode: while active, lesson content is hidden so explanations come from memory. */
 export function LessonShell({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
-  return <InterviewModeContext.Provider value={{ active, setActive }}>{children}</InterviewModeContext.Provider>;
+  return (
+    <InterviewModeContext.Provider value={{ active, setActive }}>{children}</InterviewModeContext.Provider>
+  );
 }
 
 export function HideInInterviewMode({ children }: { children: React.ReactNode }) {
@@ -24,7 +26,7 @@ export function HideInInterviewMode({ children }: { children: React.ReactNode })
   const { m } = useI18n();
   if (!active) return <>{children}</>;
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+    <div className="border-border text-muted-foreground flex items-center gap-2 rounded-lg border border-dashed px-4 py-6 text-sm">
       <EyeOff className="size-4" />
       {m.learn.explain.hiddenNotice}
     </div>

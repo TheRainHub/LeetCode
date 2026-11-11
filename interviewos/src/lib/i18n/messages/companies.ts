@@ -3,9 +3,11 @@ import { defineMessages } from "../define";
 export const companiesMsg = defineMessages(
   {
     title: "Company Preparation",
-    description: "Tracks per target company: focus topics, problems, mock presets, checklist and your application pipeline.",
+    description:
+      "Tracks per target company: focus topics, problems, mock presets, checklist and your application pipeline.",
     readiness: "Estimated readiness",
-    readinessHelp: "Weighted from your topic statuses on this track. It is a model-based estimate, not observed interview performance.",
+    readinessHelp:
+      "Weighted from your topic statuses on this track. It is a model-based estimate, not observed interview performance.",
     observed: "Observed (mock interviews)",
     noMocks: "No mock interviews for this company yet",
     stage: "Application stage",
@@ -31,7 +33,14 @@ export const companiesMsg = defineMessages(
     checklist: { title: "Preparation checklist", add: "Add item", placeholder: "New checklist item…" },
     pipeline: {
       title: "Application pipeline",
-      stages: { applied: "Applied", screening: "Screening", technical: "Technical interview", final: "Final interview", offer: "Offer", rejected: "Rejected" },
+      stages: {
+        applied: "Applied",
+        screening: "Screening",
+        technical: "Technical interview",
+        final: "Final interview",
+        offer: "Offer",
+        rejected: "Rejected",
+      },
       create: "Track an application",
       role: "Role",
       date: "Date",
@@ -42,15 +51,27 @@ export const companiesMsg = defineMessages(
       interviewTitle: (company: string) => `${company} interview`,
       noFakeDates: "Only record dates and stages that actually happened or were scheduled.",
     },
-    notes: { title: "Notes", placeholder: "What you learned about the process, people you talked to, questions asked…" },
+    notes: {
+      title: "Notes",
+      placeholder: "What you learned about the process, people you talked to, questions asked…",
+    },
     history: "Mock interview history",
-    edit: { button: "Edit track", title: "Edit company track", role: "Role", overview: "Overview (Markdown)", prepNotes: "Preparation notes (Markdown)", saved: "Track updated" },
+    edit: {
+      button: "Edit track",
+      title: "Edit company track",
+      role: "Role",
+      overview: "Overview (Markdown)",
+      prepNotes: "Preparation notes (Markdown)",
+      saved: "Track updated",
+    },
   },
   {
     title: "Подготовка к компаниям",
-    description: "Треки для целевых компаний: ключевые темы, задачи, пресеты собеседований, чек-лист и воронка откликов.",
+    description:
+      "Треки для целевых компаний: ключевые темы, задачи, пресеты собеседований, чек-лист и воронка откликов.",
     readiness: "Оценка готовности",
-    readinessHelp: "Взвешенная оценка по статусам тем трека. Это модельная оценка, а не наблюдаемый результат собеседований.",
+    readinessHelp:
+      "Взвешенная оценка по статусам тем трека. Это модельная оценка, а не наблюдаемый результат собеседований.",
     observed: "Наблюдение (пробные собеседования)",
     noMocks: "Пробных собеседований для этой компании пока нет",
     stage: "Этап отклика",
@@ -76,7 +97,14 @@ export const companiesMsg = defineMessages(
     checklist: { title: "Чек-лист подготовки", add: "Добавить пункт", placeholder: "Новый пункт…" },
     pipeline: {
       title: "Воронка отклика",
-      stages: { applied: "Отклик отправлен", screening: "Скрининг", technical: "Техническое интервью", final: "Финальное интервью", offer: "Оффер", rejected: "Отказ" },
+      stages: {
+        applied: "Отклик отправлен",
+        screening: "Скрининг",
+        technical: "Техническое интервью",
+        final: "Финальное интервью",
+        offer: "Оффер",
+        rejected: "Отказ",
+      },
       create: "Отслеживать отклик",
       role: "Позиция",
       date: "Дата",
@@ -89,6 +117,13 @@ export const companiesMsg = defineMessages(
     },
     notes: { title: "Заметки", placeholder: "Что узнали о процессе, с кем общались, какие были вопросы…" },
     history: "История пробных собеседований",
-    edit: { button: "Изменить трек", title: "Изменить трек компании", role: "Позиция", overview: "Обзор (Markdown)", prepNotes: "Заметки по подготовке (Markdown)", saved: "Трек обновлён" },
+    edit: {
+      button: "Изменить трек",
+      title: "Изменить трек компании",
+      role: "Позиция",
+      overview: "Обзор (Markdown)",
+      prepNotes: "Заметки по подготовке (Markdown)",
+      saved: "Трек обновлён",
+    },
   },
 );

@@ -51,7 +51,12 @@ export async function listProblems() {
     const mine = attempts.filter((a) => a.problemId === p.id);
     let progress: ProblemProgress = mine.length ? "attempted" : "none";
     if (mine.some((a) => a.outcome === "passed")) progress = "with_help";
-    if (mine.some((a) => a.outcome === "passed" && a.independence === "independent" && a.executionMode !== "none")) progress = "independent";
+    if (
+      mine.some(
+        (a) => a.outcome === "passed" && a.independence === "independent" && a.executionMode !== "none",
+      )
+    )
+      progress = "independent";
     return {
       ...p,
       tags: tags.filter((t) => t.problemId === p.id).map((t) => t.tag),
@@ -68,8 +73,14 @@ export async function getWorkspace(slug: string) {
   const [problem] = await db.select().from(codingProblems).where(eq(codingProblems.slug, slug));
   if (!problem) return null;
   const [drafts, notes, custom, attempts, tags, schedule] = await Promise.all([
-    db.select().from(codeDrafts).where(and(eq(codeDrafts.userId, userId), eq(codeDrafts.problemId, problem.id))),
-    db.select().from(problemNotes).where(and(eq(problemNotes.userId, userId), eq(problemNotes.problemId, problem.id))),
+    db
+      .select()
+      .from(codeDrafts)
+      .where(and(eq(codeDrafts.userId, userId), eq(codeDrafts.problemId, problem.id))),
+    db
+      .select()
+      .from(problemNotes)
+      .where(and(eq(problemNotes.userId, userId), eq(problemNotes.problemId, problem.id))),
     db
       .select()
       .from(customTestCases)
@@ -86,7 +97,9 @@ export async function getWorkspace(slug: string) {
       .from(reviewSchedules)
       .where(and(eq(reviewSchedules.userId, userId), eq(reviewSchedules.problemId, problem.id))),
   ]);
-  const draftByLang = Object.fromEntries(drafts.map((d) => [d.language, d.code])) as Partial<Record<Language, string>>;
+  const draftByLang = Object.fromEntries(drafts.map((d) => [d.language, d.code])) as Partial<
+    Record<Language, string>
+  >;
   return {
     // Hints, approach and reference solutions are deliberately NOT included; they are fetched on demand.
     problem: {
@@ -153,11 +166,17 @@ export async function getSolution(problemId: number) {
 
 export async function problemTopicIds(problemId: number): Promise<number[]> {
   const { problemTopics } = await import("@/lib/db/schema");
-  const rows = await db.select({ topicId: problemTopics.topicId }).from(problemTopics).where(eq(problemTopics.problemId, problemId));
+  const rows = await db
+    .select({ topicId: problemTopics.topicId })
+    .from(problemTopics)
+    .where(eq(problemTopics.problemId, problemId));
   return rows.map((r) => r.topicId);
 }
 
 export async function problemsByIds(ids: number[]) {
   if (!ids.length) return [];
-  return db.select({ id: codingProblems.id, slug: codingProblems.slug, title: codingProblems.title }).from(codingProblems).where(inArray(codingProblems.id, ids));
+  return db
+    .select({ id: codingProblems.id, slug: codingProblems.slug, title: codingProblems.title })
+    .from(codingProblems)
+    .where(inArray(codingProblems.id, ids));
 }

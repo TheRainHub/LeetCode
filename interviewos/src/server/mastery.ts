@@ -47,68 +47,91 @@ export async function recomputeTopicProgress(topicIds?: number[]): Promise<void>
   if (topicRows.length === 0) return;
   const ids = topicRows.map((t) => t.id);
 
-  const [reads, exAttempts, quizCounts, coding, labs, labExists, reviews, schedules, interviews] = await Promise.all([
-    db
-      .select({ topicId: lessons.topicId, readAt: lessonProgress.readAt })
-      .from(lessonProgress)
-      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
-      .where(and(eq(lessonProgress.userId, userId), isNotNull(lessonProgress.readAt), inArray(lessons.topicId, ids))),
-    db
-      .select({
-        topicId: lessons.topicId,
-        lessonId: lessons.id,
-        exerciseId: exerciseAttempts.exerciseId,
-        kind: exercises.kind,
-        score: exerciseAttempts.score,
-        isCorrect: exerciseAttempts.isCorrect,
-        interviewMode: exerciseAttempts.interviewMode,
-        createdAt: exerciseAttempts.createdAt,
-      })
-      .from(exerciseAttempts)
-      .innerJoin(exercises, eq(exercises.id, exerciseAttempts.exerciseId))
-      .innerJoin(lessons, eq(lessons.id, exercises.lessonId))
-      .where(and(eq(exerciseAttempts.userId, userId), inArray(lessons.topicId, ids))),
-    db
-      .select({ lessonId: exercises.lessonId, n: sql<number>`count(*)::int` })
-      .from(exercises)
-      .where(eq(exercises.kind, "mcq"))
-      .groupBy(exercises.lessonId),
-    db
-      .select({
-        topicId: problemTopics.topicId,
-        outcome: codingAttempts.outcome,
-        independence: codingAttempts.independence,
-        executionMode: codingAttempts.executionMode,
-        hintsUsed: codingAttempts.hintsUsed,
-        durationSeconds: codingAttempts.durationSeconds,
-        createdAt: codingAttempts.createdAt,
-      })
-      .from(codingAttempts)
-      .innerJoin(problemTopics, eq(problemTopics.problemId, codingAttempts.problemId))
-      .where(and(eq(codingAttempts.userId, userId), inArray(problemTopics.topicId, ids))),
-    db
-      .select({ topicId: labTopics.topicId, verifiedAt: labAttempts.verifiedAt })
-      .from(labAttempts)
-      .innerJoin(labTopics, eq(labTopics.labId, labAttempts.labId))
-      .where(and(eq(labAttempts.userId, userId), eq(labAttempts.status, "verified"), inArray(labTopics.topicId, ids))),
-    db.select({ topicId: labTopics.topicId }).from(labTopics).where(inArray(labTopics.topicId, ids)),
-    db
-      .select({ topicId: reviewCards.topicId, grade: reviewLogs.grade, at: reviewLogs.reviewedAt })
-      .from(reviewLogs)
-      .innerJoin(reviewSchedules, eq(reviewSchedules.id, reviewLogs.scheduleId))
-      .innerJoin(reviewCards, eq(reviewCards.id, reviewSchedules.cardId))
-      .where(and(eq(reviewSchedules.userId, userId), inArray(reviewCards.topicId, ids))),
-    db
-      .select({ topicId: reviewCards.topicId, dueOn: reviewSchedules.dueOn })
-      .from(reviewSchedules)
-      .innerJoin(reviewCards, eq(reviewCards.id, reviewSchedules.cardId))
-      .where(and(eq(reviewSchedules.userId, userId), eq(reviewCards.suspended, false), inArray(reviewCards.topicId, ids))),
-    db
-      .select({ topicId: interviewTopics.topicId, score: interviewTopics.score, at: mockInterviews.endedAt })
-      .from(interviewTopics)
-      .innerJoin(mockInterviews, eq(mockInterviews.id, interviewTopics.interviewId))
-      .where(and(eq(mockInterviews.userId, userId), inArray(interviewTopics.topicId, ids))),
-  ]);
+  const [reads, exAttempts, quizCounts, coding, labs, labExists, reviews, schedules, interviews] =
+    await Promise.all([
+      db
+        .select({ topicId: lessons.topicId, readAt: lessonProgress.readAt })
+        .from(lessonProgress)
+        .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+        .where(
+          and(
+            eq(lessonProgress.userId, userId),
+            isNotNull(lessonProgress.readAt),
+            inArray(lessons.topicId, ids),
+          ),
+        ),
+      db
+        .select({
+          topicId: lessons.topicId,
+          lessonId: lessons.id,
+          exerciseId: exerciseAttempts.exerciseId,
+          kind: exercises.kind,
+          score: exerciseAttempts.score,
+          isCorrect: exerciseAttempts.isCorrect,
+          interviewMode: exerciseAttempts.interviewMode,
+          createdAt: exerciseAttempts.createdAt,
+        })
+        .from(exerciseAttempts)
+        .innerJoin(exercises, eq(exercises.id, exerciseAttempts.exerciseId))
+        .innerJoin(lessons, eq(lessons.id, exercises.lessonId))
+        .where(and(eq(exerciseAttempts.userId, userId), inArray(lessons.topicId, ids))),
+      db
+        .select({ lessonId: exercises.lessonId, n: sql<number>`count(*)::int` })
+        .from(exercises)
+        .where(eq(exercises.kind, "mcq"))
+        .groupBy(exercises.lessonId),
+      db
+        .select({
+          topicId: problemTopics.topicId,
+          outcome: codingAttempts.outcome,
+          independence: codingAttempts.independence,
+          executionMode: codingAttempts.executionMode,
+          hintsUsed: codingAttempts.hintsUsed,
+          durationSeconds: codingAttempts.durationSeconds,
+          createdAt: codingAttempts.createdAt,
+        })
+        .from(codingAttempts)
+        .innerJoin(problemTopics, eq(problemTopics.problemId, codingAttempts.problemId))
+        .where(and(eq(codingAttempts.userId, userId), inArray(problemTopics.topicId, ids))),
+      db
+        .select({ topicId: labTopics.topicId, verifiedAt: labAttempts.verifiedAt })
+        .from(labAttempts)
+        .innerJoin(labTopics, eq(labTopics.labId, labAttempts.labId))
+        .where(
+          and(
+            eq(labAttempts.userId, userId),
+            eq(labAttempts.status, "verified"),
+            inArray(labTopics.topicId, ids),
+          ),
+        ),
+      db.select({ topicId: labTopics.topicId }).from(labTopics).where(inArray(labTopics.topicId, ids)),
+      db
+        .select({ topicId: reviewCards.topicId, grade: reviewLogs.grade, at: reviewLogs.reviewedAt })
+        .from(reviewLogs)
+        .innerJoin(reviewSchedules, eq(reviewSchedules.id, reviewLogs.scheduleId))
+        .innerJoin(reviewCards, eq(reviewCards.id, reviewSchedules.cardId))
+        .where(and(eq(reviewSchedules.userId, userId), inArray(reviewCards.topicId, ids))),
+      db
+        .select({ topicId: reviewCards.topicId, dueOn: reviewSchedules.dueOn })
+        .from(reviewSchedules)
+        .innerJoin(reviewCards, eq(reviewCards.id, reviewSchedules.cardId))
+        .where(
+          and(
+            eq(reviewSchedules.userId, userId),
+            eq(reviewCards.suspended, false),
+            inArray(reviewCards.topicId, ids),
+          ),
+        ),
+      db
+        .select({
+          topicId: interviewTopics.topicId,
+          score: interviewTopics.score,
+          at: mockInterviews.endedAt,
+        })
+        .from(interviewTopics)
+        .innerJoin(mockInterviews, eq(mockInterviews.id, interviewTopics.interviewId))
+        .where(and(eq(mockInterviews.userId, userId), inArray(interviewTopics.topicId, ids))),
+    ]);
 
   const quizSize = new Map(quizCounts.map((q) => [q.lessonId, q.n]));
   const hasLab = new Set(labExists.map((l) => l.topicId));
@@ -116,7 +139,8 @@ export async function recomputeTopicProgress(topicIds?: number[]): Promise<void>
   const rows = topicRows.map((t) => {
     const events: Event[] = [];
     let readAt: Date | null = null;
-    for (const r of reads) if (r.topicId === t.id && r.readAt && (!readAt || r.readAt > readAt)) readAt = r.readAt;
+    for (const r of reads)
+      if (r.topicId === t.id && r.readAt && (!readAt || r.readAt > readAt)) readAt = r.readAt;
 
     // Quiz: latest answer per question; recognized when every question has an answer and ≥ 70% are correct.
     let recognizedAt: Date | null = null;
@@ -127,11 +151,13 @@ export async function recomputeTopicProgress(topicIds?: number[]): Promise<void>
       if (a.kind === "mcq") {
         events.push({ at: a.createdAt, correct: a.isCorrect });
         const prev = latestByExercise.get(a.exerciseId);
-        if (!prev || a.createdAt > prev.at) latestByExercise.set(a.exerciseId, { correct: a.isCorrect, at: a.createdAt, lessonId: a.lessonId });
+        if (!prev || a.createdAt > prev.at)
+          latestByExercise.set(a.exerciseId, { correct: a.isCorrect, at: a.createdAt, lessonId: a.lessonId });
       } else {
         const passed = a.score >= EXPLAIN_PASS;
         events.push({ at: a.createdAt, correct: passed });
-        if (passed && a.interviewMode && (!explainedAt || a.createdAt > explainedAt)) explainedAt = a.createdAt;
+        if (passed && a.interviewMode && (!explainedAt || a.createdAt > explainedAt))
+          explainedAt = a.createdAt;
       }
     }
     const perLesson = new Map<number, { answered: number; correct: number; last: Date }>();
@@ -171,13 +197,20 @@ export async function recomputeTopicProgress(topicIds?: number[]): Promise<void>
         solveTotal += c.durationSeconds;
         solveCount++;
       }
-      if (c.outcome === "passed" && c.independence === "independent" && executed && (!implementedAt || c.createdAt > implementedAt)) {
+      if (
+        c.outcome === "passed" &&
+        c.independence === "independent" &&
+        executed &&
+        (!implementedAt || c.createdAt > implementedAt)
+      ) {
         implementedAt = c.createdAt;
       }
     }
 
     let labVerifiedAt: Date | null = null;
-    for (const l of labs) if (l.topicId === t.id && l.verifiedAt && (!labVerifiedAt || l.verifiedAt > labVerifiedAt)) labVerifiedAt = l.verifiedAt;
+    for (const l of labs)
+      if (l.topicId === t.id && l.verifiedAt && (!labVerifiedAt || l.verifiedAt > labVerifiedAt))
+        labVerifiedAt = l.verifiedAt;
 
     for (const iv of interviews) {
       if (iv.topicId !== t.id || !iv.at) continue;

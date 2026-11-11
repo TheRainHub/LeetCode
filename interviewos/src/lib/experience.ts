@@ -34,8 +34,10 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
     q: {
       id: "kw-false-negatives",
       category: "deep-dive",
-      question: "How did you evaluate the system's reliability — in particular false negatives? Why do false negatives matter so much in this domain?",
-      lookFor: "A concrete evaluation setup (dataset, labels, what counted as a miss), precision vs recall trade-off, why a missed true positive is costly, honest limits of a small experiment.",
+      question:
+        "How did you evaluate the system's reliability — in particular false negatives? Why do false negatives matter so much in this domain?",
+      lookFor:
+        "A concrete evaluation setup (dataset, labels, what counted as a miss), precision vs recall trade-off, why a missed true positive is costly, honest limits of a small experiment.",
     },
   },
   {
@@ -43,8 +45,10 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
     q: {
       id: "kw-llm-structure",
       category: "technical",
-      question: "How did you constrain the LLM agent's behaviour and output so results were usable and verifiable?",
-      lookFor: "Structured outputs/schemas, tool boundaries, grounding in repository evidence, handling of uncertainty, prompt-injection awareness, human review.",
+      question:
+        "How did you constrain the LLM agent's behaviour and output so results were usable and verifiable?",
+      lookFor:
+        "Structured outputs/schemas, tool boundaries, grounding in repository evidence, handling of uncertainty, prompt-injection awareness, human review.",
     },
   },
   {
@@ -52,8 +56,10 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
     q: {
       id: "kw-repo-exploration",
       category: "technical",
-      question: "How did the agent explore the repository, and how did you keep that exploration efficient and safe?",
-      lookFor: "Which tools/actions were available, limits on scope, how relevant code was found, read-only boundaries.",
+      question:
+        "How did the agent explore the repository, and how did you keep that exploration efficient and safe?",
+      lookFor:
+        "Which tools/actions were available, limits on scope, how relevant code was found, read-only boundaries.",
     },
   },
   {
@@ -61,8 +67,10 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
     q: {
       id: "kw-flags-rollout",
       category: "technical",
-      question: "How did the feature flag integration support safe rollout, and what happens when the flag service is unavailable?",
-      lookFor: "Gradual rollout/targeting, default values and fallbacks, caching of flag state, testing both branches, cleanup of stale flags.",
+      question:
+        "How did the feature flag integration support safe rollout, and what happens when the flag service is unavailable?",
+      lookFor:
+        "Gradual rollout/targeting, default values and fallbacks, caching of flag state, testing both branches, cleanup of stale flags.",
     },
   },
   {
@@ -71,7 +79,8 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
       id: "kw-hashing-privacy",
       category: "deep-dive",
       question: "Why were identifiers hashed, and what privacy guarantees does hashing give — and not give?",
-      lookFor: "Stable bucketing vs PII exposure, salts, hashing is not anonymisation for small ID spaces, what data leaves the system.",
+      lookFor:
+        "Stable bucketing vs PII exposure, salts, hashing is not anonymisation for small ID spaces, what data leaves the system.",
     },
   },
   {
@@ -79,8 +88,10 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
     q: {
       id: "kw-backstage-plugins",
       category: "technical",
-      question: "How is a Backstage plugin structured, and how did your work fit into the portal's architecture?",
-      lookFor: "Frontend/backend plugins, routing and extension points, data sources (catalog, APIs), how changes were tested and shipped.",
+      question:
+        "How is a Backstage plugin structured, and how did your work fit into the portal's architecture?",
+      lookFor:
+        "Frontend/backend plugins, routing and extension points, data sources (catalog, APIs), how changes were tested and shipped.",
     },
   },
   {
@@ -89,7 +100,8 @@ const KEYWORD_QUESTIONS: { match: RegExp; q: GeneratedQuestion }[] = [
       id: "kw-migration",
       category: "decision",
       question: "How did you plan the migration so developers weren't disrupted?",
-      lookFor: "Incremental steps, compatibility period, communication, rollback plan, how success was verified.",
+      lookFor:
+        "Incremental steps, compatibility period, communication, rollback plan, how success was verified.",
     },
   },
   {
@@ -110,7 +122,8 @@ export function generateProjectQuestions(p: ProjectText): GeneratedQuestion[] {
       id: "overview",
       category: "overview",
       question: `Walk me through ${t}. What problem did it solve, and for whom?`,
-      lookFor: "Context in two sentences, the problem, who benefited, your role — then stop and let the interviewer pick a direction.",
+      lookFor:
+        "Context in two sentences, the problem, who benefited, your role — then stop and let the interviewer pick a direction.",
       needsField: p.problem.trim() ? undefined : "problem",
     },
     {
@@ -124,7 +137,8 @@ export function generateProjectQuestions(p: ProjectText): GeneratedQuestion[] {
       id: "architecture",
       category: "technical",
       question: `Sketch the architecture of ${t}. Where are the main components, boundaries and data flows?`,
-      lookFor: "Components and their responsibilities, how data moves, external dependencies, where failures can happen.",
+      lookFor:
+        "Components and their responsibilities, how data moves, external dependencies, where failures can happen.",
       needsField: p.architecture.trim() ? undefined : "architecture",
     },
     {
@@ -152,7 +166,8 @@ export function generateProjectQuestions(p: ProjectText): GeneratedQuestion[] {
       id: "impact",
       category: "impact",
       question: `How do you know ${t} was successful? What evidence do you have?`,
-      lookFor: "Only real evidence — usage, feedback, measurements you actually took. If there are no metrics, say so and explain how you would measure it.",
+      lookFor:
+        "Only real evidence — usage, feedback, measurements you actually took. If there are no metrics, say so and explain how you would measure it.",
       needsField: p.result.trim() ? undefined : "result",
     },
     {
@@ -163,13 +178,35 @@ export function generateProjectQuestions(p: ProjectText): GeneratedQuestion[] {
       needsField: p.lessonsLearned.trim() ? undefined : "lessonsLearned",
     },
   ];
-  const corpus = [p.title, p.problem, p.context, p.responsibility, p.architecture, p.decisions, p.tradeoffs, p.challenges, p.result, p.lessonsLearned, ...p.techStack].join(" ");
+  const corpus = [
+    p.title,
+    p.problem,
+    p.context,
+    p.responsibility,
+    p.architecture,
+    p.decisions,
+    p.tradeoffs,
+    p.challenges,
+    p.result,
+    p.lessonsLearned,
+    ...p.techStack,
+  ].join(" ");
   for (const k of KEYWORD_QUESTIONS) if (k.match.test(corpus)) qs.push(k.q);
   return qs;
 }
 
 /** Fraction of narrative fields filled in (used to nudge the user to complete projects). */
 export function projectCompleteness(p: ProjectText): number {
-  const fields: (keyof ProjectText)[] = ["problem", "context", "responsibility", "architecture", "decisions", "tradeoffs", "challenges", "result", "lessonsLearned"];
+  const fields: (keyof ProjectText)[] = [
+    "problem",
+    "context",
+    "responsibility",
+    "architecture",
+    "decisions",
+    "tradeoffs",
+    "challenges",
+    "result",
+    "lessonsLearned",
+  ];
   return fields.filter((f) => String(p[f]).trim().length > 0).length / fields.length;
 }

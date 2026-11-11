@@ -87,7 +87,12 @@ export function placeTasks(tasks: readonly PlaceableTask[], opts: PlacementOptio
 
     used[chosen] = (used[chosen] ?? 0) + t.minutes;
     cursor = chosen;
-    placements.push({ id: t.id, date: chosen, overCapacity, moved: t.date !== undefined && t.date !== chosen });
+    placements.push({
+      id: t.id,
+      date: chosen,
+      overCapacity,
+      moved: t.date !== undefined && t.date !== chosen,
+    });
   }
 
   return placements;

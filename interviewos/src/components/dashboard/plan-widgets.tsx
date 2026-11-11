@@ -34,7 +34,12 @@ export function TaskRow({ task, showSession = true }: { task: PlanTask; showSess
       if (!res.ok) toast.error(res.error);
     });
   return (
-    <li className={cn("group flex items-center gap-3 rounded-md px-2 py-1.5 hover:bg-surface-2", pending && "opacity-60")}>
+    <li
+      className={cn(
+        "group hover:bg-surface-2 flex items-center gap-3 rounded-md px-2 py-1.5",
+        pending && "opacity-60",
+      )}
+    >
       <button
         type="button"
         onClick={toggle}
@@ -51,22 +56,29 @@ export function TaskRow({ task, showSession = true }: { task: PlanTask; showSess
       <div className="min-w-0 flex-1">
         <Link
           href={taskHref(task.kind as TaskKind, task.refSlug)}
-          className={cn("block truncate text-sm hover:text-primary", done && "text-muted-foreground line-through")}
+          className={cn(
+            "hover:text-primary block truncate text-sm",
+            done && "text-muted-foreground line-through",
+          )}
         >
           {task.title}
         </Link>
-        {showSession ? <p className="truncate text-[11px] text-subtle-foreground">{task.sessionTitle}</p> : null}
+        {showSession ? (
+          <p className="text-subtle-foreground truncate text-[11px]">{task.sessionTitle}</p>
+        ) : null}
       </div>
       {task.timesMoved > 0 ? <Badge tone="warning">{m.dashboard.plan.carried}</Badge> : null}
       {task.overCapacity ? (
         <Tooltip content={m.dashboard.plan.overCapacity}>
-          <TriangleAlert className="size-3.5 text-warning" aria-label={m.dashboard.plan.overCapacity} />
+          <TriangleAlert className="text-warning size-3.5" aria-label={m.dashboard.plan.overCapacity} />
         </Tooltip>
       ) : null}
-      <span className="shrink-0 text-xs tabular-nums text-subtle-foreground">{m.common.minutes(task.minutes)}</span>
+      <span className="text-subtle-foreground shrink-0 text-xs tabular-nums">
+        {m.common.minutes(task.minutes)}
+      </span>
       <Link
         href={taskHref(task.kind as TaskKind, task.refSlug)}
-        className="text-subtle-foreground opacity-0 group-hover:opacity-100 hover:text-foreground"
+        className="text-subtle-foreground hover:text-foreground opacity-0 group-hover:opacity-100"
         aria-label={m.common.actions.open}
       >
         <ExternalLink className="size-3.5" />

@@ -3,12 +3,19 @@ import { defineMessages } from "../define";
 export const knowledge = defineMessages(
   {
     title: "Knowledge Base",
-    description: "Every topic with its evidence-based status, accuracy and next review. Search the full text of all lessons.",
+    description:
+      "Every topic with its evidence-based status, accuracy and next review. Search the full text of all lessons.",
     search: "Search lessons and topics…",
     area: "Area",
     results: (n: number) => `${n} result(s)`,
     noResults: "Nothing matches your search.",
-    columns: { topic: "Topic", status: "Status", accuracy: "Accuracy", review: "Next review", priority: "Priority" },
+    columns: {
+      topic: "Topic",
+      status: "Status",
+      accuracy: "Accuracy",
+      review: "Next review",
+      priority: "Priority",
+    },
     areas: {
       dsa: "Algorithms & DS",
       java: "Java",
@@ -23,12 +30,19 @@ export const knowledge = defineMessages(
   },
   {
     title: "База знаний",
-    description: "Все темы со статусом по фактам, точностью и датой следующего повторения. Поиск по полному тексту уроков.",
+    description:
+      "Все темы со статусом по фактам, точностью и датой следующего повторения. Поиск по полному тексту уроков.",
     search: "Поиск по урокам и темам…",
     area: "Область",
     results: (n: number) => `Найдено: ${n}`,
     noResults: "Ничего не найдено.",
-    columns: { topic: "Тема", status: "Статус", accuracy: "Точность", review: "Повторение", priority: "Приоритет" },
+    columns: {
+      topic: "Тема",
+      status: "Статус",
+      accuracy: "Точность",
+      review: "Повторение",
+      priority: "Приоритет",
+    },
     areas: {
       dsa: "Алгоритмы и СД",
       java: "Java",

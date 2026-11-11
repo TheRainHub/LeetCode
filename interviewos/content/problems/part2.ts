@@ -17,7 +17,11 @@ A substring is a contiguous, non-empty sequence of characters (the empty string 
   examples: [
     { input: 's = "abcabcbb"', output: "3", explanation: 'The answer is "abc".' },
     { input: 's = "bbbbb"', output: "1" },
-    { input: 's = "pwwkew"', output: "3", explanation: '"wke" — note "pwke" is a subsequence, not a substring.' },
+    {
+      input: 's = "pwwkew"',
+      output: "3",
+      explanation: '"wke" — note "pwke" is a subsequence, not a substring.',
+    },
   ],
   hints: [
     "Brute force checks every substring. Once s[i..j] contains a duplicate, can any longer substring starting at i be valid?",
@@ -91,7 +95,7 @@ class Solution:
 `,
   },
   edgeCases: [
-    'Empty string → 0',
+    "Empty string → 0",
     'Single space " " → 1',
     '"abba" — stale index must not move left backwards',
     '"dvdf" → 3 ("vdf") — restarting from scratch after a duplicate is wrong',
@@ -99,7 +103,8 @@ class Solution:
   ],
   expectedTime: "O(n)",
   expectedSpace: "O(min(n, Σ))",
-  complexityNotes: "Each character is processed once; the map holds at most one entry per distinct character.",
+  complexityNotes:
+    "Each character is processed once; the map holds at most one entry per distinct character.",
   commonMistakes: [
     "Resetting the window to start after `right` instead of after the previous occurrence ('dvdf').",
     "Moving left backwards when the previous occurrence is outside the window ('abba').",
@@ -138,7 +143,11 @@ export const groupAnagrams: ProblemDef = {
   statement: `Given an array of strings \`strs\`, group the **anagrams** together. You can return the groups in any order, and the words inside each group in any order.
 
 An anagram is a word formed by rearranging all the letters of another word exactly once.`,
-  constraints: ["1 ≤ strs.length ≤ 10⁴", "0 ≤ strs[i].length ≤ 100", "strs[i] consists of lowercase English letters"],
+  constraints: [
+    "1 ≤ strs.length ≤ 10⁴",
+    "0 ≤ strs[i].length ≤ 100",
+    "strs[i] consists of lowercase English letters",
+  ],
   examples: [
     {
       input: 'strs = ["eat","tea","tan","ate","nat","bat"]',
@@ -245,7 +254,9 @@ class Solution:
       expected: [["ddddddddddg"], ["dgggggggggg"]],
     },
   ],
-  externalLinks: [{ title: "LeetCode 49 — Group Anagrams", url: "https://leetcode.com/problems/group-anagrams/" }],
+  externalLinks: [
+    { title: "LeetCode 49 — Group Anagrams", url: "https://leetcode.com/problems/group-anagrams/" },
+  ],
 };
 
 export const mergeIntervals: ProblemDef = {
@@ -350,15 +361,85 @@ class Solution:
   signature: { method: "merge", params: [{ name: "intervals", type: "int[][]" }], returns: "int[][]" },
   comparator: "unorderedList",
   tests: [
-    { name: "example 1", args: [[[1, 3], [2, 6], [8, 10], [15, 18]]], expected: [[1, 6], [8, 10], [15, 18]] },
-    { name: "touching", args: [[[1, 4], [4, 5]]], expected: [[1, 5]] },
-    { name: "same end", args: [[[1, 4], [0, 4]]], expected: [[0, 4]] },
-    { name: "contained", args: [[[1, 4], [2, 3]]], expected: [[1, 4]] },
+    {
+      name: "example 1",
+      args: [
+        [
+          [1, 3],
+          [2, 6],
+          [8, 10],
+          [15, 18],
+        ],
+      ],
+      expected: [
+        [1, 6],
+        [8, 10],
+        [15, 18],
+      ],
+    },
+    {
+      name: "touching",
+      args: [
+        [
+          [1, 4],
+          [4, 5],
+        ],
+      ],
+      expected: [[1, 5]],
+    },
+    {
+      name: "same end",
+      args: [
+        [
+          [1, 4],
+          [0, 4],
+        ],
+      ],
+      expected: [[0, 4]],
+    },
+    {
+      name: "contained",
+      args: [
+        [
+          [1, 4],
+          [2, 3],
+        ],
+      ],
+      expected: [[1, 4]],
+    },
     { name: "single", args: [[[1, 4]]], expected: [[1, 4]] },
-    { name: "unsorted disjoint", args: [[[5, 6], [1, 2], [3, 4]]], expected: [[1, 2], [3, 4], [5, 6]] },
-    { name: "one covers all", args: [[[2, 3], [4, 5], [6, 7], [8, 9], [1, 10]]], expected: [[1, 10]] },
+    {
+      name: "unsorted disjoint",
+      args: [
+        [
+          [5, 6],
+          [1, 2],
+          [3, 4],
+        ],
+      ],
+      expected: [
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ],
+    },
+    {
+      name: "one covers all",
+      args: [
+        [
+          [2, 3],
+          [4, 5],
+          [6, 7],
+          [8, 9],
+          [1, 10],
+        ],
+      ],
+      expected: [[1, 10]],
+    },
   ],
-  externalLinks: [{ title: "LeetCode 56 — Merge Intervals", url: "https://leetcode.com/problems/merge-intervals/" }],
+  externalLinks: [
+    { title: "LeetCode 56 — Merge Intervals", url: "https://leetcode.com/problems/merge-intervals/" },
+  ],
 };
 
 export const numberOfIslands: ProblemDef = {
@@ -377,11 +458,13 @@ An island is a group of land cells connected **horizontally or vertically** (not
   constraints: ["1 ≤ m, n ≤ 300", "grid[i][j] is '0' or '1'"],
   examples: [
     {
-      input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]',
+      input:
+        'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]',
       output: "1",
     },
     {
-      input: 'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]',
+      input:
+        'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]',
       output: "3",
     },
   ],
@@ -536,10 +619,30 @@ class Solution:
     { name: "single land", args: [[["1"]]], expected: 1 },
     { name: "single water", args: [[["0"]]], expected: 0 },
     { name: "one row", args: [[["1", "0", "1", "0", "1"]]], expected: 3 },
-    { name: "diagonal", args: [[["1", "0"], ["0", "1"]]], expected: 2 },
-    { name: "full block", args: [[["1", "1"], ["1", "1"]]], expected: 1 },
+    {
+      name: "diagonal",
+      args: [
+        [
+          ["1", "0"],
+          ["0", "1"],
+        ],
+      ],
+      expected: 2,
+    },
+    {
+      name: "full block",
+      args: [
+        [
+          ["1", "1"],
+          ["1", "1"],
+        ],
+      ],
+      expected: 1,
+    },
   ],
-  externalLinks: [{ title: "LeetCode 200 — Number of Islands", url: "https://leetcode.com/problems/number-of-islands/" }],
+  externalLinks: [
+    { title: "LeetCode 200 — Number of Islands", url: "https://leetcode.com/problems/number-of-islands/" },
+  ],
 };
 
 export const topKFrequent: ProblemDef = {
@@ -555,7 +658,12 @@ export const topKFrequent: ProblemDef = {
   statement: `Given an integer array \`nums\` and an integer \`k\`, return the \`k\` most frequent elements. You may return the answer in **any order**.
 
 It is guaranteed that the answer is unique.`,
-  constraints: ["1 ≤ nums.length ≤ 10⁵", "−10⁴ ≤ nums[i] ≤ 10⁴", "1 ≤ k ≤ number of distinct elements", "Follow-up: better than O(n log n)"],
+  constraints: [
+    "1 ≤ nums.length ≤ 10⁵",
+    "−10⁴ ≤ nums[i] ≤ 10⁴",
+    "1 ≤ k ≤ number of distinct elements",
+    "Follow-up: better than O(n log n)",
+  ],
   examples: [
     { input: "nums = [1,1,1,2,2,3], k = 2", output: "[1,2]" },
     { input: "nums = [1], k = 1", output: "[1]" },
@@ -658,5 +766,10 @@ class Solution:
     { name: "dominant", args: [[5, 5, 5, 6, 6, 7, 7, 7, 7], 1], expected: [7] },
     { name: "zeros", args: [[3, 0, 1, 0], 1], expected: [0] },
   ],
-  externalLinks: [{ title: "LeetCode 347 — Top K Frequent Elements", url: "https://leetcode.com/problems/top-k-frequent-elements/" }],
+  externalLinks: [
+    {
+      title: "LeetCode 347 — Top K Frequent Elements",
+      url: "https://leetcode.com/problems/top-k-frequent-elements/",
+    },
+  ],
 };

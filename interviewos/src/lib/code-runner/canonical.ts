@@ -39,7 +39,8 @@ export function canonicalJson(value: unknown, comparator: Comparator): string {
   let n = normalize(value);
   if (Array.isArray(n)) {
     if (comparator === "unorderedList") n = sortByJson(n);
-    if (comparator === "unorderedNested") n = sortByJson(n.map((inner) => (Array.isArray(inner) ? sortByJson(inner) : inner)));
+    if (comparator === "unorderedNested")
+      n = sortByJson(n.map((inner) => (Array.isArray(inner) ? sortByJson(inner) : inner)));
   }
   return toJson(n);
 }

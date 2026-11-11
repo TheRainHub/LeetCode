@@ -3,7 +3,12 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { and, asc, desc, eq, gt, max } from "drizzle-orm";
 import { AiRefusalError, fallbackOptions, getAnthropic } from "@/lib/ai/client";
-import { buildEvaluatorSystemPrompt, buildTranscript, EvaluationSchema, sanitizeEvaluation } from "@/lib/ai/evaluation";
+import {
+  buildEvaluatorSystemPrompt,
+  buildTranscript,
+  EvaluationSchema,
+  sanitizeEvaluation,
+} from "@/lib/ai/evaluation";
 import { buildInterviewerSystemPrompt, OPENING_MESSAGE, type InterviewType } from "@/lib/ai/interviewer";
 import { db } from "@/lib/db";
 import {
@@ -84,13 +89,22 @@ export async function createInterview(input: {
 
 export async function getInterview(id: number) {
   const [row] = await db
-    .select({ interview: mockInterviews, companyName: companies.name, companySlug: companies.slug, companyRole: companies.role })
+    .select({
+      interview: mockInterviews,
+      companyName: companies.name,
+      companySlug: companies.slug,
+      companyRole: companies.role,
+    })
     .from(mockInterviews)
     .leftJoin(companies, eq(companies.id, mockInterviews.companyId))
     .where(and(eq(mockInterviews.id, id), eq(mockInterviews.userId, getCurrentUserId())));
   if (!row) return null;
   const [messages, evaluation] = await Promise.all([
-    db.select().from(interviewMessages).where(eq(interviewMessages.interviewId, id)).orderBy(asc(interviewMessages.seq)),
+    db
+      .select()
+      .from(interviewMessages)
+      .where(eq(interviewMessages.interviewId, id))
+      .orderBy(asc(interviewMessages.seq)),
     db.select().from(interviewEvaluations).where(eq(interviewEvaluations.interviewId, id)),
   ]);
   return { ...row, messages, evaluation: evaluation[0] ?? null };
@@ -117,16 +131,31 @@ export async function listInterviews() {
 }
 
 async function nextSeq(interviewId: number) {
-  const [r] = await db.select({ m: max(interviewMessages.seq) }).from(interviewMessages).where(eq(interviewMessages.interviewId, interviewId));
+  const [r] = await db
+    .select({ m: max(interviewMessages.seq) })
+    .from(interviewMessages)
+    .where(eq(interviewMessages.interviewId, interviewId));
   return (r?.m ?? -1) + 1;
 }
 
-export async function appendUserMessage(interviewId: number, content: string, kind: "normal" | "hint_request" | "opening") {
+export async function appendUserMessage(
+  interviewId: number,
+  content: string,
+  kind: "normal" | "hint_request" | "opening",
+) {
   const seq = await nextSeq(interviewId);
-  await db.insert(interviewMessages).values({ interviewId, seq, role: "user", kind, content, apiContent: content });
+  await db
+    .insert(interviewMessages)
+    .values({ interviewId, seq, role: "user", kind, content, apiContent: content });
   if (kind === "hint_request") {
-    const [iv] = await db.select({ h: mockInterviews.hintsRequested }).from(mockInterviews).where(eq(mockInterviews.id, interviewId));
-    await db.update(mockInterviews).set({ hintsRequested: (iv?.h ?? 0) + 1 }).where(eq(mockInterviews.id, interviewId));
+    const [iv] = await db
+      .select({ h: mockInterviews.hintsRequested })
+      .from(mockInterviews)
+      .where(eq(mockInterviews.id, interviewId));
+    await db
+      .update(mockInterviews)
+      .set({ hintsRequested: (iv?.h ?? 0) + 1 })
+      .where(eq(mockInterviews.id, interviewId));
   }
 }
 
@@ -143,7 +172,8 @@ export async function streamInterviewerReply(
   if (!data) throw new Error("Interview not found");
   const { interview, messages } = data;
   if (interview.status !== "in_progress") throw new Error("This interview has ended.");
-  if (messages.length >= MAX_MESSAGES) throw new Error("This interview has reached its message limit. End it to get your evaluation.");
+  if (messages.length >= MAX_MESSAGES)
+    throw new Error("This interview has reached its message limit. End it to get your evaluation.");
 
   type AssistantContent = Extract<Anthropic.Beta.BetaMessageParam, { role: "assistant" }>["content"];
   type UserContent = Extract<Anthropic.Beta.BetaMessageParam, { role: "user" }>["content"];
@@ -187,7 +217,8 @@ export async function streamInterviewerReply(
     inputTokens: final.usage.input_tokens,
     outputTokens: final.usage.output_tokens,
   });
-  if (interview.lastError) await db.update(mockInterviews).set({ lastError: null }).where(eq(mockInterviews.id, interviewId));
+  if (interview.lastError)
+    await db.update(mockInterviews).set({ lastError: null }).where(eq(mockInterviews.id, interviewId));
   log.info("interview", "reply", {
     id: interviewId,
     input: final.usage.input_tokens,
@@ -218,17 +249,23 @@ export async function evaluateInterview(interviewId: number) {
   if (data.evaluation) return data.evaluation;
 
   const candidateTurns = messages.filter((m) => m.role === "user" && m.kind !== "opening").length;
-  if (candidateTurns < 2) throw new Error("Not enough conversation to evaluate yet — answer at least two questions first.");
+  if (candidateTurns < 2)
+    throw new Error("Not enough conversation to evaluate yet — answer at least two questions first.");
 
   const endedAt = interview.endedAt ?? new Date();
-  await db.update(mockInterviews).set({ status: "evaluating", endedAt }).where(eq(mockInterviews.id, interviewId));
+  await db
+    .update(mockInterviews)
+    .set({ status: "evaluating", endedAt })
+    .where(eq(mockInterviews.id, interviewId));
 
   const [topicRows, problemRows] = await Promise.all([
     db.select({ slug: topics.slug, title: topics.title }).from(topics).orderBy(asc(topics.slug)),
     db.select({ slug: codingProblems.slug, title: codingProblems.title }).from(codingProblems),
   ]);
   const actualMinutes = Math.max(1, Math.round((endedAt.getTime() - interview.startedAt.getTime()) / 60000));
-  const transcript = buildTranscript(messages.map((m) => ({ role: m.role, content: m.content, kind: m.kind })));
+  const transcript = buildTranscript(
+    messages.map((m) => ({ role: m.role, content: m.content, kind: m.kind })),
+  );
   const metadata = [
     `Interview type: ${interview.type}; difficulty: ${interview.difficulty}; language: ${interview.language}`,
     data.companyName ? `Target: ${data.companyRole} at ${data.companyName}` : "Target: general practice",
@@ -242,7 +279,10 @@ export async function evaluateInterview(interviewId: number) {
       max_tokens: env().ANTHROPIC_MAX_TOKENS_EVALUATION,
       ...fallbackOptions(),
       thinking: { type: "adaptive" },
-      output_config: { effort: env().ANTHROPIC_EFFORT_EVALUATION, format: betaZodOutputFormat(EvaluationSchema) },
+      output_config: {
+        effort: env().ANTHROPIC_EFFORT_EVALUATION,
+        format: betaZodOutputFormat(EvaluationSchema),
+      },
       system: buildEvaluatorSystemPrompt(),
       messages: [
         {
@@ -252,14 +292,19 @@ export async function evaluateInterview(interviewId: number) {
       ],
     });
     if (response.stop_reason === "refusal") throw new AiRefusalError(response.stop_details?.explanation);
-    if (response.stop_reason === "max_tokens") throw new Error("The evaluation was cut off (token limit). Raise ANTHROPIC_MAX_TOKENS_EVALUATION and retry.");
+    if (response.stop_reason === "max_tokens")
+      throw new Error(
+        "The evaluation was cut off (token limit). Raise ANTHROPIC_MAX_TOKENS_EVALUATION and retry.",
+      );
     if (!response.parsed_output) throw new Error("The evaluation could not be parsed. Retry.");
 
     const ev = sanitizeEvaluation(response.parsed_output, {
       topicSlugs: new Set(topicRows.map((t) => t.slug)),
       problemSlugs: new Set(problemRows.map((p) => p.slug)),
     });
-    const topicId = new Map((await db.select({ id: topics.id, slug: topics.slug }).from(topics)).map((t) => [t.slug, t.id]));
+    const topicId = new Map(
+      (await db.select({ id: topics.id, slug: topics.slug }).from(topics)).map((t) => [t.slug, t.id]),
+    );
 
     const [saved] = await db.transaction(async (tx) => {
       const rows = await tx
@@ -280,32 +325,48 @@ export async function evaluateInterview(interviewId: number) {
         })
         .returning();
       for (const t of ev.coveredTopics) {
-        await tx.insert(interviewTopics).values({ interviewId, topicId: topicId.get(t.topicSlug)!, score: t.score }).onConflictDoNothing();
+        await tx
+          .insert(interviewTopics)
+          .values({ interviewId, topicId: topicId.get(t.topicSlug)!, score: t.score })
+          .onConflictDoNothing();
       }
-      await tx.update(mockInterviews).set({ status: "completed", lastError: null }).where(eq(mockInterviews.id, interviewId));
+      await tx
+        .update(mockInterviews)
+        .set({ status: "completed", lastError: null })
+        .where(eq(mockInterviews.id, interviewId));
       return rows;
     });
 
     for (const [i, card] of ev.spacedRepetition.entries()) {
       await createCard({
-        topicId: card.topicSlug ? topicId.get(card.topicSlug) ?? null : null,
+        topicId: card.topicSlug ? (topicId.get(card.topicSlug) ?? null) : null,
         prompt: card.prompt,
         answer: card.answer,
         source: "interview",
         sourceRef: `interview:${interviewId}:${i}`,
       });
     }
-    const affected = [...ev.coveredTopics, ...ev.spacedRepetition.filter((c) => c.topicSlug).map((c) => ({ topicSlug: c.topicSlug! }))]
+    const affected = [
+      ...ev.coveredTopics,
+      ...ev.spacedRepetition.filter((c) => c.topicSlug).map((c) => ({ topicSlug: c.topicSlug! })),
+    ]
       .map((t) => topicId.get(t.topicSlug))
       .filter((x): x is number => x !== undefined);
     await recomputeTopicProgress([...new Set(affected)]);
     await logTime("interview", actualMinutes * 60, `interview:${interviewId}`);
     await completeMatchingTasks("mock", null);
-    log.info("interview", "evaluated", { id: interviewId, score: ev.overallScore, output: response.usage.output_tokens });
+    log.info("interview", "evaluated", {
+      id: interviewId,
+      score: ev.overallScore,
+      output: response.usage.output_tokens,
+    });
     return saved!;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await db.update(mockInterviews).set({ status: "evaluating", lastError: message.slice(0, 500) }).where(eq(mockInterviews.id, interviewId));
+    await db
+      .update(mockInterviews)
+      .set({ status: "evaluating", lastError: message.slice(0, 500) })
+      .where(eq(mockInterviews.id, interviewId));
     throw err;
   }
 }

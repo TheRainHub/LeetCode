@@ -29,7 +29,10 @@ export async function markTodayUnavailableAction(): Promise<ActionResult<{ moved
   }
 }
 
-export async function markDayUnavailableAction(input: { date: string; title?: string }): Promise<ActionResult<{ moved: number }>> {
+export async function markDayUnavailableAction(input: {
+  date: string;
+  title?: string;
+}): Promise<ActionResult<{ moved: number }>> {
   try {
     const { date, title } = z.object({ date: isoDate, title: z.string().max(120).optional() }).parse(input);
     const res = await markDayUnavailable(date, title || "Unavailable");
@@ -40,9 +43,14 @@ export async function markDayUnavailableAction(input: { date: string; title?: st
   }
 }
 
-export async function setTaskStatusAction(input: { taskId: number; status: "todo" | "done" | "skipped" }): Promise<ActionResult> {
+export async function setTaskStatusAction(input: {
+  taskId: number;
+  status: "todo" | "done" | "skipped";
+}): Promise<ActionResult> {
   try {
-    const { taskId, status } = z.object({ taskId: z.number().int().positive(), status: z.enum(["todo", "done", "skipped"]) }).parse(input);
+    const { taskId, status } = z
+      .object({ taskId: z.number().int().positive(), status: z.enum(["todo", "done", "skipped"]) })
+      .parse(input);
     await setTaskStatus(taskId, status);
     revalidatePath("/", "layout");
     return { ok: true };
@@ -62,9 +70,14 @@ export async function moveTaskAction(input: { taskId: number; date: string }): P
   }
 }
 
-export async function generatePlanAction(input: { templateKey: string; startDate: string }): Promise<ActionResult> {
+export async function generatePlanAction(input: {
+  templateKey: string;
+  startDate: string;
+}): Promise<ActionResult> {
   try {
-    const { templateKey, startDate } = z.object({ templateKey: z.string().min(1), startDate: isoDate }).parse(input);
+    const { templateKey, startDate } = z
+      .object({ templateKey: z.string().min(1), startDate: isoDate })
+      .parse(input);
     await generatePlan(templateKey, startDate);
     revalidatePath("/", "layout");
     return { ok: true };
@@ -73,7 +86,9 @@ export async function generatePlanAction(input: { templateKey: string; startDate
   }
 }
 
-export async function rescheduleAction(input: { pullForward: boolean }): Promise<ActionResult<{ moved: number }>> {
+export async function rescheduleAction(input: {
+  pullForward: boolean;
+}): Promise<ActionResult<{ moved: number }>> {
   try {
     const { pullForward } = z.object({ pullForward: z.boolean() }).parse(input);
     const res = await reschedule({ pullForward });
@@ -98,7 +113,10 @@ export async function addEventAction(input: z.input<typeof eventSchema>): Promis
     const data = eventSchema.parse(input);
     let companyId: number | null = null;
     if (data.companySlug) {
-      const [c] = await db.select({ id: companies.id }).from(companies).where(eq(companies.slug, data.companySlug));
+      const [c] = await db
+        .select({ id: companies.id })
+        .from(companies)
+        .where(eq(companies.slug, data.companySlug));
       companyId = c?.id ?? null;
     }
     await db.insert(calendarEvents).values({
@@ -121,7 +139,9 @@ export async function addEventAction(input: z.input<typeof eventSchema>): Promis
 export async function deleteEventAction(input: { id: number }): Promise<ActionResult> {
   try {
     const { id } = z.object({ id: z.number().int().positive() }).parse(input);
-    await db.delete(calendarEvents).where(and(eq(calendarEvents.id, id), eq(calendarEvents.userId, getCurrentUserId())));
+    await db
+      .delete(calendarEvents)
+      .where(and(eq(calendarEvents.id, id), eq(calendarEvents.userId, getCurrentUserId())));
     await reschedule();
     revalidatePath("/", "layout");
     return { ok: true };
@@ -136,10 +156,15 @@ const scheduleSettingsSchema = z.object({
   prioritizeUniversity: z.boolean(),
 });
 
-export async function updateScheduleSettingsAction(input: z.input<typeof scheduleSettingsSchema>): Promise<ActionResult<{ moved: number }>> {
+export async function updateScheduleSettingsAction(
+  input: z.input<typeof scheduleSettingsSchema>,
+): Promise<ActionResult<{ moved: number }>> {
   try {
     const data = scheduleSettingsSchema.parse(input);
-    await db.update(userSettings).set({ ...data, updatedAt: new Date() }).where(eq(userSettings.userId, getCurrentUserId()));
+    await db
+      .update(userSettings)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(userSettings.userId, getCurrentUserId()));
     const res = await reschedule();
     revalidatePath("/", "layout");
     return { ok: true, data: res };
@@ -176,7 +201,9 @@ export async function toggleObjectiveAction(input: { id: number; done: boolean }
 export async function deleteObjectiveAction(input: { id: number }): Promise<ActionResult> {
   try {
     const { id } = z.object({ id: z.number().int().positive() }).parse(input);
-    await db.delete(weeklyObjectives).where(and(eq(weeklyObjectives.id, id), eq(weeklyObjectives.userId, getCurrentUserId())));
+    await db
+      .delete(weeklyObjectives)
+      .where(and(eq(weeklyObjectives.id, id), eq(weeklyObjectives.userId, getCurrentUserId())));
     revalidatePath("/schedule");
     return { ok: true };
   } catch (e) {

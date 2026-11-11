@@ -4,7 +4,15 @@ import { and, eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { applicationEvents, applications, calendarEvents, companies, companyChecklistItems, companyFocusTopics, companyNotes } from "@/lib/db/schema";
+import {
+  applicationEvents,
+  applications,
+  calendarEvents,
+  companies,
+  companyChecklistItems,
+  companyFocusTopics,
+  companyNotes,
+} from "@/lib/db/schema";
 import { isISODate } from "@/lib/dates";
 import { reschedule } from "@/server/scheduler";
 import { getCurrentUserId } from "@/server/user";
@@ -23,25 +31,45 @@ function done(): Result {
   return { ok: true };
 }
 
-export async function setFocusWeightAction(input: { companyId: number; topicId: number; weight: number }): Promise<Result> {
+export async function setFocusWeightAction(input: {
+  companyId: number;
+  topicId: number;
+  weight: number;
+}): Promise<Result> {
   try {
     const d = z.object({ companyId: id, topicId: id, weight: z.number().int().min(0).max(3) }).parse(input);
     await db
       .insert(companyFocusTopics)
       .values(d)
-      .onConflictDoUpdate({ target: [companyFocusTopics.companyId, companyFocusTopics.topicId], set: { weight: d.weight } });
+      .onConflictDoUpdate({
+        target: [companyFocusTopics.companyId, companyFocusTopics.topicId],
+        set: { weight: d.weight },
+      });
     return done();
   } catch (e) {
     return fail(e);
   }
 }
 
-export async function updateCompanyAction(input: { companyId: number; role: string; overview: string; prepNotes: string }): Promise<Result> {
+export async function updateCompanyAction(input: {
+  companyId: number;
+  role: string;
+  overview: string;
+  prepNotes: string;
+}): Promise<Result> {
   try {
     const d = z
-      .object({ companyId: id, role: z.string().trim().min(2).max(200), overview: z.string().max(20000), prepNotes: z.string().max(20000) })
+      .object({
+        companyId: id,
+        role: z.string().trim().min(2).max(200),
+        overview: z.string().max(20000),
+        prepNotes: z.string().max(20000),
+      })
       .parse(input);
-    await db.update(companies).set({ role: d.role, overview: d.overview, prepNotes: d.prepNotes }).where(eq(companies.id, d.companyId));
+    await db
+      .update(companies)
+      .set({ role: d.role, overview: d.overview, prepNotes: d.prepNotes })
+      .where(eq(companies.id, d.companyId));
     return done();
   } catch (e) {
     return fail(e);
@@ -56,7 +84,9 @@ export async function addChecklistItemAction(input: { companyId: number; text: s
       .select({ m: max(companyChecklistItems.order) })
       .from(companyChecklistItems)
       .where(and(eq(companyChecklistItems.userId, userId), eq(companyChecklistItems.companyId, d.companyId)));
-    await db.insert(companyChecklistItems).values({ userId, companyId: d.companyId, text: d.text, order: (r?.m ?? -1) + 1 });
+    await db
+      .insert(companyChecklistItems)
+      .values({ userId, companyId: d.companyId, text: d.text, order: (r?.m ?? -1) + 1 });
     return done();
   } catch (e) {
     return fail(e);
@@ -79,7 +109,9 @@ export async function toggleChecklistItemAction(input: { id: number; done: boole
 export async function deleteChecklistItemAction(input: { id: number }): Promise<Result> {
   try {
     const d = z.object({ id }).parse(input);
-    await db.delete(companyChecklistItems).where(and(eq(companyChecklistItems.id, d.id), eq(companyChecklistItems.userId, getCurrentUserId())));
+    await db
+      .delete(companyChecklistItems)
+      .where(and(eq(companyChecklistItems.id, d.id), eq(companyChecklistItems.userId, getCurrentUserId())));
     return done();
   } catch (e) {
     return fail(e);
@@ -92,28 +124,50 @@ export async function saveCompanyNotesAction(input: { companyId: number; notes: 
     await db
       .insert(companyNotes)
       .values({ userId: getCurrentUserId(), ...d })
-      .onConflictDoUpdate({ target: [companyNotes.userId, companyNotes.companyId], set: { notes: d.notes, updatedAt: new Date() } });
+      .onConflictDoUpdate({
+        target: [companyNotes.userId, companyNotes.companyId],
+        set: { notes: d.notes, updatedAt: new Date() },
+      });
     return { ok: true };
   } catch (e) {
     return fail(e);
   }
 }
 
-export async function createApplicationAction(input: { companyId: number; role: string; date: string; note: string }): Promise<Result> {
+export async function createApplicationAction(input: {
+  companyId: number;
+  role: string;
+  date: string;
+  note: string;
+}): Promise<Result> {
   try {
-    const d = z.object({ companyId: id, role: z.string().trim().min(2).max(200), date: isoDate, note: z.string().max(2000) }).parse(input);
+    const d = z
+      .object({
+        companyId: id,
+        role: z.string().trim().min(2).max(200),
+        date: isoDate,
+        note: z.string().max(2000),
+      })
+      .parse(input);
     const [app] = await db
       .insert(applications)
       .values({ userId: getCurrentUserId(), companyId: d.companyId, role: d.role, stage: "applied" })
       .returning({ id: applications.id });
-    await db.insert(applicationEvents).values({ applicationId: app!.id, stage: "applied", occurredOn: d.date, note: d.note });
+    await db
+      .insert(applicationEvents)
+      .values({ applicationId: app!.id, stage: "applied", occurredOn: d.date, note: d.note });
     return done();
   } catch (e) {
     return fail(e);
   }
 }
 
-export async function updateApplicationStageAction(input: { applicationId: number; stage: string; date: string; note: string }): Promise<Result> {
+export async function updateApplicationStageAction(input: {
+  applicationId: number;
+  stage: string;
+  date: string;
+  note: string;
+}): Promise<Result> {
   try {
     const d = z.object({ applicationId: id, stage, date: isoDate, note: z.string().max(2000) }).parse(input);
     const [app] = await db
@@ -121,18 +175,42 @@ export async function updateApplicationStageAction(input: { applicationId: numbe
       .from(applications)
       .where(and(eq(applications.id, d.applicationId), eq(applications.userId, getCurrentUserId())));
     if (!app) throw new Error("Application not found");
-    await db.update(applications).set({ stage: d.stage, updatedAt: new Date() }).where(eq(applications.id, app.id));
-    await db.insert(applicationEvents).values({ applicationId: app.id, stage: d.stage, occurredOn: d.date, note: d.note });
+    await db
+      .update(applications)
+      .set({ stage: d.stage, updatedAt: new Date() })
+      .where(eq(applications.id, app.id));
+    await db
+      .insert(applicationEvents)
+      .values({ applicationId: app.id, stage: d.stage, occurredOn: d.date, note: d.note });
     return done();
   } catch (e) {
     return fail(e);
   }
 }
 
-export async function addInterviewDateAction(input: { companyId: number; title: string; date: string; notes: string }): Promise<Result> {
+export async function addInterviewDateAction(input: {
+  companyId: number;
+  title: string;
+  date: string;
+  notes: string;
+}): Promise<Result> {
   try {
-    const d = z.object({ companyId: id, title: z.string().trim().min(2).max(200), date: isoDate, notes: z.string().max(2000) }).parse(input);
-    await db.insert(calendarEvents).values({ userId: getCurrentUserId(), kind: "interview", title: d.title, date: d.date, companyId: d.companyId, notes: d.notes });
+    const d = z
+      .object({
+        companyId: id,
+        title: z.string().trim().min(2).max(200),
+        date: isoDate,
+        notes: z.string().max(2000),
+      })
+      .parse(input);
+    await db.insert(calendarEvents).values({
+      userId: getCurrentUserId(),
+      kind: "interview",
+      title: d.title,
+      date: d.date,
+      companyId: d.companyId,
+      notes: d.notes,
+    });
     await reschedule();
     return done();
   } catch (e) {

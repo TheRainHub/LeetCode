@@ -4,6 +4,7 @@ import {
   Briefcase,
   Building2,
   CalendarDays,
+  ListFilter,
   Code2,
   LayoutDashboard,
   Library,
@@ -24,6 +25,7 @@ export const MAIN_NAV: NavItem[] = [
   { href: "/", key: "dashboard", icon: LayoutDashboard, shortcut: "G D" },
   { href: "/learn", key: "learn", icon: BookOpen, shortcut: "G L" },
   { href: "/practice", key: "practice", icon: Code2, shortcut: "G P" },
+  { href: "/practice/bank", key: "bank", icon: ListFilter, shortcut: "G B" },
   { href: "/interviews", key: "interviews", icon: MessagesSquare, shortcut: "G I" },
   { href: "/knowledge", key: "knowledge", icon: Library, shortcut: "G K" },
   { href: "/companies", key: "companies", icon: Building2, shortcut: "G C" },
@@ -36,6 +38,14 @@ export const PERSONAL_NAV: NavItem[] = [
   { href: "/experience", key: "experience", icon: Briefcase, shortcut: "G E" },
 ];
 
-export function isActive(pathname: string, href: string) {
+function matches(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** The most specific matching nav item is active (e.g. /practice/bank activates "Problem bank", not "Practice"). */
+export function isActive(pathname: string, href: string) {
+  if (!matches(pathname, href)) return false;
+  return ![...MAIN_NAV, ...PERSONAL_NAV].some(
+    (n) => n.href !== href && n.href.startsWith(`${href}/`) && matches(pathname, n.href),
+  );
 }

@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { CalibrationChart, InterviewScoresChart, RetentionChart, WeeklyTimeChart } from "@/components/analytics/charts";
+import {
+  CalibrationChart,
+  InterviewScoresChart,
+  RetentionChart,
+  WeeklyTimeChart,
+} from "@/components/analytics/charts";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,10 +19,12 @@ export const metadata = { title: "Analytics" };
 function DataTable({ label, head, rows }: { label: string; head: string[]; rows: (string | number)[][] }) {
   return (
     <details className="mt-3">
-      <summary className="cursor-pointer text-[11px] text-muted-foreground hover:text-foreground">{label}</summary>
+      <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-[11px]">
+        {label}
+      </summary>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full text-xs">
-          <thead className="text-left text-muted-foreground">
+          <thead className="text-muted-foreground text-left">
             <tr>
               {head.map((h) => (
                 <th key={h} className="pr-3 pb-1 font-medium">
@@ -28,7 +35,7 @@ function DataTable({ label, head, rows }: { label: string; head: string[]; rows:
           </thead>
           <tbody className="tabular-nums">
             {rows.map((r, i) => (
-              <tr key={i} className="border-t border-border">
+              <tr key={i} className="border-border border-t">
                 {r.map((c, j) => (
                   <td key={j} className="py-1 pr-3">
                     {c}
@@ -53,7 +60,11 @@ export default async function AnalyticsPage() {
   const nd = <NotEnoughData label={m.common.labels.notEnoughData} />;
   const hasWeekly = a.weekly.some((w) => w.learning + w.coding + w.review + w.other > 0);
   const hasRetention = a.retention.some((r) => r.retention !== null);
-  const best = { independent: A.coding.independent, with_hints: A.coding.withHints, with_solution: A.coding.withSolution };
+  const best = {
+    independent: A.coding.independent,
+    with_hints: A.coding.withHints,
+    with_solution: A.coding.withSolution,
+  };
 
   return (
     <PageContainer wide>
@@ -78,18 +89,30 @@ export default async function AnalyticsPage() {
                       <Link href={`/learn/lesson/${t.slug}`} className="hover:text-primary">
                         {t.title}
                       </Link>
-                      <span className="tabular-nums text-muted-foreground">
+                      <span className="text-muted-foreground tabular-nums">
                         {Math.round(t.accuracy * 100)}% · {t.attempts}
                       </span>
                     </div>
-                    <Progress value={t.accuracy * 100} tone={t.accuracy >= 0.7 ? "success" : t.accuracy >= 0.5 ? "primary" : "warning"} label={t.title} />
+                    <Progress
+                      value={t.accuracy * 100}
+                      tone={t.accuracy >= 0.7 ? "success" : t.accuracy >= 0.5 ? "primary" : "warning"}
+                      label={t.title}
+                    />
                   </li>
                 ))}
               </ul>
             )}
-            {a.insufficient > 0 ? <p className="mt-3 text-[11px] text-subtle-foreground">{A.accuracy.insufficient(a.insufficient)}</p> : null}
+            {a.insufficient > 0 ? (
+              <p className="text-subtle-foreground mt-3 text-[11px]">
+                {A.accuracy.insufficient(a.insufficient)}
+              </p>
+            ) : null}
             {a.accuracy.length ? (
-              <DataTable label={A.showTable} head={[A.accuracy.topic, "%", A.accuracy.results]} rows={a.accuracy.map((t) => [t.title, Math.round(t.accuracy * 100), t.attempts])} />
+              <DataTable
+                label={A.showTable}
+                head={[A.accuracy.topic, "%", A.accuracy.results]}
+                rows={a.accuracy.map((t) => [t.title, Math.round(t.accuracy * 100), t.attempts])}
+              />
             ) : null}
           </CardContent>
         </Card>
@@ -101,7 +124,10 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label={A.coding.avgTime} value={a.coding.avgSeconds === null ? "—" : formatDuration(a.coding.avgSeconds)} />
+              <Stat
+                label={A.coding.avgTime}
+                value={a.coding.avgSeconds === null ? "—" : formatDuration(a.coding.avgSeconds)}
+              />
               <Stat label={A.coding.independent} value={a.coding.independent} />
               <Stat label={A.coding.withHints} value={a.coding.withHints} />
               <Stat label={A.coding.withSolution} value={a.coding.withSolution} />
@@ -110,7 +136,7 @@ export default async function AnalyticsPage() {
               <div className="mt-3">{nd}</div>
             ) : (
               <table className="mt-4 w-full text-xs">
-                <thead className="text-left text-muted-foreground">
+                <thead className="text-muted-foreground text-left">
                   <tr>
                     <th className="pb-1 font-medium">{A.coding.problem}</th>
                     <th className="pb-1 font-medium">{A.coding.best}</th>
@@ -119,14 +145,18 @@ export default async function AnalyticsPage() {
                 </thead>
                 <tbody>
                   {a.coding.problems.map((p) => (
-                    <tr key={p.slug} className="border-t border-border">
+                    <tr key={p.slug} className="border-border border-t">
                       <td className="py-1.5">
                         <Link href={`/practice/problems/${p.slug}`} className="hover:text-primary">
                           {p.title}
                         </Link>
                       </td>
-                      <td className="py-1.5 text-muted-foreground">{p.best ? best[p.best] : m.practice.problemStatus.attempted}</td>
-                      <td className="py-1.5 text-right tabular-nums">{p.avgSeconds === null ? "—" : formatDuration(p.avgSeconds)}</td>
+                      <td className="text-muted-foreground py-1.5">
+                        {p.best ? best[p.best] : m.practice.problemStatus.attempted}
+                      </td>
+                      <td className="py-1.5 text-right tabular-nums">
+                        {p.avgSeconds === null ? "—" : formatDuration(p.avgSeconds)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -148,8 +178,20 @@ export default async function AnalyticsPage() {
             {hasWeekly ? (
               <DataTable
                 label={A.showTable}
-                head={[A.weekly.week, A.weekly.series.learning, A.weekly.series.coding, A.weekly.series.review, A.weekly.series.other]}
-                rows={a.weekly.map((w) => [formatDay(w.week, locale), w.learning, w.coding, w.review, w.other])}
+                head={[
+                  A.weekly.week,
+                  A.weekly.series.learning,
+                  A.weekly.series.coding,
+                  A.weekly.series.review,
+                  A.weekly.series.other,
+                ]}
+                rows={a.weekly.map((w) => [
+                  formatDay(w.week, locale),
+                  w.learning,
+                  w.coding,
+                  w.review,
+                  w.other,
+                ])}
               />
             ) : null}
           </CardContent>
@@ -169,7 +211,11 @@ export default async function AnalyticsPage() {
               <DataTable
                 label={A.showTable}
                 head={[A.weekly.week, "%", A.retention.reviews]}
-                rows={a.retention.map((r) => [formatDay(r.week, locale), r.retention === null ? "—" : Math.round(r.retention * 100), r.reviews])}
+                rows={a.retention.map((r) => [
+                  formatDay(r.week, locale),
+                  r.retention === null ? "—" : Math.round(r.retention * 100),
+                  r.reviews,
+                ])}
               />
             ) : null}
           </CardContent>
@@ -187,13 +233,19 @@ export default async function AnalyticsPage() {
             {a.interviews.length < 2 ? (
               <div className="flex flex-col gap-1">
                 {nd}
-                {a.interviews[0] ? <p className="text-xs text-muted-foreground">{a.interviews[0].score}/100</p> : null}
+                {a.interviews[0] ? (
+                  <p className="text-muted-foreground text-xs">{a.interviews[0].score}/100</p>
+                ) : null}
               </div>
             ) : (
               <InterviewScoresChart data={a.interviews} />
             )}
             {a.interviews.length ? (
-              <DataTable label={A.showTable} head={[A.interviews.date, A.interviews.score]} rows={a.interviews.map((i) => [formatDay(i.date, locale), i.score])} />
+              <DataTable
+                label={A.showTable}
+                head={[A.interviews.date, A.interviews.score]}
+                rows={a.interviews.map((i) => [formatDay(i.date, locale), i.score])}
+              />
             ) : null}
           </CardContent>
         </Card>
@@ -209,7 +261,11 @@ export default async function AnalyticsPage() {
           <CardContent>
             {a.calibration.length < 3 ? nd : <CalibrationChart data={a.calibration} />}
             {a.calibration.length ? (
-              <DataTable label={A.showTable} head={[A.accuracy.topic, A.calibration.confidence, A.calibration.accuracy]} rows={a.calibration.map((c) => [c.title, c.confidence, c.accuracy])} />
+              <DataTable
+                label={A.showTable}
+                head={[A.accuracy.topic, A.calibration.confidence, A.calibration.accuracy]}
+                rows={a.calibration.map((c) => [c.title, c.confidence, c.accuracy])}
+              />
             ) : null}
           </CardContent>
         </Card>
@@ -223,7 +279,7 @@ export default async function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <table className="w-full text-sm">
-              <thead className="text-left text-[11px] text-muted-foreground">
+              <thead className="text-muted-foreground text-left text-[11px]">
                 <tr>
                   <th className="pb-2 font-medium">{A.readiness.company}</th>
                   <th className="pb-2 font-medium">
@@ -234,7 +290,7 @@ export default async function AnalyticsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 {a.readiness.map((r) => (
                   <tr key={r.slug}>
                     <td className="py-2 pr-4">
@@ -252,7 +308,9 @@ export default async function AnalyticsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="py-2 text-xs tabular-nums">{r.observed === null ? nd : `${r.observed}/100 (${r.mocks})`}</td>
+                    <td className="py-2 text-xs tabular-nums">
+                      {r.observed === null ? nd : `${r.observed}/100 (${r.mocks})`}
+                    </td>
                   </tr>
                 ))}
               </tbody>

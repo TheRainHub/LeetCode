@@ -14,11 +14,19 @@ export const PLAN_TEMPLATES = [INTERVIEW_SPRINT] as const;
 async function capacityInputs(): Promise<{ settings: CapacitySettings; events: CalendarEventLite[] }> {
   const s = await getSettings();
   const events = await db
-    .select({ kind: calendarEvents.kind, date: calendarEvents.date, lightDaysBefore: calendarEvents.lightDaysBefore })
+    .select({
+      kind: calendarEvents.kind,
+      date: calendarEvents.date,
+      lightDaysBefore: calendarEvents.lightDaysBefore,
+    })
     .from(calendarEvents)
     .where(eq(calendarEvents.userId, getCurrentUserId()));
   return {
-    settings: { dailyBudgetMinutes: s.dailyBudgetMinutes, restWeekdays: s.restWeekdays, prioritizeUniversity: s.prioritizeUniversity },
+    settings: {
+      dailyBudgetMinutes: s.dailyBudgetMinutes,
+      restWeekdays: s.restWeekdays,
+      prioritizeUniversity: s.prioritizeUniversity,
+    },
     events,
   };
 }
@@ -80,7 +88,10 @@ export async function generatePlan(templateKey: string, startDate: ISODate) {
       );
     }
   });
-  await db.update(userSettings).set({ lastRescheduledOn: await getToday() }).where(eq(userSettings.userId, userId));
+  await db
+    .update(userSettings)
+    .set({ lastRescheduledOn: await getToday() })
+    .where(eq(userSettings.userId, userId));
   log.info("scheduler", "plan generated", { templateKey, startDate, tasks: flat.length });
 }
 
@@ -115,11 +126,17 @@ export async function reschedule(opts: { pullForward?: boolean } = {}) {
   const tasks = await planTasks(plan.id);
 
   const used: Record<string, number> = {};
-  for (const t of tasks) if (t.status !== "todo" && t.date >= today) used[t.date] = (used[t.date] ?? 0) + t.minutes;
+  for (const t of tasks)
+    if (t.status !== "todo" && t.date >= today) used[t.date] = (used[t.date] ?? 0) + t.minutes;
 
   const pending = tasks.filter((t) => t.status === "todo");
   const placements = placeTasks(
-    pending.map((t) => ({ id: t.id, minutes: t.minutes, date: t.date < today ? undefined : t.date, pinned: t.pinned })),
+    pending.map((t) => ({
+      id: t.id,
+      minutes: t.minutes,
+      date: t.date < today ? undefined : t.date,
+      pinned: t.pinned,
+    })),
     { from: today, capacityOf: (d) => capacity(d).minutes, used, allowPullForward: opts.pullForward },
   );
 
@@ -140,7 +157,10 @@ export async function reschedule(opts: { pullForward?: boolean } = {}) {
         .where(eq(studyTasks.id, t.id));
     }
   }
-  await db.update(userSettings).set({ lastRescheduledOn: today }).where(eq(userSettings.userId, getCurrentUserId()));
+  await db
+    .update(userSettings)
+    .set({ lastRescheduledOn: today })
+    .where(eq(userSettings.userId, getCurrentUserId()));
   if (moved) log.info("scheduler", "rescheduled tasks", { moved });
   return { moved };
 }
@@ -156,10 +176,20 @@ export async function ensurePlanUpToDate() {
     .select({ id: studyTasks.id })
     .from(studyTasks)
     .innerJoin(studySessions, eq(studySessions.id, studyTasks.sessionId))
-    .where(and(eq(studySessions.planId, plan.id), eq(studyTasks.status, "todo"), lt(studyTasks.scheduledDate, today)))
+    .where(
+      and(
+        eq(studySessions.planId, plan.id),
+        eq(studyTasks.status, "todo"),
+        lt(studyTasks.scheduledDate, today),
+      ),
+    )
     .limit(1);
   if (overdue.length > 0) await reschedule();
-  else await db.update(userSettings).set({ lastRescheduledOn: today }).where(eq(userSettings.userId, getCurrentUserId()));
+  else
+    await db
+      .update(userSettings)
+      .set({ lastRescheduledOn: today })
+      .where(eq(userSettings.userId, getCurrentUserId()));
 }
 
 export async function markDayUnavailable(date: ISODate, title: string) {
@@ -167,7 +197,13 @@ export async function markDayUnavailable(date: ISODate, title: string) {
   const existing = await db
     .select({ id: calendarEvents.id })
     .from(calendarEvents)
-    .where(and(eq(calendarEvents.userId, userId), eq(calendarEvents.kind, "unavailable"), eq(calendarEvents.date, date)));
+    .where(
+      and(
+        eq(calendarEvents.userId, userId),
+        eq(calendarEvents.kind, "unavailable"),
+        eq(calendarEvents.date, date),
+      ),
+    );
   if (existing.length === 0) {
     await db.insert(calendarEvents).values({ userId, kind: "unavailable", title, date });
   }
@@ -195,7 +231,13 @@ export async function getTasksBetween(from: ISODate, to: ISODate) {
     })
     .from(studyTasks)
     .innerJoin(studySessions, eq(studySessions.id, studyTasks.sessionId))
-    .where(and(eq(studySessions.planId, plan.id), gte(studyTasks.scheduledDate, from), lt(studyTasks.scheduledDate, addDays(to, 1))))
+    .where(
+      and(
+        eq(studySessions.planId, plan.id),
+        gte(studyTasks.scheduledDate, from),
+        lt(studyTasks.scheduledDate, addDays(to, 1)),
+      ),
+    )
     .orderBy(asc(studyTasks.scheduledDate), asc(studySessions.order), asc(studyTasks.order));
 }
 
@@ -206,14 +248,18 @@ export async function getUnfinishedCount() {
     .select({ id: studyTasks.id })
     .from(studyTasks)
     .innerJoin(studySessions, eq(studySessions.id, studyTasks.sessionId))
-    .where(and(eq(studySessions.planId, plan.id), ne(studyTasks.status, "done"), ne(studyTasks.status, "skipped")));
+    .where(
+      and(eq(studySessions.planId, plan.id), ne(studyTasks.status, "done"), ne(studyTasks.status, "skipped")),
+    );
   return rows.length;
 }
 
 export async function setTaskStatus(taskId: number, status: "todo" | "done" | "skipped") {
   const plan = await getActivePlan();
   if (!plan) return;
-  const sessionIds = (await db.select({ id: studySessions.id }).from(studySessions).where(eq(studySessions.planId, plan.id))).map((s) => s.id);
+  const sessionIds = (
+    await db.select({ id: studySessions.id }).from(studySessions).where(eq(studySessions.planId, plan.id))
+  ).map((s) => s.id);
   await db
     .update(studyTasks)
     .set({ status, completedAt: status === "done" ? new Date() : null })
@@ -221,17 +267,27 @@ export async function setTaskStatus(taskId: number, status: "todo" | "done" | "s
 }
 
 export async function moveTask(taskId: number, date: ISODate) {
-  await db.update(studyTasks).set({ scheduledDate: date, pinned: true, overCapacity: false }).where(eq(studyTasks.id, taskId));
+  await db
+    .update(studyTasks)
+    .set({ scheduledDate: date, pinned: true, overCapacity: false })
+    .where(eq(studyTasks.id, taskId));
 }
 
 /** Marks plan tasks that reference `refSlug` of the given kind as done for today (e.g. after solving the problem). */
-export async function completeMatchingTasks(kind: "lesson" | "problem" | "lab" | "review" | "mock" | "experience", refSlug: string | null) {
+export async function completeMatchingTasks(
+  kind: "lesson" | "problem" | "lab" | "review" | "mock" | "experience",
+  refSlug: string | null,
+) {
   const plan = await getActivePlan();
   if (!plan) return;
   const today = await getToday();
   const tasks = await getTasksBetween(addDays(today, -30), addDays(today, 60));
   const match = tasks.find(
-    (t) => t.kind === kind && t.status === "todo" && (refSlug === null || t.refSlug === refSlug) && t.date <= addDays(today, 60),
+    (t) =>
+      t.kind === kind &&
+      t.status === "todo" &&
+      (refSlug === null || t.refSlug === refSlug) &&
+      t.date <= addDays(today, 60),
   );
   if (match) await setTaskStatus(match.id, "done");
 }

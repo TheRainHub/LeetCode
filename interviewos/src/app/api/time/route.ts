@@ -5,7 +5,10 @@ import { logTime } from "@/server/time";
 const bodySchema = z.object({
   kind: z.enum(["lesson", "problem", "review", "lab", "interview", "experience", "exercise"]),
   ref: z.string().max(200).optional(),
-  seconds: z.number().min(0).max(4 * 3600),
+  seconds: z
+    .number()
+    .min(0)
+    .max(4 * 3600),
 });
 
 /** Receives active-time beacons from the client (visible tab time only). */

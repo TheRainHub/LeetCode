@@ -65,7 +65,8 @@ export function dayCapacity(
         });
       }
     } else if (ev.kind === "interview") {
-      if (until === 0) candidates.push({ minutes: Math.min(INTERVIEW_DAY_MINUTES, budget), reason: "interview_day" });
+      if (until === 0)
+        candidates.push({ minutes: Math.min(INTERVIEW_DAY_MINUTES, budget), reason: "interview_day" });
       else if (until === 1) candidates.push({ minutes: Math.round(budget * 0.6), reason: "interview_eve" });
     }
   }

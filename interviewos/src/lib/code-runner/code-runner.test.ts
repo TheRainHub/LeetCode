@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { canonicalJson, valuesEqual } from "./canonical";
-import { generateJavaHarness, generatePythonHarness, javaLiteral, parseHarnessOutput, pythonLiteral } from "./harness";
+import {
+  generateJavaHarness,
+  generatePythonHarness,
+  javaLiteral,
+  parseHarnessOutput,
+  pythonLiteral,
+} from "./harness";
 import { starterCode } from "./starter";
 import { WORKER_SOURCE } from "./worker-source";
 
@@ -20,13 +26,22 @@ describe("canonical comparison", () => {
 
   it("uses the same canonicalization inside the browser worker", () => {
     // Evaluate the worker's helper functions in isolation and compare with canonical.ts.
-    const helpers = WORKER_SOURCE.slice(WORKER_SOURCE.indexOf("function norm"), WORKER_SOURCE.indexOf("function fmt"));
+    const helpers = WORKER_SOURCE.slice(
+      WORKER_SOURCE.indexOf("function norm"),
+      WORKER_SOURCE.indexOf("function fmt"),
+    );
     const canon = new Function(`${helpers}; return canon;`)() as (v: unknown, mode: string) => string;
     const cases: [unknown, "exact" | "unorderedList" | "unorderedNested"][] = [
       [[3, 1, 2], "unorderedList"],
       [[["b", "a"], ["c"]], "unorderedNested"],
       [{ toString: () => "x" }, "exact"],
-      [[[1, 6], [8, 10]], "unorderedList"],
+      [
+        [
+          [1, 6],
+          [8, 10],
+        ],
+        "unorderedList",
+      ],
       [null, "exact"],
       [false, "exact"],
     ];
@@ -35,12 +50,21 @@ describe("canonical comparison", () => {
 });
 
 describe("harness generation", () => {
-  const sig = { method: "twoSum", params: [{ name: "nums", type: "int[]" as const }, { name: "target", type: "int" as const }], returns: "int[]" as const };
+  const sig = {
+    method: "twoSum",
+    params: [
+      { name: "nums", type: "int[]" as const },
+      { name: "target", type: "int" as const },
+    ],
+    returns: "int[]" as const,
+  };
 
   it("produces language literals", () => {
     expect(javaLiteral([1, 2], "int[]")).toBe("new int[]{1, 2}");
     expect(javaLiteral([["1", "0"]], "char[][]")).toBe("new char[][]{{'1', '0'}}");
-    expect(javaLiteral({ values: [1, 2], pos: 0 }, "linkedListWithCycle")).toBe("Harness.buildList(new int[]{1, 2}, 0)");
+    expect(javaLiteral({ values: [1, 2], pos: 0 }, "linkedListWithCycle")).toBe(
+      "Harness.buildList(new int[]{1, 2}, 0)",
+    );
     expect(pythonLiteral(true, "boolean")).toBe("True");
     expect(pythonLiteral({ values: [3], pos: -1 }, "linkedListWithCycle")).toBe("_build_list([3], -1)");
   });
@@ -61,21 +85,33 @@ describe("harness generation", () => {
   });
 
   it("embeds the canonical expected value in Python harnesses", () => {
-    const py = generatePythonHarness({ code: "class Solution: pass", signature: sig, comparator: "unorderedList", tests: [{ name: "t1", args: [[2, 7], 9], expected: [1, 0] }] });
+    const py = generatePythonHarness({
+      code: "class Solution: pass",
+      signature: sig,
+      comparator: "unorderedList",
+      tests: [{ name: "t1", args: [[2, 7], 9], expected: [1, 0] }],
+    });
     expect(py).toContain('Solution().twoSum([2,7], 9), "[0,1]"');
   });
 
   it("generates compilable-looking starter code for every language", () => {
     expect(starterCode("java", sig)).toContain("public int[] twoSum(int[] nums, int target)");
-    expect(starterCode("python", sig)).toContain("def twoSum(self, nums: List[int], target: int) -> List[int]:");
-    expect(starterCode("typescript", sig)).toContain("function twoSum(nums: number[], target: number): number[]");
+    expect(starterCode("python", sig)).toContain(
+      "def twoSum(self, nums: List[int], target: int) -> List[int]:",
+    );
+    expect(starterCode("typescript", sig)).toContain(
+      "function twoSum(nums: number[], target: number): number[]",
+    );
   });
 });
 
 describe("parseHarnessOutput", () => {
   const names = ["example 1", "example 2"];
   it("accepts complete output", () => {
-    const r = parseHarnessOutput("#1 PASS example 1\n#2 FAIL example 2 expected=[1] actual=[2]\nSUMMARY 1/2\n", names);
+    const r = parseHarnessOutput(
+      "#1 PASS example 1\n#2 FAIL example 2 expected=[1] actual=[2]\nSUMMARY 1/2\n",
+      names,
+    );
     expect(r.valid).toBe(true);
     expect(r.results).toEqual([
       { index: 1, name: "example 1", passed: true, detail: undefined },

@@ -1,11 +1,25 @@
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, CircleDashed, Clock, ExternalLink, Info } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  CircleDashed,
+  Clock,
+  ExternalLink,
+  Info,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/content/markdown";
 import { ActiveTimer } from "@/components/learn/active-timer";
 import { ExplainExercise } from "@/components/learn/explain-exercise";
 import { HideInInterviewMode, LessonShell } from "@/components/learn/lesson-shell";
-import { ConfidencePicker, MarkReadButton, NotesEditor, RevealAnswer } from "@/components/learn/lesson-widgets";
+import {
+  ConfidencePicker,
+  MarkReadButton,
+  NotesEditor,
+  RevealAnswer,
+} from "@/components/learn/lesson-widgets";
 import { Quiz } from "@/components/learn/quiz";
 import { StatusBadge } from "@/components/learn/status-badge";
 import { PageContainer } from "@/components/layout/page-header";
@@ -16,10 +30,22 @@ import { isAiConfigured } from "@/lib/ai/config";
 import type { TopicStatus } from "@/lib/mastery/status";
 import { cn } from "@/lib/utils";
 import { gradeExplanationAction } from "@/app/learn/ai-actions";
+import { LessonBankPractice } from "@/components/bank/lesson-practice";
+import { getLessonBankPractice } from "@/server/bank";
 import { getLessonPage } from "@/server/learn";
 import { getI18n } from "@/server/user";
 
-function Section({ id, title, children, className }: { id: string; title: string; children: React.ReactNode; className?: string }) {
+function Section({
+  id,
+  title,
+  children,
+  className,
+}: {
+  id: string;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <section id={id} aria-labelledby={`${id}-h`} className={cn("scroll-mt-6", className)}>
       <h2 id={`${id}-h`} className="mb-3 text-base font-semibold tracking-tight">
@@ -33,7 +59,11 @@ function Section({ id, title, children, className }: { id: string; title: string
 function Check2({ ok, label }: { ok: boolean; label: string }) {
   return (
     <li className="flex items-center gap-2 text-sm">
-      {ok ? <Check className="size-4 text-success" /> : <CircleDashed className="size-4 text-subtle-foreground" />}
+      {ok ? (
+        <Check className="text-success size-4" />
+      ) : (
+        <CircleDashed className="text-subtle-foreground size-4" />
+      )}
       <span className={ok ? "" : "text-muted-foreground"}>{label}</span>
     </li>
   );
@@ -46,12 +76,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [{ m }, data] = await Promise.all([getI18n(), getLessonPage(slug)]);
+  const [{ m }, data, bankPractice] = await Promise.all([
+    getI18n(),
+    getLessonPage(slug),
+    getLessonBankPractice(slug, 6),
+  ]);
   if (!data) notFound();
   const L = m.learn.lesson;
   const { lesson } = data;
   const status = (data.topic?.status ?? "not_started") as TopicStatus;
-  const missing = (data.topic?.missing ?? ["read", "recognize", "explain", "more_results"]).filter((x) => x in m.common.missing) as (keyof typeof m.common.missing)[];
+  const missing = (data.topic?.missing ?? ["read", "recognize", "explain", "more_results"]).filter(
+    (x) => x in m.common.missing,
+  ) as (keyof typeof m.common.missing)[];
   const read = Boolean(data.progress?.readAt);
   const toc = [
     ["objectives", L.objectives],
@@ -74,15 +110,20 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_240px]">
           <article className="min-w-0">
             <header className="mb-8">
-              <Link href={`/learn/${data.path.slug}`} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+              <Link
+                href={`/learn/${data.path.slug}`}
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs"
+              >
                 <ChevronLeft className="size-3.5" />
                 {data.path.title} · {data.module.title}
               </Link>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight">{lesson.title}</h1>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <StatusBadge status={status} />
-                <Badge tone="outline">{lesson.depth === "full" ? m.learn.depth.full : m.learn.depth.concise}</Badge>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Badge tone="outline">
+                  {lesson.depth === "full" ? m.learn.depth.full : m.learn.depth.concise}
+                </Badge>
+                <span className="text-muted-foreground flex items-center gap-1 text-xs">
                   <Clock className="size-3.5" />
                   {L.minutes(lesson.estimatedMinutes)}
                 </span>
@@ -91,7 +132,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                 </span>
               </div>
               {lesson.depth === "concise" ? (
-                <p className="mt-3 flex items-start gap-2 rounded-md border border-border bg-surface-2 px-3 py-2 text-xs text-muted-foreground">
+                <p className="border-border bg-surface-2 text-muted-foreground mt-3 flex items-start gap-2 rounded-md border px-3 py-2 text-xs">
                   <Info className="mt-0.5 size-3.5 shrink-0" />
                   {m.learn.depthHelp.concise}
                 </p>
@@ -105,7 +146,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                     <li key={o}>{o}</li>
                   ))}
                 </ul>
-                <p className="mt-4 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-4 text-xs">
                   {m.learn.prerequisites}:{" "}
                   {data.prerequisites.length === 0
                     ? m.learn.noPrerequisites
@@ -136,7 +177,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                     <Markdown>{lesson.practicalExercises}</Markdown>
                     {data.problems.length ? (
                       <div className="mt-4">
-                        <p className="mb-2 text-xs font-medium text-muted-foreground">{L.relatedProblems}</p>
+                        <p className="text-muted-foreground mb-2 text-xs font-medium">{L.relatedProblems}</p>
                         <div className="flex flex-wrap gap-2">
                           {data.problems.map((p) => (
                             <Button key={p.id} asChild size="sm" variant="outline">
@@ -150,6 +191,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                         </div>
                       </div>
                     ) : null}
+                    <LessonBankPractice lesson={lesson.slug} practice={bankPractice} m={m} />
                   </Section>
                   <Section id="reading" title={L.readings}>
                     <ul className="flex flex-col gap-2">
@@ -159,13 +201,15 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                             href={r.url}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="group flex items-start gap-3 rounded-md border border-border bg-surface px-3 py-2.5 hover:border-border-strong"
+                            className="group border-border bg-surface hover:border-border-strong flex items-start gap-3 rounded-md border px-3 py-2.5"
                           >
-                            <ExternalLink className="mt-0.5 size-3.5 shrink-0 text-subtle-foreground group-hover:text-primary" />
+                            <ExternalLink className="text-subtle-foreground group-hover:text-primary mt-0.5 size-3.5 shrink-0" />
                             <span className="min-w-0">
-                              <span className="block text-sm group-hover:text-primary">{r.title}</span>
-                              {r.note ? <span className="block text-xs text-muted-foreground">{r.note}</span> : null}
-                              <span className="block truncate text-[11px] text-subtle-foreground">
+                              <span className="group-hover:text-primary block text-sm">{r.title}</span>
+                              {r.note ? (
+                                <span className="text-muted-foreground block text-xs">{r.note}</span>
+                              ) : null}
+                              <span className="text-subtle-foreground block truncate text-[11px]">
                                 {r.kind} · {new URL(r.url).hostname}
                               </span>
                             </span>
@@ -182,7 +226,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                     </ul>
                   </Section>
                   <Section id="quiz" title={L.quiz}>
-                    <p className="-mt-1 mb-3 text-xs text-muted-foreground">{L.quizHelp}</p>
+                    <p className="text-muted-foreground -mt-1 mb-3 text-xs">{L.quizHelp}</p>
                     <Quiz lessonId={lesson.id} questions={data.quiz} />
                   </Section>
                 </div>
@@ -203,7 +247,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
               <HideInInterviewMode>
                 <div className="flex flex-col gap-10">
                   <Section id="self" title={L.selfAssessment}>
-                    <ul className="mb-4 flex list-disc flex-col gap-1 pl-5 text-sm text-muted-foreground">
+                    <ul className="text-muted-foreground mb-4 flex list-disc flex-col gap-1 pl-5 text-sm">
                       {lesson.selfAssessment.map((s) => (
                         <li key={s}>{s}</li>
                       ))}
@@ -214,17 +258,24 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                   <Section id="completion" title={L.completion}>
                     <div className="grid gap-4 md:grid-cols-2">
                       <Card className="p-4">
-                        <p className="mb-2 text-xs font-medium text-muted-foreground">{L.systemChecks}</p>
+                        <p className="text-muted-foreground mb-2 text-xs font-medium">{L.systemChecks}</p>
                         <ul className="flex flex-col gap-1.5">
                           <Check2 ok={read} label={L.checks.read} />
-                          <Check2 ok={data.quizState.passed} label={`${L.checks.quiz} (${data.quizState.correct}/${data.quizState.total})`} />
+                          <Check2
+                            ok={data.quizState.passed}
+                            label={`${L.checks.quiz} (${data.quizState.correct}/${data.quizState.total})`}
+                          />
                           <Check2 ok={data.explainState.passed} label={L.checks.explain} />
                           <Check2 ok={data.progress?.confidence != null} label={L.checks.confidence} />
                         </ul>
-                        {data.progress?.completedAt ? <Badge tone="success" className="mt-3">{L.completed}</Badge> : null}
+                        {data.progress?.completedAt ? (
+                          <Badge tone="success" className="mt-3">
+                            {L.completed}
+                          </Badge>
+                        ) : null}
                       </Card>
                       <Card className="p-4">
-                        <p className="mb-2 text-xs font-medium text-muted-foreground">{L.lessonCriteria}</p>
+                        <p className="text-muted-foreground mb-2 text-xs font-medium">{L.lessonCriteria}</p>
                         <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
                           {lesson.completionCriteria.map((c) => (
                             <li key={c}>{c}</li>
@@ -233,14 +284,17 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                       </Card>
                     </div>
                     <div className="mt-6">
-                      <p className="mb-2 text-xs font-medium text-muted-foreground">{L.notes}</p>
+                      <p className="text-muted-foreground mb-2 text-xs font-medium">{L.notes}</p>
                       <NotesEditor lessonId={lesson.id} initial={data.progress?.notes ?? ""} />
                     </div>
                   </Section>
 
-                  <nav className="flex items-center justify-between border-t border-border pt-4">
+                  <nav className="border-border flex items-center justify-between border-t pt-4">
                     {data.prev ? (
-                      <Link href={`/learn/lesson/${data.prev.slug}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+                      <Link
+                        href={`/learn/lesson/${data.prev.slug}`}
+                        className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm"
+                      >
                         <ArrowLeft className="size-4" />
                         {data.prev.title}
                       </Link>
@@ -248,7 +302,10 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                       <span />
                     )}
                     {data.next ? (
-                      <Link href={`/learn/lesson/${data.next.slug}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+                      <Link
+                        href={`/learn/lesson/${data.next.slug}`}
+                        className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm"
+                      >
                         {data.next.title}
                         <ArrowRight className="size-4" />
                       </Link>
@@ -262,11 +319,16 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
           <aside className="hidden xl:block">
             <div className="sticky top-6 flex flex-col gap-5">
               <div>
-                <p className="mb-2 text-[11px] font-medium tracking-wide text-subtle-foreground uppercase">{L.contents}</p>
-                <ul className="flex flex-col gap-1 border-l border-border">
+                <p className="text-subtle-foreground mb-2 text-[11px] font-medium tracking-wide uppercase">
+                  {L.contents}
+                </p>
+                <ul className="border-border flex flex-col gap-1 border-l">
                   {toc.map(([id, label]) => (
                     <li key={id}>
-                      <a href={`#${id}`} className="-ml-px block border-l border-transparent py-0.5 pl-3 text-xs text-muted-foreground hover:border-foreground hover:text-foreground">
+                      <a
+                        href={`#${id}`}
+                        className="text-muted-foreground hover:border-foreground hover:text-foreground -ml-px block border-l border-transparent py-0.5 pl-3 text-xs"
+                      >
                         {label}
                       </a>
                     </li>
@@ -274,13 +336,15 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                 </ul>
               </div>
               <div>
-                <p className="mb-2 text-[11px] font-medium tracking-wide text-subtle-foreground uppercase">{L.whatsMissing}</p>
+                <p className="text-subtle-foreground mb-2 text-[11px] font-medium tracking-wide uppercase">
+                  {L.whatsMissing}
+                </p>
                 {status === "interview_ready" ? (
-                  <p className="text-xs text-success">{m.common.status.interview_ready}</p>
+                  <p className="text-success text-xs">{m.common.status.interview_ready}</p>
                 ) : (
                   <ul className="flex flex-col gap-1.5">
                     {missing.map((k) => (
-                      <li key={k} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                      <li key={k} className="text-muted-foreground flex items-start gap-1.5 text-xs">
                         <CircleDashed className="mt-0.5 size-3 shrink-0" />
                         {m.common.missing[k]}
                       </li>

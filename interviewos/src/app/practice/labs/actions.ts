@@ -30,7 +30,10 @@ async function ownAttempt(attemptId: number) {
 export async function startLabAction(input: { labId: number }): Promise<Result<{ attemptId: number }>> {
   try {
     const { labId } = z.object({ labId: z.number().int().positive() }).parse(input);
-    const [row] = await db.insert(labAttempts).values({ userId: getCurrentUserId(), labId }).returning({ id: labAttempts.id });
+    const [row] = await db
+      .insert(labAttempts)
+      .values({ userId: getCurrentUserId(), labId })
+      .returning({ id: labAttempts.id });
     revalidatePath("/practice", "layout");
     return { ok: true, data: { attemptId: row!.id } };
   } catch (e) {
@@ -46,17 +49,26 @@ export async function saveStepEvidenceAction(input: {
 }): Promise<Result<{ passed: boolean; reason?: string }>> {
   try {
     const data = z
-      .object({ attemptId: z.number().int().positive(), stepId: z.string().max(80), text: z.string().max(100_000).optional(), checked: z.boolean().optional() })
+      .object({
+        attemptId: z.number().int().positive(),
+        stepId: z.string().max(80),
+        text: z.string().max(100_000).optional(),
+        checked: z.boolean().optional(),
+      })
       .parse(input);
     const { attempt, lab } = await ownAttempt(data.attemptId);
-    if (attempt.status === "verified") throw new Error("This attempt is already verified. Start a new attempt to redo it.");
+    if (attempt.status === "verified")
+      throw new Error("This attempt is already verified. Start a new attempt to redo it.");
     const step = lab.steps.find((s) => s.id === data.stepId);
     if (!step) throw new Error("Unknown step");
     const check = checkStepEvidence(step, data);
     await db
       .update(labAttempts)
       .set({
-        stepEvidence: { ...attempt.stepEvidence, [step.id]: { text: data.text, checked: data.checked, passed: check.passed } },
+        stepEvidence: {
+          ...attempt.stepEvidence,
+          [step.id]: { text: data.text, checked: data.checked, passed: check.passed },
+        },
         updatedAt: new Date(),
       })
       .where(eq(labAttempts.id, attempt.id));
@@ -67,10 +79,18 @@ export async function saveStepEvidenceAction(input: {
   }
 }
 
-export async function saveReflectionsAction(input: { attemptId: number; reflections: string[]; minutesSpent: number }): Promise<Result> {
+export async function saveReflectionsAction(input: {
+  attemptId: number;
+  reflections: string[];
+  minutesSpent: number;
+}): Promise<Result> {
   try {
     const data = z
-      .object({ attemptId: z.number().int().positive(), reflections: z.array(z.string().max(20_000)).max(20), minutesSpent: z.number().int().min(0).max(1000) })
+      .object({
+        attemptId: z.number().int().positive(),
+        reflections: z.array(z.string().max(20_000)).max(20),
+        minutesSpent: z.number().int().min(0).max(1000),
+      })
       .parse(input);
     const { attempt } = await ownAttempt(data.attemptId);
     await db
@@ -93,9 +113,14 @@ export async function verifyLabAction(input: { attemptId: number }): Promise<Res
       lab.reflectionQuestions.length === attempt.reflections.length &&
       attempt.reflections.every((r) => r.trim().length >= MIN_REFLECTION_CHARS);
     if (!allSteps || !allReflections) throw new Error("Complete every step and reflection question first.");
-    await db.update(labAttempts).set({ status: "verified", verifiedAt: new Date(), updatedAt: new Date() }).where(eq(labAttempts.id, attempt.id));
+    await db
+      .update(labAttempts)
+      .set({ status: "verified", verifiedAt: new Date(), updatedAt: new Date() })
+      .where(eq(labAttempts.id, attempt.id));
     if (attempt.minutesSpent > 0) await logTime("lab", attempt.minutesSpent * 60, lab.slug);
-    const topicIds = (await db.select({ topicId: labTopics.topicId }).from(labTopics).where(eq(labTopics.labId, lab.id))).map((t) => t.topicId);
+    const topicIds = (
+      await db.select({ topicId: labTopics.topicId }).from(labTopics).where(eq(labTopics.labId, lab.id))
+    ).map((t) => t.topicId);
     await recomputeTopicProgress(topicIds);
     await completeMatchingTasks("lab", lab.slug);
     revalidatePath("/", "layout");

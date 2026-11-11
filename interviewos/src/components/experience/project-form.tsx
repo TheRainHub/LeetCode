@@ -7,7 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n/client";
 
-const LONG_FIELDS = ["problem", "context", "responsibility", "architecture", "decisions", "tradeoffs", "challenges", "result", "lessonsLearned"] as const;
+const LONG_FIELDS = [
+  "problem",
+  "context",
+  "responsibility",
+  "architecture",
+  "decisions",
+  "tradeoffs",
+  "challenges",
+  "result",
+  "lessonsLearned",
+] as const;
 
 export interface ProjectFormValue {
   id: number;
@@ -44,7 +54,10 @@ export function ProjectForm({ project }: { project: ProjectFormValue }) {
         run(async () => {
           const res = await saveProjectAction({
             ...v,
-            techStack: stack.split(",").map((s) => s.trim()).filter(Boolean),
+            techStack: stack
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
             verified,
           });
           if (res.ok) toast.success(E.saved);
@@ -67,7 +80,12 @@ export function ProjectForm({ project }: { project: ProjectFormValue }) {
         <Input id="p-stack" value={stack} onChange={(e) => setStack(e.target.value)} />
       </Field>
       {LONG_FIELDS.map((f) => (
-        <Field key={f} label={E.fields[f]} htmlFor={`p-${f}`} hint={f === "responsibility" ? E.hints.responsibility : f === "result" ? E.hints.result : undefined}>
+        <Field
+          key={f}
+          label={E.fields[f]}
+          htmlFor={`p-${f}`}
+          hint={f === "responsibility" ? E.hints.responsibility : f === "result" ? E.hints.result : undefined}
+        >
           <Textarea id={`p-${f}`} rows={3} value={v[f]} onChange={(e) => set(f, e.target.value)} />
         </Field>
       ))}
@@ -75,7 +93,13 @@ export function ProjectForm({ project }: { project: ProjectFormValue }) {
         <Checkbox checked={verified} onChange={(e) => setVerified(e.target.checked)} />
         {E.markVerified}
       </label>
-      <Button type="submit" variant="primary" className="self-start" disabled={pending} data-testid="save-project">
+      <Button
+        type="submit"
+        variant="primary"
+        className="self-start"
+        disabled={pending}
+        data-testid="save-project"
+      >
         {E.save}
       </Button>
     </form>

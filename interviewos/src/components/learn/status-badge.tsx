@@ -17,7 +17,9 @@ export function StatusBadge({ status, withHelp = true }: { status: TopicStatus; 
   const { m } = useI18n();
   const badge = (
     <Badge tone={TONE[status]} data-status={status}>
-      <span className={`size-1.5 rounded-full ${status === "not_started" ? "bg-subtle-foreground" : "bg-current"}`} />
+      <span
+        className={`size-1.5 rounded-full ${status === "not_started" ? "bg-subtle-foreground" : "bg-current"}`}
+      />
       {m.common.status[status]}
     </Badge>
   );

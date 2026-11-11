@@ -23,6 +23,7 @@ export const practice = defineMessages(
     executionNote:
       "Code never runs on the InterviewOS server. TypeScript runs in a sandboxed Web Worker in your browser; Java and Python run on your machine via a generated test harness.",
     ws: {
+      loadingEditor: "Loading editor…",
       back: "Problems",
       description: "Description",
       hints: "Hints",
@@ -37,7 +38,8 @@ export const practice = defineMessages(
       revealHint: (n: number) => `Reveal hint ${n}`,
       hintsUsed: (n: number) => `${n} hint(s) used — this attempt will count as "with hints"`,
       noMoreHints: "No more hints.",
-      solutionLocked: "Viewing the solution before submitting marks this attempt as solved with the solution.",
+      solutionLocked:
+        "Viewing the solution before submitting marks this attempt as solved with the solution.",
       revealSolution: "Reveal solution anyway",
       solutionAfterSubmit: "The full solution unlocks after you submit an attempt.",
       approach: "Approach",
@@ -59,7 +61,9 @@ export const practice = defineMessages(
       running: "Running…",
       runInBrowserNote: "Executed in your browser (sandboxed Web Worker, 4 s limit).",
       notExecutedYet: "Not executed yet.",
-      onlyTsInBrowser: "In-browser execution supports TypeScript only. Use “Run locally” for Java and Python.",
+      staleRun: "Code changed since this run — run again before submitting.",
+      onlyTsInBrowser:
+        "In-browser execution supports TypeScript only. Use “Run locally” for Java and Python.",
       compileError: "Could not run",
       passedOf: (p: number, t: number) => `${p} / ${t} passed`,
       expected: "Expected",
@@ -75,7 +79,8 @@ export const practice = defineMessages(
       testName: "Name",
       local: {
         title: "Run on your machine",
-        step1: "Download or copy the generated file. It contains your current code and all tests (examples + custom).",
+        step1:
+          "Download or copy the generated file. It contains your current code and all tests (examples + custom).",
         step2: "Run it:",
         step3: "Paste the complete output below. InterviewOS parses the PASS/FAIL lines.",
         download: "Download",
@@ -85,7 +90,11 @@ export const practice = defineMessages(
         parse: "Use these results",
         invalid: "Output incomplete — it must contain one line per test and a SUMMARY line.",
         parsed: "Results recorded as locally executed by you.",
-        requires: { java: "Requires JDK 17+.", python: "Requires Python 3.9+.", typescript: "Requires Node.js 20+ (uses npx tsx)." },
+        requires: {
+          java: "Requires JDK 17+.",
+          python: "Requires Python 3.9+.",
+          typescript: "Requires Node.js 20+ (uses npx tsx).",
+        },
       },
       submit: "Submit attempt",
       submitTitle: "Record this attempt",
@@ -95,9 +104,14 @@ export const practice = defineMessages(
         local: "Executed locally (pasted output)",
         none: "Not executed",
       },
-      notExecutedWarning: "This attempt has no test results. It will be recorded as not executed and cannot count as an independent implementation.",
+      notExecutedWarning:
+        "This attempt has no test results. It will be recorded as not executed and cannot count as an independent implementation.",
       independence: "Independence",
-      independenceValues: { independent: "Independent", with_hints: "With hints", with_solution: "With solution" },
+      independenceValues: {
+        independent: "Independent",
+        with_hints: "With hints",
+        with_solution: "With solution",
+      },
       claimedTime: "Your time complexity",
       claimedSpace: "Your space complexity",
       other: "Other…",
@@ -115,7 +129,12 @@ export const practice = defineMessages(
         nextReview: (date: string) => `Scheduled to re-solve on ${date}`,
         viewSolution: "Open the solution tab",
       },
-      outcomes: { passed: "All tests passed", partial: "Some tests failed", failed: "Failed", not_run: "Not executed" },
+      outcomes: {
+        passed: "All tests passed",
+        partial: "Some tests failed",
+        failed: "Failed",
+        not_run: "Not executed",
+      },
       history: {
         empty: "No attempts yet.",
         viewCode: "View code",
@@ -147,6 +166,7 @@ export const practice = defineMessages(
     executionNote:
       "Код никогда не выполняется на сервере InterviewOS. TypeScript выполняется в изолированном Web Worker в вашем браузере; Java и Python — на вашем компьютере через сгенерированный тестовый файл.",
     ws: {
+      loadingEditor: "Загрузка редактора…",
       back: "Задачи",
       description: "Условие",
       hints: "Подсказки",
@@ -183,7 +203,9 @@ export const practice = defineMessages(
       running: "Выполняется…",
       runInBrowserNote: "Выполнено в вашем браузере (изолированный Web Worker, лимит 4 с).",
       notExecutedYet: "Ещё не выполнялось.",
-      onlyTsInBrowser: "В браузере выполняется только TypeScript. Для Java и Python используйте «Запустить локально».",
+      staleRun: "Код изменился после этого запуска — запустите тесты снова перед отправкой.",
+      onlyTsInBrowser:
+        "В браузере выполняется только TypeScript. Для Java и Python используйте «Запустить локально».",
       compileError: "Не удалось запустить",
       passedOf: (p: number, t: number) => `Пройдено ${p} из ${t}`,
       expected: "Ожидается",
@@ -199,7 +221,8 @@ export const practice = defineMessages(
       testName: "Название",
       local: {
         title: "Запуск на вашем компьютере",
-        step1: "Скачайте или скопируйте сгенерированный файл. В нём ваш текущий код и все тесты (примеры + свои).",
+        step1:
+          "Скачайте или скопируйте сгенерированный файл. В нём ваш текущий код и все тесты (примеры + свои).",
         step2: "Запустите:",
         step3: "Вставьте полный вывод ниже. InterviewOS разберёт строки PASS/FAIL.",
         download: "Скачать",
@@ -209,7 +232,11 @@ export const practice = defineMessages(
         parse: "Использовать эти результаты",
         invalid: "Вывод неполный — нужна строка на каждый тест и строка SUMMARY.",
         parsed: "Результаты записаны как выполненные вами локально.",
-        requires: { java: "Нужен JDK 17+.", python: "Нужен Python 3.9+.", typescript: "Нужен Node.js 20+ (используется npx tsx)." },
+        requires: {
+          java: "Нужен JDK 17+.",
+          python: "Нужен Python 3.9+.",
+          typescript: "Нужен Node.js 20+ (используется npx tsx).",
+        },
       },
       submit: "Отправить попытку",
       submitTitle: "Записать попытку",
@@ -219,9 +246,14 @@ export const practice = defineMessages(
         local: "Выполнено локально (вставленный вывод)",
         none: "Не выполнялось",
       },
-      notExecutedWarning: "У попытки нет результатов тестов. Она будет записана как невыполненная и не засчитается как самостоятельная реализация.",
+      notExecutedWarning:
+        "У попытки нет результатов тестов. Она будет записана как невыполненная и не засчитается как самостоятельная реализация.",
       independence: "Самостоятельность",
-      independenceValues: { independent: "Самостоятельно", with_hints: "С подсказками", with_solution: "С решением" },
+      independenceValues: {
+        independent: "Самостоятельно",
+        with_hints: "С подсказками",
+        with_solution: "С решением",
+      },
       claimedTime: "Ваша оценка времени",
       claimedSpace: "Ваша оценка памяти",
       other: "Другое…",
@@ -239,7 +271,12 @@ export const practice = defineMessages(
         nextReview: (date: string) => `Повторное решение запланировано на ${date}`,
         viewSolution: "Открыть вкладку решения",
       },
-      outcomes: { passed: "Все тесты пройдены", partial: "Часть тестов не пройдена", failed: "Не пройдено", not_run: "Не выполнялось" },
+      outcomes: {
+        passed: "Все тесты пройдены",
+        partial: "Часть тестов не пройдена",
+        failed: "Не пройдено",
+        not_run: "Не выполнялось",
+      },
       history: {
         empty: "Попыток пока нет.",
         viewCode: "Показать код",

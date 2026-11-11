@@ -13,7 +13,14 @@ import { useI18n } from "@/lib/i18n/client";
 export interface CompanyOption {
   slug: string;
   name: string;
-  presets: { id: number; title: string; type: InterviewType; difficulty: "easy" | "medium" | "hard"; durationMinutes: number; language: Language }[];
+  presets: {
+    id: number;
+    title: string;
+    type: InterviewType;
+    difficulty: "easy" | "medium" | "hard";
+    durationMinutes: number;
+    language: Language;
+  }[];
 }
 
 export function SetupForm({
@@ -21,7 +28,13 @@ export function SetupForm({
   initial,
 }: {
   companies: CompanyOption[];
-  initial: { company: string; type: InterviewType; difficulty: "easy" | "medium" | "hard"; duration: number; language: Language };
+  initial: {
+    company: string;
+    type: InterviewType;
+    difficulty: "easy" | "medium" | "hard";
+    duration: number;
+    language: Language;
+  };
 }) {
   const { m } = useI18n();
   const S = m.interviews.setup;
@@ -35,7 +48,13 @@ export function SetupForm({
 
   const submit = () =>
     start(async () => {
-      const res = await createInterviewAction({ companySlug: company || null, type, difficulty, durationMinutes: duration, language });
+      const res = await createInterviewAction({
+        companySlug: company || null,
+        type,
+        difficulty,
+        durationMinutes: duration,
+        language,
+      });
       if (res && !res.ok) toast.error(res.error);
     });
 
@@ -62,7 +81,11 @@ export function SetupForm({
           </Select>
         </Field>
         <Field label={S.difficulty} htmlFor="iv-diff">
-          <Select id="iv-diff" value={difficulty} onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}>
+          <Select
+            id="iv-diff"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}
+          >
             {(["easy", "medium", "hard"] as const).map((d) => (
               <option key={d} value={d}>
                 {m.common.difficulty[d]}
@@ -71,7 +94,15 @@ export function SetupForm({
           </Select>
         </Field>
         <Field label={S.duration} htmlFor="iv-duration">
-          <Input id="iv-duration" type="number" min={10} max={120} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value) || 45)} />
+          <Input
+            id="iv-duration"
+            type="number"
+            min={10}
+            max={120}
+            step={5}
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value) || 45)}
+          />
         </Field>
         <Field label={S.language} htmlFor="iv-lang">
           <Select id="iv-lang" value={language} onChange={(e) => setLanguage(e.target.value as Language)}>
@@ -85,7 +116,7 @@ export function SetupForm({
       </div>
       {presets.length ? (
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">{S.presets}:</span>
+          <span className="text-muted-foreground text-xs">{S.presets}:</span>
           {presets.map((p) => (
             <Button
               key={p.id}
@@ -108,7 +139,7 @@ export function SetupForm({
           <Play />
           {pending ? S.starting : S.start}
         </Button>
-        <span className="text-xs text-subtle-foreground">{S.english}</span>
+        <span className="text-subtle-foreground text-xs">{S.english}</span>
       </div>
     </div>
   );

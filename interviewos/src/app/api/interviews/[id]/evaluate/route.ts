@@ -9,7 +9,8 @@ import { log } from "@/server/log";
 export const maxDuration = 300;
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!isAiConfigured()) return NextResponse.json({ error: "AI is not configured on the server." }, { status: 503 });
+  if (!isAiConfigured())
+    return NextResponse.json({ error: "AI is not configured on the server." }, { status: 503 });
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   const data = await getInterview(id);

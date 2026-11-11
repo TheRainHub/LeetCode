@@ -3,7 +3,8 @@ import { defineMessages } from "../define";
 export const experience = defineMessages(
   {
     title: "My Engineering Experience",
-    description: "Turn your real projects into clear interview stories. Seeded entries contain only what you told InterviewOS — correct and complete them.",
+    description:
+      "Turn your real projects into clear interview stories. Seeded entries contain only what you told InterviewOS — correct and complete them.",
     needsReview: "Needs your review",
     verified: "Verified by you",
     completeness: (pct: number) => `${pct}% filled in`,
@@ -68,7 +69,8 @@ export const experience = defineMessages(
   },
   {
     title: "Мой инженерный опыт",
-    description: "Превратите реальные проекты в понятные истории для собеседований. Предзаполненные записи содержат только то, что вы рассказали InterviewOS — исправьте и дополните их.",
+    description:
+      "Превратите реальные проекты в понятные истории для собеседований. Предзаполненные записи содержат только то, что вы рассказали InterviewOS — исправьте и дополните их.",
     needsReview: "Нужна ваша проверка",
     verified: "Проверено вами",
     completeness: (pct: number) => `Заполнено на ${pct}%`,
@@ -92,7 +94,8 @@ export const experience = defineMessages(
     },
     hints: {
       responsibility: "Пишите от первого лица. Что именно вы сделали, решили или за что отвечали?",
-      result: "Только реальные результаты. Не выдумывайте метрики — напишите, что известно и как это наблюдалось.",
+      result:
+        "Только реальные результаты. Не выдумывайте метрики — напишите, что известно и как это наблюдалось.",
     },
     markVerified: "Я проверил, что описание верно",
     save: "Сохранить проект",

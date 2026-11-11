@@ -111,7 +111,10 @@ export const userSettings = pgTable("user_settings", {
   timezone: text("timezone").default("Europe/Prague").notNull(),
   dailyBudgetMinutes: integer("daily_budget_minutes").default(90).notNull(),
   /** 0 = Sunday … 6 = Saturday */
-  restWeekdays: integer("rest_weekdays").array().default(sql`'{}'::integer[]`).notNull(),
+  restWeekdays: integer("rest_weekdays")
+    .array()
+    .default(sql`'{}'::integer[]`)
+    .notNull(),
   prioritizeUniversity: boolean("prioritize_university").default(true).notNull(),
   preferredLanguage: text("preferred_language").$type<Language>().default("java").notNull(),
   /** Background the AI interviewer may use. User-editable; seeded from what the user told us. */
@@ -685,13 +688,17 @@ export const interviewEvaluations = pgTable("interview_evaluations", {
   dimensions: jsonb("dimensions").$type<Record<string, EvaluationDimension>>().notNull(),
   strengths: jsonb("strengths").$type<string[]>().notNull(),
   weaknesses: jsonb("weaknesses").$type<string[]>().notNull(),
-  mistakes: jsonb("mistakes").$type<{ description: string; evidence: string; correction: string }[]>().notNull(),
+  mistakes: jsonb("mistakes")
+    .$type<{ description: string; evidence: string; correction: string }[]>()
+    .notNull(),
   modelAnswer: text("model_answer").notNull(),
   recommendedTopics: jsonb("recommended_topics").$type<{ topicSlug: string; reason: string }[]>().notNull(),
   followUpExercises: jsonb("follow_up_exercises")
     .$type<{ title: string; description: string; problemSlug?: string | null }[]>()
     .notNull(),
-  srsSuggestions: jsonb("srs_suggestions").$type<{ prompt: string; answer: string; topicSlug?: string | null }[]>().notNull(),
+  srsSuggestions: jsonb("srs_suggestions")
+    .$type<{ prompt: string; answer: string; topicSlug?: string | null }[]>()
+    .notNull(),
   model: text("model").notNull(),
   createdAt: createdAt(),
 });
@@ -758,7 +765,10 @@ export const studyTasks = pgTable(
     timesMoved: integer("times_moved").default(0).notNull(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
-  (t) => [index("study_tasks_date_idx").on(t.scheduledDate), index("study_tasks_session_idx").on(t.sessionId)],
+  (t) => [
+    index("study_tasks_date_idx").on(t.scheduledDate),
+    index("study_tasks_session_idx").on(t.sessionId),
+  ],
 );
 
 export const calendarEvents = pgTable(
@@ -927,4 +937,117 @@ export const timeEntries = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("time_entries_user_date_idx").on(t.userId, t.date)],
+);
+
+/* ------------------------------------------------------------------ */
+/* Problem bank (imported from external open datasets)                */
+/* ------------------------------------------------------------------ */
+
+export const bankWindowEnum = pgEnum("bank_window", ["30d", "3m", "6m", "6m_plus", "all"]);
+export const bankStatusEnum = pgEnum("bank_status", ["planned", "attempted", "solved", "solved_with_help"]);
+
+/** LeetCode problems known from imported lists. Metadata and links only — no statements are stored. */
+export const bankProblems = pgTable(
+  "bank_problems",
+  {
+    id: id(),
+    /** LeetCode slug, e.g. "two-sum" */
+    slug: text("slug").notNull().unique(),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    /** Unknown when a problem only appears in a pattern list. */
+    difficulty: difficultyEnum("difficulty"),
+    tags: text("tags")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    /** Set when InterviewOS has an executable version of the same problem. */
+    internalProblemId: integer("internal_problem_id").references(() => codingProblems.id, {
+      onDelete: "set null",
+    }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("bank_problems_tags_idx").using("gin", t.tags)],
+);
+
+export const bankCompanies = pgTable("bank_companies", {
+  id: id(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  /** Linked InterviewOS company track, if any. */
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
+});
+
+export const bankProblemCompanies = pgTable(
+  "bank_problem_companies",
+  {
+    problemId: integer("problem_id")
+      .notNull()
+      .references(() => bankProblems.id, { onDelete: "cascade" }),
+    bankCompanyId: integer("bank_company_id")
+      .notNull()
+      .references(() => bankCompanies.id, { onDelete: "cascade" }),
+    window: bankWindowEnum("window").notNull(),
+    /** Relative frequency within this company's list for this window (100 = most frequent). */
+    frequency: real("frequency").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.problemId, t.bankCompanyId, t.window] }),
+    index("bank_problem_companies_company_idx").on(t.bankCompanyId, t.window, t.frequency),
+    index("bank_problem_companies_window_idx").on(t.window, t.problemId),
+  ],
+);
+
+export const bankPatterns = pgTable("bank_patterns", {
+  id: id(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  position: integer("position").notNull(),
+  /** InterviewOS lesson slug that teaches this pattern, if any. */
+  topicSlug: text("topic_slug"),
+  /** Link to the source notes for this pattern. */
+  sourceUrl: text("source_url").notNull(),
+});
+
+export const bankProblemPatterns = pgTable(
+  "bank_problem_patterns",
+  {
+    problemId: integer("problem_id")
+      .notNull()
+      .references(() => bankProblems.id, { onDelete: "cascade" }),
+    patternId: integer("pattern_id")
+      .notNull()
+      .references(() => bankPatterns.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.problemId, t.patternId] }),
+    index("bank_problem_patterns_pattern_idx").on(t.patternId),
+  ],
+);
+
+/** One row per imported source: which commit was imported and when. */
+export const bankSources = pgTable("bank_sources", {
+  key: text("key").primaryKey(),
+  repoUrl: text("repo_url").notNull(),
+  commit: text("commit"),
+  commitDate: timestamp("commit_date", { withTimezone: true }),
+  importedAt: timestamp("imported_at", { withTimezone: true }).notNull(),
+  stats: jsonb("stats").$type<Record<string, number>>().notNull(),
+});
+
+/** Self-reported progress on bank problems (solved on LeetCode, not verified by InterviewOS). */
+export const bankProgress = pgTable(
+  "bank_progress",
+  {
+    userId: userRef(),
+    problemId: integer("problem_id")
+      .notNull()
+      .references(() => bankProblems.id, { onDelete: "cascade" }),
+    status: bankStatusEnum("status").notNull(),
+    notes: text("notes").default("").notNull(),
+    solvedAt: timestamp("solved_at", { withTimezone: true }),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.problemId] })],
 );

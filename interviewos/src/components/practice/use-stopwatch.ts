@@ -35,7 +35,10 @@ export function useStopwatch() {
     setElapsed(0);
     setRunning(false);
   }, []);
-  const read = useCallback(() => base.current + (startedAt.current !== null ? (Date.now() - startedAt.current) / 1000 : 0), []);
+  const read = useCallback(
+    () => base.current + (startedAt.current !== null ? (Date.now() - startedAt.current) / 1000 : 0),
+    [],
+  );
 
   return { running, elapsed, start, pause, reset, read };
 }

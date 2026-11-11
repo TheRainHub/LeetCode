@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { buildTranscript, sanitizeEvaluation, type RawEvaluation } from "@/lib/ai/evaluation";
-import { buildInterviewerSystemPrompt, displayCandidateMessage, formatCandidateMessage } from "@/lib/ai/interviewer";
+import {
+  buildInterviewerSystemPrompt,
+  displayCandidateMessage,
+  formatCandidateMessage,
+} from "@/lib/ai/interviewer";
 import { complexityMatches, normalizeComplexity } from "@/lib/complexity";
 import { addDays, diffDays, isISODate, startOfWeek, todayIn, weekday } from "@/lib/dates";
 import { generateProjectQuestions, projectCompleteness } from "@/lib/experience";
@@ -47,7 +51,13 @@ describe("interviewer prompt", () => {
   });
 
   it("round-trips candidate messages for display", () => {
-    const content = formatCandidateMessage({ text: "Use a hash map", kind: "hint_request", code: { language: "java", code: "int x;" }, elapsedMinutes: 12.4, durationMinutes: 45 });
+    const content = formatCandidateMessage({
+      text: "Use a hash map",
+      kind: "hint_request",
+      code: { language: "java", code: "int x;" },
+      elapsedMinutes: 12.4,
+      durationMinutes: 45,
+    });
     expect(content).toContain("[HINT REQUEST]");
     expect(content).toContain("[Elapsed: 12 of 45 min]");
     expect(displayCandidateMessage(content)).toBe("Use a hash map\n\n```java\nint x;\n```");
@@ -59,14 +69,28 @@ describe("evaluation sanitizing", () => {
     overallScore: 140,
     summary: "ok",
     dimensions: Object.fromEntries(
-      ["technicalCorrectness", "problemSolving", "codingQuality", "architecture", "communication", "independence", "edgeCases"].map((k, i) => [k, { score: i === 3 ? null : 9, evidence: "e" }]),
+      [
+        "technicalCorrectness",
+        "problemSolving",
+        "codingQuality",
+        "architecture",
+        "communication",
+        "independence",
+        "edgeCases",
+      ].map((k, i) => [k, { score: i === 3 ? null : 9, evidence: "e" }]),
     ) as RawEvaluation["dimensions"],
     strengths: ["s"],
     weaknesses: ["w"],
     mistakes: [],
     modelAnswer: "m",
-    recommendedTopics: [{ topicSlug: "dns", reason: "r" }, { topicSlug: "made-up", reason: "x" }],
-    coveredTopics: [{ topicSlug: "dns", score: 1.7 }, { topicSlug: "dns", score: 0.2 }],
+    recommendedTopics: [
+      { topicSlug: "dns", reason: "r" },
+      { topicSlug: "made-up", reason: "x" },
+    ],
+    coveredTopics: [
+      { topicSlug: "dns", score: 1.7 },
+      { topicSlug: "dns", score: 0.2 },
+    ],
     followUpExercises: [{ title: "t", description: "d", problemSlug: "nope" }],
     spacedRepetition: [{ prompt: "What is TTL?", answer: "Time to live", topicSlug: "made-up" }],
   };
@@ -92,14 +116,27 @@ describe("evaluation sanitizing", () => {
 });
 
 describe("lab evidence", () => {
-  const paste = { id: "s", title: "t", instructions: "", verification: { kind: "paste" as const, prompt: "p", pattern: "(?i)listen[\\s\\S]*8080", minLength: 10 } };
+  const paste = {
+    id: "s",
+    title: "t",
+    instructions: "",
+    verification: { kind: "paste" as const, prompt: "p", pattern: "(?i)listen[\\s\\S]*8080", minLength: 10 },
+  };
   it("checks length and case-insensitive patterns", () => {
     expect(checkStepEvidence(paste, { text: "short" })).toEqual({ passed: false, reason: "short" });
     expect(checkStepEvidence(paste, { text: "LISTEN 0 5 127.0.0.1:8080" }).passed).toBe(true);
-    expect(checkStepEvidence(paste, { text: "ESTAB 0 0 127.0.0.1:9090 peer" })).toEqual({ passed: false, reason: "pattern" });
+    expect(checkStepEvidence(paste, { text: "ESTAB 0 0 127.0.0.1:9090 peer" })).toEqual({
+      passed: false,
+      reason: "pattern",
+    });
   });
   it("requires checkbox confirmation", () => {
-    const step = { id: "c", title: "t", instructions: "", verification: { kind: "checkbox" as const, prompt: "p" } };
+    const step = {
+      id: "c",
+      title: "t",
+      instructions: "",
+      verification: { kind: "checkbox" as const, prompt: "p" },
+    };
     expect(checkStepEvidence(step, { checked: false }).passed).toBe(false);
     expect(checkStepEvidence(step, { checked: true }).passed).toBe(true);
   });
@@ -123,7 +160,9 @@ describe("experience questions", () => {
     const qs = generateProjectQuestions(project);
     expect(qs.find((q) => q.id === "ownership")!.needsField).toBe("responsibility");
     expect(qs.find((q) => q.id === "impact")!.lookFor).toMatch(/Don't|If there are no metrics/i);
-    expect(qs.map((q) => q.id)).toEqual(expect.arrayContaining(["kw-false-negatives", "kw-llm-structure", "kw-repo-exploration"]));
+    expect(qs.map((q) => q.id)).toEqual(
+      expect.arrayContaining(["kw-false-negatives", "kw-llm-structure", "kw-repo-exploration"]),
+    );
   });
   it("measures completeness over narrative fields", () => {
     expect(projectCompleteness(project)).toBeCloseTo(3 / 9);

@@ -12,7 +12,7 @@ import { getI18n } from "@/server/user";
 function List({ title, items }: { title: string; items: string[] }) {
   return (
     <Card className="p-4">
-      <p className="mb-2 text-xs font-medium text-muted-foreground">{title}</p>
+      <p className="text-muted-foreground mb-2 text-xs font-medium">{title}</p>
       <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
         {items.map((i) => (
           <li key={i}>{i}</li>
@@ -33,7 +33,7 @@ export default async function LabPage({ params }: { params: Promise<{ slug: stri
       <ActiveTimer kind="lab" refId={lab.slug} />
       <PageHeader
         eyebrow={
-          <Link href="/practice?tab=labs" className="inline-flex items-center gap-1 hover:text-foreground">
+          <Link href="/practice?tab=labs" className="hover:text-foreground inline-flex items-center gap-1">
             <ChevronLeft className="size-3.5" />
             {m.practice.tabs.labs}
           </Link>
@@ -41,7 +41,7 @@ export default async function LabPage({ params }: { params: Promise<{ slug: stri
         title={lab.title}
         description={lab.summary}
         actions={
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
             <Clock className="size-3.5" />
             {m.common.minutes(lab.estimatedMinutes)}
             <Badge>{m.common.difficulty[lab.difficulty]}</Badge>
@@ -55,7 +55,7 @@ export default async function LabPage({ params }: { params: Promise<{ slug: stri
         <List title={L.tools} items={lab.tools} />
       </div>
       {data.topics.length ? (
-        <p className="mb-6 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mb-6 text-xs">
           {m.common.labels.topics}:{" "}
           {data.topics.map((t, i) => (
             <span key={t.slug}>
@@ -72,25 +72,35 @@ export default async function LabPage({ params }: { params: Promise<{ slug: stri
         labId={lab.id}
         steps={lab.steps}
         reflectionQuestions={lab.reflectionQuestions}
-        attempt={attempt ? { id: attempt.id, status: attempt.status, stepEvidence: attempt.stepEvidence, reflections: attempt.reflections, minutesSpent: attempt.minutesSpent } : null}
+        attempt={
+          attempt
+            ? {
+                id: attempt.id,
+                status: attempt.status,
+                stepEvidence: attempt.stepEvidence,
+                reflections: attempt.reflections,
+                minutesSpent: attempt.minutesSpent,
+              }
+            : null
+        }
       />
       <section className="mt-8">
         <h2 className="mb-3 text-base font-semibold">{L.failures}</h2>
         <Card className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-border bg-surface-2 text-left text-[11px] text-muted-foreground">
+            <thead className="border-border bg-surface-2 text-muted-foreground border-b text-left text-[11px]">
               <tr>
                 <th className="px-3 py-2 font-medium">{L.symptom}</th>
                 <th className="px-3 py-2 font-medium">{L.cause}</th>
                 <th className="px-3 py-2 font-medium">{L.fix}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-border divide-y">
               {lab.failureScenarios.map((f) => (
                 <tr key={f.symptom} className="align-top">
                   <td className="px-3 py-2">{f.symptom}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{f.cause}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{f.fix}</td>
+                  <td className="text-muted-foreground px-3 py-2">{f.cause}</td>
+                  <td className="text-muted-foreground px-3 py-2">{f.fix}</td>
                 </tr>
               ))}
             </tbody>

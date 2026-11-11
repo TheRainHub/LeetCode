@@ -16,7 +16,11 @@ export const LABS: LabDef[] = [
       "Read an HTTP exchange with curl -v and explain each part",
       "Distinguish 'connection refused' from a timeout and explain what each means at the TCP level",
     ],
-    prerequisites: ["Linux or macOS terminal (WSL works on Windows)", "Python 3 installed", "Lesson: TCP/IP (recommended)"],
+    prerequisites: [
+      "Linux or macOS terminal (WSL works on Windows)",
+      "Python 3 installed",
+      "Lesson: TCP/IP (recommended)",
+    ],
     tools: ["python3", "ss (Linux) or lsof (macOS)", "ps", "curl", "kill"],
     deliverables: [
       "Pasted output of the listening socket and owning process",
@@ -84,7 +88,8 @@ Annotate (in your own words, below the pasted output):
 - \`<\` — status line and response headers received.
 
 Then compare with \`curl -sI http://127.0.0.1:8080/\` (HEAD request). What changed and why?`,
-        expectedOutput: "`< HTTP/1.0 200 OK` (Python's simple server speaks HTTP/1.0), `Content-Type: text/html`, and the body.",
+        expectedOutput:
+          "`< HTTP/1.0 200 OK` (Python's simple server speaks HTTP/1.0), `Content-Type: text/html`, and the body.",
         verification: {
           kind: "paste",
           prompt: "Paste the curl -v output plus your annotations.",
@@ -109,7 +114,8 @@ curl -v --connect-timeout 3 http://10.255.255.1:8080/
 \`\`\`
 
 Explain the difference: a **refused** connection means the host answered the SYN with a RST (nothing listening on that port); a **timeout** means no answer at all (packet dropped, filtered or host unreachable).`,
-        expectedOutput: "`Connection refused` for the first command; `Connection timed out` / `Timeout was reached` for the second.",
+        expectedOutput:
+          "`Connection refused` for the first command; `Connection timed out` / `Timeout was reached` for the second.",
         verification: {
           kind: "paste",
           prompt: "Paste both outputs and your explanation of refused vs timeout.",
@@ -122,14 +128,33 @@ Explain the difference: a **refused** connection means the host answered the SYN
         id: "port-conflict",
         title: "Bonus failure: address already in use",
         instructions: `Start the server again, then start a **second** server on the same port in another terminal. Observe \`OSError: [Errno 98] Address already in use\` (macOS: Errno 48). Use \`ss\`/\`lsof\` to find which process holds the port.`,
-        verification: { kind: "checkbox", prompt: "I reproduced 'Address already in use' and identified the owning process." },
+        verification: {
+          kind: "checkbox",
+          prompt: "I reproduced 'Address already in use' and identified the owning process.",
+        },
       },
     ],
     failureScenarios: [
-      { symptom: "ss shows no process name", cause: "Listing other users' sockets needs privileges", fix: "Run `sudo ss -ltnp`." },
-      { symptom: "curl hangs instead of refusing", cause: "A firewall drops packets, or you're hitting a different host", fix: "Use 127.0.0.1 explicitly and add `--connect-timeout 3`." },
-      { symptom: "Address already in use", cause: "Another process (or the previous server) still owns the port", fix: "Find it with `ss -ltnp` / `lsof -i :8080` and stop it, or pick another port." },
-      { symptom: "curl to localhost works but 0.0.0.0 vs 127.0.0.1 confusion", cause: "The server binds only to the loopback interface", fix: "Explain the difference between binding 127.0.0.1 and 0.0.0.0." },
+      {
+        symptom: "ss shows no process name",
+        cause: "Listing other users' sockets needs privileges",
+        fix: "Run `sudo ss -ltnp`.",
+      },
+      {
+        symptom: "curl hangs instead of refusing",
+        cause: "A firewall drops packets, or you're hitting a different host",
+        fix: "Use 127.0.0.1 explicitly and add `--connect-timeout 3`.",
+      },
+      {
+        symptom: "Address already in use",
+        cause: "Another process (or the previous server) still owns the port",
+        fix: "Find it with `ss -ltnp` / `lsof -i :8080` and stop it, or pick another port.",
+      },
+      {
+        symptom: "curl to localhost works but 0.0.0.0 vs 127.0.0.1 confusion",
+        cause: "The server binds only to the loopback interface",
+        fix: "Explain the difference between binding 127.0.0.1 and 0.0.0.0.",
+      },
     ],
     reflectionQuestions: [
       "At the TCP level, what does the client receive when the connection is refused, and what does it receive in the timeout case?",
@@ -154,7 +179,10 @@ Explain the difference: a **refused** connection means the host answered the SYN
     ],
     prerequisites: ["JDK 17+ (`java -version`)", "Lesson: Threads and the Java Memory Model"],
     tools: ["java (single-file source launcher)"],
-    deliverables: ["Program output for all three counters", "A written explanation of why the unsafe version loses updates"],
+    deliverables: [
+      "Program output for all three counters",
+      "A written explanation of why the unsafe version loses updates",
+    ],
     steps: [
       {
         id: "program",
@@ -241,9 +269,21 @@ Also explain why, even on a single-core machine, the unsafe version is incorrect
       },
     ],
     failureScenarios: [
-      { symptom: "unsafe count is always correct", cause: "Too little contention (small loop or one effective CPU)", fix: "Increase perThread to 5_000_000 or threads to 8; run several times." },
-      { symptom: "Program never finishes", cause: "An exception inside a task is swallowed by submit(), or awaitTermination is waiting", fix: "Check for exceptions with future.get(); keep the latch logic as given." },
-      { symptom: "'java Counters.java' fails to compile", cause: "JDK older than 11 or a typo", fix: "Check `java -version`; the single-file launcher requires JDK 11+." },
+      {
+        symptom: "unsafe count is always correct",
+        cause: "Too little contention (small loop or one effective CPU)",
+        fix: "Increase perThread to 5_000_000 or threads to 8; run several times.",
+      },
+      {
+        symptom: "Program never finishes",
+        cause: "An exception inside a task is swallowed by submit(), or awaitTermination is waiting",
+        fix: "Check for exceptions with future.get(); keep the latch logic as given.",
+      },
+      {
+        symptom: "'java Counters.java' fails to compile",
+        cause: "JDK older than 11 or a typo",
+        fix: "Check `java -version`; the single-file launcher requires JDK 11+.",
+      },
     ],
     reflectionQuestions: [
       "Why does making the field volatile not fix the race?",
@@ -260,15 +300,27 @@ Also explain why, even on a single-core machine, the unsafe version is incorrect
       "Create tables and indexes, run joins and aggregations, read EXPLAIN ANALYZE before and after indexing, and simulate concurrent updates with row locks.",
     estimatedMinutes: 75,
     difficulty: "medium",
-    topics: ["sql-queries", "postgres-indexes", "query-optimization", "transactions-isolation", "locking-concurrency"],
+    topics: [
+      "sql-queries",
+      "postgres-indexes",
+      "query-optimization",
+      "transactions-isolation",
+      "locking-concurrency",
+    ],
     objectives: [
       "Read a query plan and identify sequential scans, index scans and join strategies",
       "Show the effect of an index with measured execution time",
       "Reproduce a lost update and prevent it with SELECT … FOR UPDATE or an atomic UPDATE",
     ],
-    prerequisites: ["PostgreSQL 14+ and psql (the database you created for InterviewOS works)", "Lesson: PostgreSQL indexes"],
+    prerequisites: [
+      "PostgreSQL 14+ and psql (the database you created for InterviewOS works)",
+      "Lesson: PostgreSQL indexes",
+    ],
     tools: ["psql"],
-    deliverables: ["EXPLAIN ANALYZE output before and after an index", "Transcript of two concurrent sessions"],
+    deliverables: [
+      "EXPLAIN ANALYZE output before and after an index",
+      "Transcript of two concurrent sessions",
+    ],
     steps: [
       {
         id: "schema",
@@ -307,7 +359,8 @@ GROUP BY c.country;
 \`\`\`
 
 Identify: the scan type on \`orders\`, rows estimated vs actual, and total execution time.`,
-        expectedOutput: "A `Seq Scan on orders` (or Parallel Seq Scan) filtering ~500k rows; execution time in tens of milliseconds.",
+        expectedOutput:
+          "A `Seq Scan on orders` (or Parallel Seq Scan) filtering ~500k rows; execution time in tens of milliseconds.",
         verification: {
           kind: "paste",
           prompt: "Paste the plan.",
@@ -373,9 +426,21 @@ Optional: run B in \`BEGIN ISOLATION LEVEL REPEATABLE READ\` and observe \`ERROR
       },
     ],
     failureScenarios: [
-      { symptom: "Plan still shows Seq Scan after creating the index", cause: "Stale statistics or low selectivity", fix: "Run ANALYZE; check that the predicate matches few rows." },
-      { symptom: "Session B does not block with FOR UPDATE", cause: "Autocommit: the transaction ended immediately", fix: "Start with BEGIN and keep A's transaction open." },
-      { symptom: "permission denied to create database", cause: "Role lacks CREATEDB", fix: "Use the interviewos database or ask a superuser to run createdb." },
+      {
+        symptom: "Plan still shows Seq Scan after creating the index",
+        cause: "Stale statistics or low selectivity",
+        fix: "Run ANALYZE; check that the predicate matches few rows.",
+      },
+      {
+        symptom: "Session B does not block with FOR UPDATE",
+        cause: "Autocommit: the transaction ended immediately",
+        fix: "Start with BEGIN and keep A's transaction open.",
+      },
+      {
+        symptom: "permission denied to create database",
+        cause: "Role lacks CREATEDB",
+        fix: "Use the interviewos database or ask a superuser to run createdb.",
+      },
     ],
     reflectionQuestions: [
       "Why does the planner sometimes prefer a sequential scan even when an index exists?",
@@ -400,7 +465,11 @@ Optional: run B in \`BEGIN ISOLATION LEVEL REPEATABLE READ\` and observe \`ERROR
     ],
     prerequisites: ["Node.js 20+", "Lessons: Promises and async/await, React hooks"],
     tools: ["npm", "Vite (React + TypeScript template)", "Vitest", "React Testing Library", "Zod"],
-    deliverables: ["A running app", "Test output with at least one error-path test", "A short write-up of how you prevent stale responses"],
+    deliverables: [
+      "A running app",
+      "Test output with at least one error-path test",
+      "A short write-up of how you prevent stale responses",
+    ],
     steps: [
       {
         id: "scaffold",
@@ -413,7 +482,10 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
 \`\`\`
 
 Use the public JSONPlaceholder API (\`https://jsonplaceholder.typicode.com/todos?userId=1\`) or a tiny local Express server.`,
-        verification: { kind: "checkbox", prompt: "Project created and `npm run dev` shows the starter page." },
+        verification: {
+          kind: "checkbox",
+          prompt: "Project created and `npm run dev` shows the starter page.",
+        },
       },
       {
         id: "client",
@@ -422,7 +494,12 @@ Use the public JSONPlaceholder API (\`https://jsonplaceholder.typicode.com/todos
 - validate the JSON with a Zod schema (types alone don't validate runtime data);
 - throw a typed error for non-2xx responses (include the status);
 - accept an \`AbortSignal\`.`,
-        verification: { kind: "paste", prompt: "Paste your api.ts.", pattern: "(?i)z\\.object[\\s\\S]*fetch", minLength: 200 },
+        verification: {
+          kind: "paste",
+          prompt: "Paste your api.ts.",
+          pattern: "(?i)z\\.object[\\s\\S]*fetch",
+          minLength: 200,
+        },
       },
       {
         id: "states",
@@ -431,7 +508,12 @@ Use the public JSONPlaceholder API (\`https://jsonplaceholder.typicode.com/todos
 - states: idle → loading → success | error, plus an empty state;
 - switching users quickly must never show the previous user's todos (abort the previous request in the effect cleanup);
 - a Retry button on error.`,
-        verification: { kind: "paste", prompt: "Paste the component and explain how stale responses are prevented.", pattern: "(?i)abort", minLength: 300 },
+        verification: {
+          kind: "paste",
+          prompt: "Paste the component and explain how stale responses are prevented.",
+          pattern: "(?i)abort",
+          minLength: 300,
+        },
       },
       {
         id: "tests",
@@ -451,9 +533,21 @@ Run \`npx vitest run\`.`,
       },
     ],
     failureScenarios: [
-      { symptom: "Old user's todos flash after switching", cause: "No cancellation of in-flight requests", fix: "Abort in the effect cleanup or ignore responses with an `ignore` flag." },
-      { symptom: "Tests hang", cause: "Unresolved fetch mock or missing await on findBy*", fix: "Return resolved promises from mocks; use `await screen.findByText`." },
-      { symptom: "'document is not defined' in tests", cause: "Vitest environment is node", fix: "Set `environment: 'jsdom'` in vitest config." },
+      {
+        symptom: "Old user's todos flash after switching",
+        cause: "No cancellation of in-flight requests",
+        fix: "Abort in the effect cleanup or ignore responses with an `ignore` flag.",
+      },
+      {
+        symptom: "Tests hang",
+        cause: "Unresolved fetch mock or missing await on findBy*",
+        fix: "Return resolved promises from mocks; use `await screen.findByText`.",
+      },
+      {
+        symptom: "'document is not defined' in tests",
+        cause: "Vitest environment is node",
+        fix: "Set `environment: 'jsdom'` in vitest config.",
+      },
     ],
     reflectionQuestions: [
       "Why is a TypeScript type not enough to trust data from an API?",
@@ -470,15 +564,29 @@ Run \`npx vitest run\`.`,
       "Design a booking system end to end, identify race conditions, choose transaction semantics, and discuss scaling and availability.",
     estimatedMinutes: 75,
     difficulty: "medium",
-    topics: ["cs-booking-platform", "transactions-isolation", "locking-concurrency", "sd-requirements", "sd-consistency"],
+    topics: [
+      "cs-booking-platform",
+      "transactions-isolation",
+      "locking-concurrency",
+      "sd-requirements",
+      "sd-consistency",
+    ],
     objectives: [
       "Clarify requirements and estimate load before designing",
       "Prevent double booking with an explicit concurrency strategy and justify it",
       "Discuss scaling, availability and failure handling with concrete trade-offs",
     ],
-    prerequisites: ["Lessons: Requirements clarification, Transactions and isolation", "Case study: Booking platform (recommended)"],
+    prerequisites: [
+      "Lessons: Requirements clarification, Transactions and isolation",
+      "Case study: Booking platform (recommended)",
+    ],
     tools: ["Paper or a diagram tool", "Optional: PostgreSQL to prototype constraints"],
-    deliverables: ["Written requirements and estimates", "Data model and booking flow", "Concurrency strategy with justification", "Scaling & failure discussion"],
+    deliverables: [
+      "Written requirements and estimates",
+      "Data model and booking flow",
+      "Concurrency strategy with justification",
+      "Scaling & failure discussion",
+    ],
     steps: [
       {
         id: "requirements",
@@ -492,7 +600,12 @@ Write down: functional requirements (search, hold, book, cancel, waitlist?), non
         id: "model",
         title: "Data model and API",
         instructions: `Define tables (e.g. \`classes(id, capacity, starts_at)\`, \`bookings(id, class_id, user_id, status, idempotency_key)\`) and the main endpoints (\`POST /classes/{id}/bookings\` with an Idempotency-Key header). Include the constraints that enforce invariants in the database.`,
-        verification: { kind: "paste", prompt: "Paste your schema and API.", minLength: 300, pattern: "(?i)(unique|constraint|primary key|idempotency)" },
+        verification: {
+          kind: "paste",
+          prompt: "Paste your schema and API.",
+          minLength: 300,
+          pattern: "(?i)(unique|constraint|primary key|idempotency)",
+        },
       },
       {
         id: "races",
@@ -504,7 +617,12 @@ Write down: functional requirements (search, hold, book, cancel, waitlist?), non
 - per-seat rows with a unique constraint.
 
 Also handle: payment failures after a seat is held (hold with expiry), and client retries (idempotency keys).`,
-        verification: { kind: "paste", prompt: "Paste your analysis and decision.", minLength: 500, pattern: "(?i)(for update|serializable|atomic|unique|row count)" },
+        verification: {
+          kind: "paste",
+          prompt: "Paste your analysis and decision.",
+          minLength: 500,
+          pattern: "(?i)(for update|serializable|atomic|unique|row count)",
+        },
       },
       {
         id: "scale",
@@ -514,9 +632,21 @@ Also handle: payment failures after a seat is held (hold with expiry), and clien
       },
     ],
     failureScenarios: [
-      { symptom: "Design relies on 'check then insert' in application code", cause: "Time-of-check to time-of-use race", fix: "Move the invariant into one atomic statement, a lock, or a constraint." },
-      { symptom: "Seat count cached and decremented in Redis only", cause: "Cache becomes the source of truth without durability", fix: "Keep the database authoritative; use the cache for reads." },
-      { symptom: "Retries create duplicate bookings", cause: "Non-idempotent POST", fix: "Idempotency key with a unique constraint and stored response." },
+      {
+        symptom: "Design relies on 'check then insert' in application code",
+        cause: "Time-of-check to time-of-use race",
+        fix: "Move the invariant into one atomic statement, a lock, or a constraint.",
+      },
+      {
+        symptom: "Seat count cached and decremented in Redis only",
+        cause: "Cache becomes the source of truth without durability",
+        fix: "Keep the database authoritative; use the cache for reads.",
+      },
+      {
+        symptom: "Retries create duplicate bookings",
+        cause: "Non-idempotent POST",
+        fix: "Idempotency key with a unique constraint and stored response.",
+      },
     ],
     reflectionQuestions: [
       "Which part of your design must be strongly consistent and which can be eventually consistent? Why?",

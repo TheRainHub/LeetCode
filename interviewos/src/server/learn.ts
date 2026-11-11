@@ -30,7 +30,10 @@ export async function getPathsOverview() {
       })
       .from(lessons)
       .innerJoin(modules, eq(modules.id, lessons.moduleId))
-      .leftJoin(topicProgress, and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId))),
+      .leftJoin(
+        topicProgress,
+        and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId)),
+      ),
   ]);
   return paths.map((p) => {
     const ls = lessonRows.filter((l) => l.pathId === p.id);
@@ -65,7 +68,10 @@ export async function getPath(slug: string) {
       completedAt: lessonProgress.completedAt,
     })
     .from(lessons)
-    .leftJoin(topicProgress, and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId)))
+    .leftJoin(
+      topicProgress,
+      and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId)),
+    )
     .leftJoin(lessonProgress, and(eq(lessonProgress.lessonId, lessons.id), eq(lessonProgress.userId, userId)))
     .where(inArray(lessons.moduleId, mods.length ? mods.map((m) => m.id) : [-1]))
     .orderBy(asc(lessons.order), asc(lessons.title));
@@ -105,7 +111,10 @@ export async function getLessonPage(slug: string) {
       .select({ slug: lessons.slug, title: lessons.title, status: topicProgress.status })
       .from(lessonPrerequisites)
       .innerJoin(lessons, eq(lessons.id, lessonPrerequisites.prerequisiteId))
-      .leftJoin(topicProgress, and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId)))
+      .leftJoin(
+        topicProgress,
+        and(eq(topicProgress.topicId, lessons.topicId), eq(topicProgress.userId, userId)),
+      )
       .where(eq(lessonPrerequisites.lessonId, lesson.id)),
     db.select().from(exercises).where(eq(exercises.lessonId, lesson.id)).orderBy(asc(exercises.order)),
     db
@@ -119,8 +128,14 @@ export async function getLessonPage(slug: string) {
       .from(lessonProblems)
       .innerJoin(codingProblems, eq(codingProblems.id, lessonProblems.problemId))
       .where(eq(lessonProblems.lessonId, lesson.id)),
-    db.select().from(lessonProgress).where(and(eq(lessonProgress.lessonId, lesson.id), eq(lessonProgress.userId, userId))),
-    db.select().from(topicProgress).where(and(eq(topicProgress.topicId, lesson.topicId), eq(topicProgress.userId, userId))),
+    db
+      .select()
+      .from(lessonProgress)
+      .where(and(eq(lessonProgress.lessonId, lesson.id), eq(lessonProgress.userId, userId))),
+    db
+      .select()
+      .from(topicProgress)
+      .where(and(eq(topicProgress.topicId, lesson.topicId), eq(topicProgress.userId, userId))),
     db
       .select({
         exerciseId: exerciseAttempts.exerciseId,
@@ -148,7 +163,9 @@ export async function getLessonPage(slug: string) {
   const quizAnswered = mcq.filter((q) => latest.has(q.id)).length;
   const quizCorrect = mcq.filter((q) => latest.get(q.id)?.isCorrect).length;
   const explainAttempts = explain ? attempts.filter((a) => a.exerciseId === explain.id) : [];
-  const bestExplain = explainAttempts.filter((a) => a.interviewMode).reduce((m, a) => Math.max(m, a.score), 0);
+  const bestExplain = explainAttempts
+    .filter((a) => a.interviewMode)
+    .reduce((m, a) => Math.max(m, a.score), 0);
   const idx = siblings.findIndex((s) => s.slug === lesson.slug);
 
   return {
@@ -156,7 +173,9 @@ export async function getLessonPage(slug: string) {
     prerequisites: prereqs.map((p) => ({ ...p, status: (p.status ?? "not_started") as TopicStatus })),
     // Only the question text and options are sent to the client — answers are graded on the server.
     quiz: mcq.map((q) => ({ id: q.id, prompt: q.prompt, options: q.options ?? [] })),
-    explain: explain ? { id: explain.id, prompt: explain.prompt, rubricSize: explain.rubric?.length ?? 0 } : null,
+    explain: explain
+      ? { id: explain.id, prompt: explain.prompt, rubricSize: explain.rubric?.length ?? 0 }
+      : null,
     problems,
     progress: progressRows[0] ?? null,
     topic: topicRows[0] ?? null,

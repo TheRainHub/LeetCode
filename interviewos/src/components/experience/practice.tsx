@@ -14,7 +14,15 @@ import { cn } from "@/lib/utils";
 
 type Q = { id: string; question: string; lookFor: string; needsField?: string; category?: string };
 
-function PracticeBox({ projectId, question, onDone }: { projectId: number; question: Q; onDone: () => void }) {
+function PracticeBox({
+  projectId,
+  question,
+  onDone,
+}: {
+  projectId: number;
+  question: Q;
+  onDone: () => void;
+}) {
   const { m } = useI18n();
   const P = m.experience.practice;
   const [answer, setAnswer] = useState("");
@@ -28,24 +36,35 @@ function PracticeBox({ projectId, question, onDone }: { projectId: number; quest
     return () => window.clearInterval(t);
   }, []);
   return (
-    <div className="mt-3 flex flex-col gap-2 rounded-md border border-border bg-surface-2 p-3">
-      <p className="flex items-center justify-between text-xs text-muted-foreground">
+    <div className="border-border bg-surface-2 mt-3 flex flex-col gap-2 rounded-md border p-3">
+      <p className="text-muted-foreground flex items-center justify-between text-xs">
         {P.title}
         <span className="flex items-center gap-1 tabular-nums">
           <Timer className="size-3.5" />
           {formatDuration(elapsed)}
         </span>
       </p>
-      <Textarea rows={5} value={answer} onChange={(e) => setAnswer(e.target.value)} aria-label={P.answer} placeholder={P.answer} />
+      <Textarea
+        rows={5}
+        value={answer}
+        onChange={(e) => setAnswer(e.target.value)}
+        aria-label={P.answer}
+        placeholder={P.answer}
+      />
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground">{P.selfScore}</span>
+        <span className="text-muted-foreground text-xs">{P.selfScore}</span>
         {[1, 2, 3, 4, 5].map((v) => (
           <button
             key={v}
             type="button"
             aria-pressed={score === v}
             onClick={() => setScore(v)}
-            className={cn("size-7 cursor-pointer rounded-md border text-xs", score === v ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground")}
+            className={cn(
+              "size-7 cursor-pointer rounded-md border text-xs",
+              score === v
+                ? "border-primary bg-primary-soft text-primary"
+                : "border-border text-muted-foreground",
+            )}
           >
             {v}
           </button>
@@ -57,7 +76,13 @@ function PracticeBox({ projectId, question, onDone }: { projectId: number; quest
           disabled={pending || answer.trim().length < 10}
           onClick={() =>
             run(async () => {
-              const res = await savePracticeAnswerAction({ projectId, question: question.question, answer, selfScore: score, durationSeconds: elapsed });
+              const res = await savePracticeAnswerAction({
+                projectId,
+                question: question.question,
+                answer,
+                selfScore: score,
+                durationSeconds: elapsed,
+              });
               if (!res.ok) return void toast.error(res.error);
               toast.success(P.saved);
               onDone();
@@ -99,7 +124,14 @@ export function QuestionList({
             run(async () => {
               const res = await generateAiQuestionsAction({ projectId });
               if (!res.ok) return void toast.error(res.error);
-              setAiQs(res.data!.map((q, i) => ({ id: `ai-${Date.now()}-${i}`, question: q.question, lookFor: q.lookFor, category: "AI" })));
+              setAiQs(
+                res.data!.map((q, i) => ({
+                  id: `ai-${Date.now()}-${i}`,
+                  question: q.question,
+                  lookFor: q.lookFor,
+                  category: "AI",
+                })),
+              );
             })
           }
         >
@@ -109,25 +141,29 @@ export function QuestionList({
       ) : null}
       <ul className="flex flex-col gap-2">
         {all.map((q) => (
-          <li key={q.id} className="rounded-md border border-border bg-surface p-3">
+          <li key={q.id} className="border-border bg-surface rounded-md border p-3">
             <div className="flex items-start gap-2">
-              <MessageCircleQuestion className="mt-0.5 size-4 shrink-0 text-subtle-foreground" />
+              <MessageCircleQuestion className="text-subtle-foreground mt-0.5 size-4 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm">{q.question}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-xs">
                   <span className="text-subtle-foreground">{Qm.lookFor}: </span>
                   {q.lookFor}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {q.category ? <Badge tone="outline">{q.category}</Badge> : null}
-                  {q.needsField ? <Badge tone="warning">{Qm.needsField(fieldLabels[q.needsField] ?? q.needsField)}</Badge> : null}
+                  {q.needsField ? (
+                    <Badge tone="warning">{Qm.needsField(fieldLabels[q.needsField] ?? q.needsField)}</Badge>
+                  ) : null}
                 </div>
               </div>
               <Button size="sm" variant="ghost" onClick={() => setOpen(open === q.id ? null : q.id)}>
                 {Qm.practice}
               </Button>
             </div>
-            {open === q.id ? <PracticeBox projectId={projectId} question={q} onDone={() => setOpen(null)} /> : null}
+            {open === q.id ? (
+              <PracticeBox projectId={projectId} question={q} onDone={() => setOpen(null)} />
+            ) : null}
           </li>
         ))}
       </ul>

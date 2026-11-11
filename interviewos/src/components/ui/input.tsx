@@ -14,14 +14,14 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
 
 export function Select({ className, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select className={cn(fieldBase, "h-8 pr-7 cursor-pointer", className)} {...props}>
+    <select className={cn(fieldBase, "h-8 cursor-pointer pr-7", className)} {...props}>
       {children}
     </select>
   );
 }
 
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  return <label className={cn("text-xs font-medium text-muted-foreground", className)} {...props} />;
+  return <label className={cn("text-muted-foreground text-xs font-medium", className)} {...props} />;
 }
 
 export function Field({
@@ -41,7 +41,7 @@ export function Field({
     <div className={cn("flex flex-col gap-1.5", className)}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {hint ? <p className="text-[11px] text-subtle-foreground">{hint}</p> : null}
+      {hint ? <p className="text-subtle-foreground text-[11px]">{hint}</p> : null}
     </div>
   );
 }
@@ -50,7 +50,10 @@ export function Checkbox({ className, ...props }: Omit<React.InputHTMLAttributes
   return (
     <input
       type="checkbox"
-      className={cn("size-4 shrink-0 cursor-pointer rounded border-border accent-[var(--primary)]", className)}
+      className={cn(
+        "border-border size-4 shrink-0 cursor-pointer rounded accent-[var(--primary)]",
+        className,
+      )}
       {...props}
     />
   );

@@ -6,7 +6,11 @@ export function defineMessages<T>(en: T, ru: NoInfer<T>): { en: T; ru: T } {
   return { en, ru };
 }
 
-export function plural(locale: Locale, n: number, forms: { one: string; few?: string; many: string }): string {
+export function plural(
+  locale: Locale,
+  n: number,
+  forms: { one: string; few?: string; many: string },
+): string {
   if (locale === "ru") {
     const mod10 = n % 10;
     const mod100 = n % 100;

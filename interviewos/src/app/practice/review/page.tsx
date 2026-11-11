@@ -16,7 +16,7 @@ export default async function ReviewPage() {
     <PageContainer className="max-w-3xl">
       <PageHeader
         eyebrow={
-          <Link href="/practice?tab=review" className="inline-flex items-center gap-1 hover:text-foreground">
+          <Link href="/practice?tab=review" className="hover:text-foreground inline-flex items-center gap-1">
             <ChevronLeft className="size-3.5" />
             {m.practice.title}
           </Link>
@@ -31,7 +31,7 @@ export default async function ReviewPage() {
           prompt: c.prompt,
           answer: c.answer,
           source: c.source,
-          topicTitle: c.topicId ? title.get(c.topicId) ?? null : null,
+          topicTitle: c.topicId ? (title.get(c.topicId) ?? null) : null,
         }))}
       />
     </PageContainer>

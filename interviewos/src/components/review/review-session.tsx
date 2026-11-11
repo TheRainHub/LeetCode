@@ -42,7 +42,11 @@ export function ReviewSession({ cards }: { cards: ReviewCardData[] }) {
     (g: (typeof GRADES)[number]) =>
       start(async () => {
         if (!card) return;
-        const res = await gradeCardAction({ scheduleId: card.scheduleId, grade: g, elapsedSeconds: (Date.now() - shownAt.current) / 1000 });
+        const res = await gradeCardAction({
+          scheduleId: card.scheduleId,
+          grade: g,
+          elapsedSeconds: (Date.now() - shownAt.current) / 1000,
+        });
         if (!res.ok) return void toast.error(res.error);
         setResults((r) => [...r, { grade: g, interval: res.data!.intervalDays }]);
         setRevealed(false);
@@ -68,14 +72,19 @@ export function ReviewSession({ cards }: { cards: ReviewCardData[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [revealed, done, pending, grade]);
 
-  if (cards.length === 0) return <p className="text-sm text-muted-foreground">{R.empty}</p>;
+  if (cards.length === 0) return <p className="text-muted-foreground text-sm">{R.empty}</p>;
 
   if (done) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface p-8 text-center" data-testid="review-done">
-        <CircleCheck className="size-6 text-success" />
+      <div
+        className="border-border bg-surface flex flex-col items-center gap-3 rounded-lg border p-8 text-center"
+        data-testid="review-done"
+      >
+        <CircleCheck className="text-success size-6" />
         <p className="text-base font-semibold">{R.done}</p>
-        <p className="text-sm text-muted-foreground">{R.doneSummary(results.length, results.filter((r) => r.grade === "again").length)}</p>
+        <p className="text-muted-foreground text-sm">
+          {R.doneSummary(results.length, results.filter((r) => r.grade === "again").length)}
+        </p>
         <Button asChild variant="primary" size="sm">
           <Link href="/">{m.common.nav.dashboard}</Link>
         </Button>
@@ -87,9 +96,11 @@ export function ReviewSession({ cards }: { cards: ReviewCardData[] }) {
     <div className="flex flex-col gap-4" data-testid="review-session">
       <div className="flex items-center gap-3">
         <Progress value={(index / cards.length) * 100} />
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{R.progress(index + 1, cards.length)}</span>
+        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+          {R.progress(index + 1, cards.length)}
+        </span>
       </div>
-      <div className="rounded-lg border border-border bg-surface p-6">
+      <div className="border-border bg-surface rounded-lg border p-6">
         <div className="mb-3 flex flex-wrap gap-1.5">
           <Badge tone="outline">{R.source[card!.source]}</Badge>
           {card!.topicTitle ? <Badge>{card!.topicTitle}</Badge> : null}
@@ -97,16 +108,27 @@ export function ReviewSession({ cards }: { cards: ReviewCardData[] }) {
         <p className="text-lg leading-relaxed font-medium">{card!.prompt}</p>
         {!revealed ? (
           <div className="mt-5 flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground">{R.recall}</p>
-            <Textarea rows={3} value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={R.yourAnswer} aria-label={R.yourAnswer} />
-            <Button variant="primary" className="self-start" onClick={() => setRevealed(true)} data-testid="review-reveal">
+            <p className="text-muted-foreground text-xs">{R.recall}</p>
+            <Textarea
+              rows={3}
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              placeholder={R.yourAnswer}
+              aria-label={R.yourAnswer}
+            />
+            <Button
+              variant="primary"
+              className="self-start"
+              onClick={() => setRevealed(true)}
+              data-testid="review-reveal"
+            >
               {R.reveal}
             </Button>
           </div>
         ) : (
-          <div className="mt-5 border-t border-border pt-4">
+          <div className="border-border mt-5 border-t pt-4">
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{card!.answer}</p>
-            {typed ? <p className="mt-3 text-xs text-muted-foreground italic">“{typed}”</p> : null}
+            {typed ? <p className="text-muted-foreground mt-3 text-xs italic">“{typed}”</p> : null}
             <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {GRADES.map((g, i) => (
                 <button
@@ -117,21 +139,27 @@ export function ReviewSession({ cards }: { cards: ReviewCardData[] }) {
                   data-testid={`grade-${g}`}
                   className={cn(
                     "flex cursor-pointer flex-col items-start rounded-md border px-3 py-2 text-left transition-colors disabled:opacity-50",
-                    g === "again" ? "border-danger/40 hover:bg-danger-soft" : g === "hard" ? "border-warning/40 hover:bg-warning-soft" : g === "good" ? "border-primary/40 hover:bg-primary-soft" : "border-success/40 hover:bg-success-soft",
+                    g === "again"
+                      ? "border-danger/40 hover:bg-danger-soft"
+                      : g === "hard"
+                        ? "border-warning/40 hover:bg-warning-soft"
+                        : g === "good"
+                          ? "border-primary/40 hover:bg-primary-soft"
+                          : "border-success/40 hover:bg-success-soft",
                   )}
                 >
                   <span className="text-sm font-medium">
-                    <span className="mr-1.5 text-subtle-foreground">{i + 1}</span>
+                    <span className="text-subtle-foreground mr-1.5">{i + 1}</span>
                     {R.grades[g]}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">{R.gradeHelp[g]}</span>
+                  <span className="text-muted-foreground text-[11px]">{R.gradeHelp[g]}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
       </div>
-      <p className="text-[11px] text-subtle-foreground">{R.shortcuts}</p>
+      <p className="text-subtle-foreground text-[11px]">{R.shortcuts}</p>
     </div>
   );
 }

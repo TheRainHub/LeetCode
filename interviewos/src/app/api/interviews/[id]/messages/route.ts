@@ -6,7 +6,12 @@ import { isAiConfigured } from "@/lib/ai/config";
 import { formatCandidateMessage } from "@/lib/ai/interviewer";
 import { db } from "@/lib/db";
 import { mockInterviews } from "@/lib/db/schema";
-import { appendUserMessage, getInterview, startInterviewIfNeeded, streamInterviewerReply } from "@/server/interviews";
+import {
+  appendUserMessage,
+  getInterview,
+  startInterviewIfNeeded,
+  streamInterviewerReply,
+} from "@/server/interviews";
 import { log } from "@/server/log";
 
 const bodySchema = z.discriminatedUnion("action", [
@@ -25,7 +30,8 @@ const bodySchema = z.discriminatedUnion("action", [
  *   {"type":"delta","text":"…"} … {"type":"done"} | {"type":"error","message":"…"}
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!isAiConfigured()) return NextResponse.json({ error: "AI is not configured on the server." }, { status: 503 });
+  if (!isAiConfigured())
+    return NextResponse.json({ error: "AI is not configured on the server." }, { status: 503 });
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
@@ -34,11 +40,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const data = await getInterview(id);
   if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (data.interview.status !== "in_progress") return NextResponse.json({ error: "This interview has ended." }, { status: 409 });
+  if (data.interview.status !== "in_progress")
+    return NextResponse.json({ error: "This interview has ended." }, { status: 409 });
 
   const body = parsed.data;
   if (body.action === "start") {
-    if (data.messages.some((m) => m.role === "assistant")) return NextResponse.json({ error: "Already started" }, { status: 409 });
+    if (data.messages.some((m) => m.role === "assistant"))
+      return NextResponse.json({ error: "Already started" }, { status: 409 });
     await startInterviewIfNeeded(id);
   } else if (body.action === "send") {
     if (!body.text.trim() && !body.code?.code.trim() && body.kind !== "hint_request") {
@@ -65,7 +73,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       } catch (err) {
         const message = describeAiError(err);
         log.warn("interview", "reply failed", { id, error: message });
-        await db.update(mockInterviews).set({ lastError: message.slice(0, 500) }).where(eq(mockInterviews.id, id));
+        await db
+          .update(mockInterviews)
+          .set({ lastError: message.slice(0, 500) })
+          .where(eq(mockInterviews.id, id));
         send({ type: "error", message });
       } finally {
         controller.close();
@@ -73,6 +84,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     },
   });
   return new Response(stream, {
-    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" },
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Accel-Buffering": "no",
+    },
   });
 }

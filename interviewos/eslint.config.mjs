@@ -11,5 +11,14 @@ export default defineConfig([
       "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "public/monaco/**", "playwright-report/**", "test-results/**", "drizzle/meta/**"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "public/monaco/**",
+    "playwright-report/**",
+    "test-results/**",
+    "drizzle/meta/**",
+  ]),
 ]);

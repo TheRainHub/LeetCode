@@ -3,17 +3,20 @@ import { defineMessages } from "../define";
 export const schedule = defineMessages(
   {
     title: "Study Schedule",
-    description: "A realistic plan placed around your daily budget, rest days, university obligations and interviews. Unfinished work carries over automatically.",
+    description:
+      "A realistic plan placed around your daily budget, rest days, university obligations and interviews. Unfinished work carries over automatically.",
     create: {
       title: "Create a study plan",
       template: "Template",
       startDate: "Start date",
-      historical: (start: string, end: string) => `Derived from the historical ${start} – ${end} plan; dates are recomputed from your start date.`,
+      historical: (start: string, end: string) =>
+        `Derived from the historical ${start} – ${end} plan; dates are recomputed from your start date.`,
       sessions: (n: number) => `${n} sessions`,
       totalMinutes: (h: string) => `${h} of planned work`,
       generate: "Generate plan",
       regenerate: "Regenerate from a new start date",
-      regenerateWarning: "This replaces the current plan (completed tasks stay in your history only as evidence, not as plan tasks).",
+      regenerateWarning:
+        "This replaces the current plan (completed tasks stay in your history only as evidence, not as plan tasks).",
     },
     settings: {
       title: "Capacity",
@@ -49,7 +52,12 @@ export const schedule = defineMessages(
       title: "Calendar",
       add: "Add event",
       kind: "Type",
-      kinds: { university: "University obligation", interview: "Interview", unavailable: "Unavailable day", other: "Other" },
+      kinds: {
+        university: "University obligation",
+        interview: "Interview",
+        unavailable: "Unavailable day",
+        other: "Other",
+      },
       name: "Title",
       date: "Date",
       lightDays: "Light days before",
@@ -67,17 +75,20 @@ export const schedule = defineMessages(
   },
   {
     title: "Расписание",
-    description: "Реалистичный план с учётом дневного бюджета, дней отдыха, учёбы и собеседований. Невыполненное переносится автоматически.",
+    description:
+      "Реалистичный план с учётом дневного бюджета, дней отдыха, учёбы и собеседований. Невыполненное переносится автоматически.",
     create: {
       title: "Создать учебный план",
       template: "Шаблон",
       startDate: "Дата начала",
-      historical: (start: string, end: string) => `Основан на историческом плане ${start} – ${end}; даты пересчитываются от вашей даты начала.`,
+      historical: (start: string, end: string) =>
+        `Основан на историческом плане ${start} – ${end}; даты пересчитываются от вашей даты начала.`,
       sessions: (n: number) => `Сессий: ${n}`,
       totalMinutes: (h: string) => `${h} запланированной работы`,
       generate: "Создать план",
       regenerate: "Пересоздать с новой даты",
-      regenerateWarning: "Это заменит текущий план (выполненные задачи остаются в истории как подтверждения, но не как задачи плана).",
+      regenerateWarning:
+        "Это заменит текущий план (выполненные задачи остаются в истории как подтверждения, но не как задачи плана).",
     },
     settings: {
       title: "Нагрузка",
@@ -113,7 +124,12 @@ export const schedule = defineMessages(
       title: "Календарь",
       add: "Добавить событие",
       kind: "Тип",
-      kinds: { university: "Учебное обязательство", interview: "Собеседование", unavailable: "Недоступный день", other: "Другое" },
+      kinds: {
+        university: "Учебное обязательство",
+        interview: "Собеседование",
+        unavailable: "Недоступный день",
+        other: "Другое",
+      },
       name: "Название",
       date: "Дата",
       lightDays: "Лёгких дней до",

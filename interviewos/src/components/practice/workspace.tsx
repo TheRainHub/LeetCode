@@ -1,6 +1,16 @@
 "use client";
 
-import { ChevronLeft, Keyboard, Maximize2, Minimize2, Pause, Play, RotateCcw, Send, Timer } from "lucide-react";
+import {
+  ChevronLeft,
+  Keyboard,
+  Maximize2,
+  Minimize2,
+  Pause,
+  Play,
+  RotateCcw,
+  Send,
+  Timer,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,7 +49,15 @@ function storageKey(slug: string, lang: Language) {
   return `interviewos:draft:${slug}:${lang}`;
 }
 
-export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceData; defaultLanguage: Language; theme: "dark" | "light" }) {
+export function Workspace({
+  data,
+  defaultLanguage,
+  theme,
+}: {
+  data: WorkspaceData;
+  defaultLanguage: Language;
+  theme: "dark" | "light";
+}) {
   const { m } = useI18n();
   const w = m.practice.ws;
   const router = useRouter();
@@ -106,7 +124,10 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
   };
 
   const allTests: ProblemTest[] = useMemo(
-    () => [...p.tests, ...data.customTests.map((c) => ({ name: `custom: ${c.name}`, args: c.args, expected: c.expected }))],
+    () => [
+      ...p.tests,
+      ...data.customTests.map((c) => ({ name: `custom: ${c.name}`, args: c.args, expected: c.expected })),
+    ],
     [p.tests, data.customTests],
   );
 
@@ -118,8 +139,22 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
     setRunning(true);
     setBottomTab("results");
     try {
-      const res = await browserTypeScriptRunner.run({ language, code: current, signature: p.signature, comparator: p.comparator, tests: allTests });
-      setExecution({ mode: "browser", results: res.results, logs: res.logs, compileError: res.compileError, message: res.message, code: current, language });
+      const res = await browserTypeScriptRunner.run({
+        language,
+        code: current,
+        signature: p.signature,
+        comparator: p.comparator,
+        tests: allTests,
+      });
+      setExecution({
+        mode: "browser",
+        results: res.results,
+        logs: res.logs,
+        compileError: res.compileError,
+        message: res.message,
+        code: current,
+        language,
+      });
     } finally {
       setRunning(false);
     }
@@ -161,25 +196,47 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
   return (
     <div className="flex h-dvh flex-col">
       <ActiveTimer kind="problem" refId={`view:${p.slug}`} />
-      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border bg-surface px-3">
-        <Link href="/practice" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+      <header className="border-border bg-surface flex h-12 shrink-0 items-center gap-2 border-b px-3">
+        <Link
+          href="/practice"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs"
+        >
           <ChevronLeft className="size-4" />
           <span className="hidden sm:inline">{w.back}</span>
         </Link>
         <h1 className="ml-1 truncate text-sm font-semibold">{p.title}</h1>
-        <Badge tone={p.difficulty === "easy" ? "success" : p.difficulty === "medium" ? "warning" : "danger"}>{m.common.difficulty[p.difficulty]}</Badge>
-        {viewedSolution ? <Badge tone="danger">{w.independenceValues.with_solution}</Badge> : hints.length ? <Badge tone="warning">{w.independenceValues.with_hints}</Badge> : null}
+        <Badge tone={p.difficulty === "easy" ? "success" : p.difficulty === "medium" ? "warning" : "danger"}>
+          {m.common.difficulty[p.difficulty]}
+        </Badge>
+        {viewedSolution ? (
+          <Badge tone="danger">{w.independenceValues.with_solution}</Badge>
+        ) : hints.length ? (
+          <Badge tone="warning">{w.independenceValues.with_hints}</Badge>
+        ) : null}
 
         <div className="ml-auto flex items-center gap-1.5">
-          <div className="flex items-center gap-1 rounded-md border border-border bg-surface-2 px-2 py-1" aria-label={w.timer.label}>
-            <Timer className="size-3.5 text-subtle-foreground" />
+          <div
+            className="border-border bg-surface-2 flex items-center gap-1 rounded-md border px-2 py-1"
+            aria-label={w.timer.label}
+          >
+            <Timer className="text-subtle-foreground size-3.5" />
             <span className="w-14 text-xs tabular-nums" data-testid="stopwatch">
               {formatDuration(watch.elapsed)}
             </span>
-            <button type="button" className="p-0.5 text-muted-foreground hover:text-foreground" onClick={watch.running ? watch.pause : watch.start} aria-label={watch.running ? w.timer.pause : w.timer.start}>
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground p-0.5"
+              onClick={watch.running ? watch.pause : watch.start}
+              aria-label={watch.running ? w.timer.pause : w.timer.start}
+            >
               {watch.running ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
             </button>
-            <button type="button" className="p-0.5 text-muted-foreground hover:text-foreground" onClick={watch.reset} aria-label={w.timer.reset}>
+            <button
+              type="button"
+              className="text-muted-foreground hover:text-foreground p-0.5"
+              onClick={watch.reset}
+              aria-label={w.timer.reset}
+            >
               <RotateCcw className="size-3.5" />
             </button>
           </div>
@@ -216,7 +273,14 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
             </Button>
           </Tooltip>
           <Tooltip content={focus ? w.exitFocus : w.focus}>
-            <Button size="icon-sm" variant="ghost" aria-label={focus ? w.exitFocus : w.focus} aria-pressed={focus} onClick={() => setFocus((f) => !f)} data-testid="focus-toggle">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label={focus ? w.exitFocus : w.focus}
+              aria-pressed={focus}
+              onClick={() => setFocus((f) => !f)}
+              data-testid="focus-toggle"
+            >
               {focus ? <Minimize2 /> : <Maximize2 />}
             </Button>
           </Tooltip>
@@ -255,7 +319,11 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
                 value={current}
                 onChange={onChange}
                 theme={theme}
-                commands={{ onRun: () => void run(), onSave: () => void persist(language, current, true), onSubmit: openSubmit }}
+                commands={{
+                  onRun: () => void run(),
+                  onSave: () => void persist(language, current, true),
+                  onSubmit: openSubmit,
+                }}
               />
             </Panel>
             <Separator className="h-px" />
@@ -318,7 +386,7 @@ export function Workspace({ data, defaultLanguage, theme }: { data: WorkspaceDat
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs text-subtle-foreground">{m.practice.executionNote}</p>
+          <p className="text-subtle-foreground mt-4 text-xs">{m.practice.executionNote}</p>
         </DialogContent>
       </Dialog>
     </div>

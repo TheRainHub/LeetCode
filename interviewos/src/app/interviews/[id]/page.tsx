@@ -43,7 +43,12 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
         language={interview.language}
         lastError={interview.lastError}
         theme={settings.theme}
-        initialMessages={data.messages.map((x) => ({ id: String(x.id), role: x.role, kind: x.kind, content: x.content }))}
+        initialMessages={data.messages.map((x) => ({
+          id: String(x.id),
+          role: x.role,
+          kind: x.kind,
+          content: x.content,
+        }))}
       />
     );
   }
@@ -51,7 +56,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
   const header = (
     <PageHeader
       eyebrow={
-        <Link href="/interviews" className="inline-flex items-center gap-1 hover:text-foreground">
+        <Link href="/interviews" className="hover:text-foreground inline-flex items-center gap-1">
           <ChevronLeft className="size-3.5" />
           {I.title}
         </Link>
@@ -62,18 +67,20 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
   );
 
   const transcript = (
-    <details className="mt-6 rounded-lg border border-border bg-surface">
+    <details className="border-border bg-surface mt-6 rounded-lg border">
       <summary className="cursor-pointer px-4 py-3 text-sm font-medium">{I.report.transcript}</summary>
-      <div className="flex flex-col gap-3 border-t border-border px-4 py-4">
+      <div className="border-border flex flex-col gap-3 border-t px-4 py-4">
         {data.messages
           .filter((x) => x.kind !== "opening")
           .map((x) => (
             <div key={x.id}>
-              <p className="mb-1 text-[11px] text-subtle-foreground">
+              <p className="text-subtle-foreground mb-1 text-[11px]">
                 {x.role === "assistant" ? I.session.interviewer : I.session.you}
                 {x.kind === "hint_request" ? ` · ${I.session.hint}` : ""}
               </p>
-              <Markdown compact>{x.role === "user" ? displayCandidateMessage(x.content) : x.content}</Markdown>
+              <Markdown compact>
+                {x.role === "user" ? displayCandidateMessage(x.content) : x.content}
+              </Markdown>
             </div>
           ))}
       </div>
@@ -84,7 +91,11 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
     return (
       <PageContainer className="max-w-4xl">
         {header}
-        {interview.status === "evaluating" ? <EvaluationRetry interviewId={interview.id} error={interview.lastError} /> : <EmptyState title={I.history.status[interview.status]} />}
+        {interview.status === "evaluating" ? (
+          <EvaluationRetry interviewId={interview.id} error={interview.lastError} />
+        ) : (
+          <EmptyState title={I.history.status[interview.status]} />
+        )}
         {transcript}
       </PageContainer>
     );
@@ -103,10 +114,20 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
           <CardContent>
             <p className="text-4xl font-semibold tabular-nums" data-testid="overall-score">
               {evaluation.overallScore}
-              <span className="text-base text-subtle-foreground">/100</span>
+              <span className="text-subtle-foreground text-base">/100</span>
             </p>
-            <Progress className="mt-3" value={evaluation.overallScore} tone={evaluation.overallScore >= 70 ? "success" : evaluation.overallScore >= 50 ? "warning" : "danger"} />
-            <p className="mt-3 text-[11px] text-subtle-foreground">{R.disclaimer}</p>
+            <Progress
+              className="mt-3"
+              value={evaluation.overallScore}
+              tone={
+                evaluation.overallScore >= 70
+                  ? "success"
+                  : evaluation.overallScore >= 50
+                    ? "warning"
+                    : "danger"
+              }
+            />
+            <p className="text-subtle-foreground mt-3 text-[11px]">{R.disclaimer}</p>
           </CardContent>
         </Card>
         <Card className="md:col-span-2">
@@ -129,10 +150,18 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
                 <div key={k}>
                   <div className="flex items-center justify-between text-sm">
                     <span>{R.dims[k]}</span>
-                    <span className="tabular-nums text-muted-foreground">{d?.score ? `${d.score}/5` : R.notExercised}</span>
+                    <span className="text-muted-foreground tabular-nums">
+                      {d?.score ? `${d.score}/5` : R.notExercised}
+                    </span>
                   </div>
-                  <Progress className="mt-1" value={d?.score ? (d.score / 5) * 100 : 0} tone={!d?.score ? "muted" : d.score >= 4 ? "success" : d.score >= 3 ? "primary" : "warning"} />
-                  {d?.evidence ? <p className="mt-1 text-xs text-muted-foreground">{d.evidence}</p> : null}
+                  <Progress
+                    className="mt-1"
+                    value={d?.score ? (d.score / 5) * 100 : 0}
+                    tone={
+                      !d?.score ? "muted" : d.score >= 4 ? "success" : d.score >= 3 ? "primary" : "warning"
+                    }
+                  />
+                  {d?.evidence ? <p className="text-muted-foreground mt-1 text-xs">{d.evidence}</p> : null}
                 </div>
               );
             })}
@@ -171,9 +200,9 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               {evaluation.mistakes.map((x, i) => (
-                <div key={i} className="rounded-md border border-border bg-surface-2 p-3 text-sm">
+                <div key={i} className="border-border bg-surface-2 rounded-md border p-3 text-sm">
                   <p className="font-medium">{x.description}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     <span className="text-subtle-foreground">{R.evidence}: </span>“{x.evidence}”
                   </p>
                   <p className="mt-1 text-xs">
@@ -198,16 +227,19 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
         <Card>
           <CardHeader>
             <CardTitle>{R.reading}</CardTitle>
-            <BookOpen className="size-4 text-subtle-foreground" />
+            <BookOpen className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             <ul className="flex flex-col gap-2 text-sm">
               {evaluation.recommendedTopics.map((t) => (
                 <li key={t.topicSlug}>
-                  <Link href={`/learn/lesson/${t.topicSlug}`} className="font-medium text-primary hover:underline">
+                  <Link
+                    href={`/learn/lesson/${t.topicSlug}`}
+                    className="text-primary font-medium hover:underline"
+                  >
                     {topicTitle.get(t.topicSlug) ?? t.topicSlug}
                   </Link>
-                  <p className="text-xs text-muted-foreground">{t.reason}</p>
+                  <p className="text-muted-foreground text-xs">{t.reason}</p>
                 </li>
               ))}
             </ul>
@@ -216,20 +248,23 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
         <Card>
           <CardHeader>
             <CardTitle>{R.exercises}</CardTitle>
-            <Dumbbell className="size-4 text-subtle-foreground" />
+            <Dumbbell className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             <ul className="flex flex-col gap-2 text-sm">
               {evaluation.followUpExercises.map((f) => (
                 <li key={f.title}>
                   {f.problemSlug ? (
-                    <Link href={`/practice/problems/${f.problemSlug}`} className="font-medium text-primary hover:underline">
+                    <Link
+                      href={`/practice/problems/${f.problemSlug}`}
+                      className="text-primary font-medium hover:underline"
+                    >
                       {f.title}
                     </Link>
                   ) : (
                     <span className="font-medium">{f.title}</span>
                   )}
-                  <p className="text-xs text-muted-foreground">{f.description}</p>
+                  <p className="text-muted-foreground text-xs">{f.description}</p>
                 </li>
               ))}
             </ul>
@@ -238,14 +273,16 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
         <Card>
           <CardHeader>
             <CardTitle>{R.srs}</CardTitle>
-            <Layers className="size-4 text-subtle-foreground" />
+            <Layers className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             <ul className="flex flex-col gap-2 text-sm">
               {evaluation.srsSuggestions.map((c) => (
                 <li key={c.prompt}>
                   <p>{c.prompt}</p>
-                  {c.topicSlug ? <Badge className="mt-1">{topicTitle.get(c.topicSlug) ?? c.topicSlug}</Badge> : null}
+                  {c.topicSlug ? (
+                    <Badge className="mt-1">{topicTitle.get(c.topicSlug) ?? c.topicSlug}</Badge>
+                  ) : null}
                 </li>
               ))}
             </ul>

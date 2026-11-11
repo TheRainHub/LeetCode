@@ -26,7 +26,8 @@ const runners: Record<Language, { ok: boolean; run: (dir: string) => string }> =
   },
   python: {
     ok: available("python3", ["--version"]),
-    run: (dir) => execFileSync("python3", ["solution_test.py"], { cwd: dir, encoding: "utf8", timeout: 30_000 }),
+    run: (dir) =>
+      execFileSync("python3", ["solution_test.py"], { cwd: dir, encoding: "utf8", timeout: 30_000 }),
   },
   typescript: {
     ok: true,

@@ -78,7 +78,13 @@ export const browserTypeScriptRunner: CodeRunner = {
         };
       }
       if (message.type === "compile-error") {
-        return { executed: false, mode: "browser", results: [], logs: message.logs, compileError: message.message };
+        return {
+          executed: false,
+          mode: "browser",
+          results: [],
+          logs: message.logs,
+          compileError: message.message,
+        };
       }
       return { executed: true, mode: "browser", results: message.results, logs: message.logs };
     } finally {

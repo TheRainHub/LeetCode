@@ -3,11 +3,16 @@
 import Editor, { loader, type Monaco, type OnMount } from "@monaco-editor/react";
 import { useEffect, useRef } from "react";
 import type { Language } from "@/lib/content/types";
+import { useI18n } from "@/lib/i18n/client";
 
 // Serve Monaco from /public (copied at install) so the editor works offline.
 loader.config({ paths: { vs: "/monaco/vs" } });
 
-const MONACO_LANGUAGE: Record<Language, string> = { java: "java", typescript: "typescript", python: "python" };
+const MONACO_LANGUAGE: Record<Language, string> = {
+  java: "java",
+  typescript: "typescript",
+  python: "python",
+};
 
 function defineThemes(monaco: Monaco) {
   monaco.editor.defineTheme("interviewos-dark", {
@@ -76,6 +81,7 @@ export function CodeEditor({
   /** Stable model URI; each path keeps its own model (and undo history) across language switches. */
   path?: string;
 }) {
+  const { m } = useI18n();
   const commandsRef = useRef(commands);
   useEffect(() => {
     commandsRef.current = commands;
@@ -99,7 +105,7 @@ export function CodeEditor({
       beforeMount={defineThemes}
       onMount={onMount}
       onChange={(v) => onChange?.(v ?? "")}
-      loading={<div className="p-4 text-xs text-subtle-foreground">Loading editor…</div>}
+      loading={<div className="text-subtle-foreground p-4 text-xs">{m.practice.ws.loadingEditor}</div>}
       options={{
         readOnly,
         fontSize: 13.5,

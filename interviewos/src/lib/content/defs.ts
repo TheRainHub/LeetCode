@@ -71,7 +71,8 @@ export interface CompanyDef {
   problems: string[];
   presets: {
     title: string;
-    type: "algorithms" | "core_cs" | "backend" | "fullstack" | "system_design" | "behavioral" | "ai_engineering";
+    type:
+      "algorithms" | "core_cs" | "backend" | "fullstack" | "system_design" | "behavioral" | "ai_engineering";
     difficulty: "easy" | "medium" | "hard";
     durationMinutes: number;
     language: Language;

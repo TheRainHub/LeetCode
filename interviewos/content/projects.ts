@@ -20,7 +20,8 @@ export const PROJECTS: ProjectDef[] = [
       "- LLM agents investigating vulnerability alerts\n- Repository exploration by the agent\n- Structured assessments as output",
     decisions: "",
     tradeoffs: "",
-    challenges: "Reliability of agent conclusions; false negatives (real vulnerabilities assessed as not affecting the code).",
+    challenges:
+      "Reliability of agent conclusions; false negatives (real vulnerabilities assessed as not affecting the code).",
     result: "A small experimental evaluation was performed.",
     lessonsLearned: "",
   },

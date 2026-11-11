@@ -19,21 +19,38 @@ export default async function CompaniesPage() {
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {rows.map((c) => (
           <Link key={c.id} href={`/companies/${c.slug}`} className="group">
-            <Card className="h-full p-4 group-hover:border-border-strong">
+            <Card className="group-hover:border-border-strong h-full p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h2 className="text-sm font-semibold group-hover:text-primary">{c.name}</h2>
-                  <p className="text-xs text-muted-foreground">{c.role}</p>
+                  <h2 className="group-hover:text-primary text-sm font-semibold">{c.name}</h2>
+                  <p className="text-muted-foreground text-xs">{c.role}</p>
                 </div>
-                {c.stage ? <Badge tone={c.stage === "offer" ? "success" : c.stage === "rejected" ? "danger" : "primary"}>{C.pipeline.stages[c.stage as "applied"]}</Badge> : null}
+                {c.stage ? (
+                  <Badge
+                    tone={c.stage === "offer" ? "success" : c.stage === "rejected" ? "danger" : "primary"}
+                  >
+                    {C.pipeline.stages[c.stage as "applied"]}
+                  </Badge>
+                ) : null}
               </div>
               <div className="mt-4 flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{C.readiness}</span>
-                {c.readiness.estimate === null ? <NotEnoughData label={m.common.labels.notEnoughData} /> : <span className="tabular-nums">{c.readiness.estimate}%</span>}
+                {c.readiness.estimate === null ? (
+                  <NotEnoughData label={m.common.labels.notEnoughData} />
+                ) : (
+                  <span className="tabular-nums">{c.readiness.estimate}%</span>
+                )}
               </div>
-              <Progress className="mt-1.5" value={c.readiness.estimate ?? 0} tone={c.readiness.estimate === null ? "muted" : "primary"} label={C.readiness} />
-              <div className="mt-2 flex flex-wrap gap-x-3 text-[11px] text-subtle-foreground">
-                <span>{m.dashboard.companies.coverage(c.readiness.startedTopics, c.readiness.totalTopics)}</span>
+              <Progress
+                className="mt-1.5"
+                value={c.readiness.estimate ?? 0}
+                tone={c.readiness.estimate === null ? "muted" : "primary"}
+                label={C.readiness}
+              />
+              <div className="text-subtle-foreground mt-2 flex flex-wrap gap-x-3 text-[11px]">
+                <span>
+                  {m.dashboard.companies.coverage(c.readiness.startedTopics, c.readiness.totalTopics)}
+                </span>
                 <span>
                   {C.observed}: {c.avgMockScore === null ? "—" : `${c.avgMockScore}/100 (${c.mockCount})`}
                 </span>

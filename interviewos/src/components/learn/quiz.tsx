@@ -18,7 +18,12 @@ export interface QuizQuestion {
 export function Quiz({ lessonId, questions }: { lessonId: number; questions: QuizQuestion[] }) {
   const { m } = useI18n();
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [result, setResult] = useState<{ feedback: QuizFeedback[]; correct: number; total: number; passed: boolean } | null>(null);
+  const [result, setResult] = useState<{
+    feedback: QuizFeedback[];
+    correct: number;
+    total: number;
+    passed: boolean;
+  } | null>(null);
   const [pending, start] = useTransition();
   const startedAt = useRef<number>(0);
 
@@ -49,10 +54,10 @@ export function Quiz({ lessonId, questions }: { lessonId: number; questions: Qui
       {questions.map((q, qi) => {
         const fb = result?.feedback.find((f) => f.exerciseId === q.id);
         return (
-          <fieldset key={q.id} className="rounded-lg border border-border bg-surface p-4">
+          <fieldset key={q.id} className="border-border bg-surface rounded-lg border p-4">
             <legend className="sr-only">{q.prompt}</legend>
             <p className="mb-3 text-sm font-medium">
-              <span className="mr-2 text-subtle-foreground tabular-nums">{qi + 1}.</span>
+              <span className="text-subtle-foreground mr-2 tabular-nums">{qi + 1}.</span>
               {q.prompt}
             </p>
             <div className="flex flex-col gap-1.5">
@@ -83,14 +88,14 @@ export function Quiz({ lessonId, questions }: { lessonId: number; questions: Qui
                       }}
                     />
                     <span className="flex-1">{opt}</span>
-                    {isCorrectOpt ? <Check className="size-4 text-success" /> : null}
-                    {isWrongPick ? <X className="size-4 text-danger" /> : null}
+                    {isCorrectOpt ? <Check className="text-success size-4" /> : null}
+                    {isWrongPick ? <X className="text-danger size-4" /> : null}
                   </label>
                 );
               })}
             </div>
             {fb ? (
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
                 <Badge tone={fb.isCorrect ? "success" : "danger"} className="mr-2">
                   {fb.isCorrect ? m.learn.quiz.correct : m.learn.quiz.incorrect}
                 </Badge>
@@ -106,7 +111,9 @@ export function Quiz({ lessonId, questions }: { lessonId: number; questions: Qui
             <Badge tone={result.passed ? "success" : "warning"} className="text-xs">
               {m.learn.quiz.score(result.correct, result.total)}
             </Badge>
-            <span className="text-xs text-muted-foreground">{result.passed ? m.learn.quiz.passed : m.learn.quiz.failed}</span>
+            <span className="text-muted-foreground text-xs">
+              {result.passed ? m.learn.quiz.passed : m.learn.quiz.failed}
+            </span>
             <Button size="sm" variant="ghost" onClick={reset}>
               {m.learn.quiz.retry}
             </Button>
