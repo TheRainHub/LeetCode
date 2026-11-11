@@ -495,4 +495,124 @@ export const COMPANIES: CompanyDef[] = [
     presets: productPresets,
     checklist: productChecklist,
   },
+  {
+    slug: "barclays",
+    name: "Barclays",
+    role: "2027 Technology Developer Graduate Programme — Prague",
+    order: 8,
+    overview: `Graduate developer programme at Barclays' Prague technology hub. Search results describe the 2027 Prague posting as the April 2027 cohort (an August cohort is recruited separately) — confirm dates on the posting itself.
+
+**What the posting asks for** (from search summaries; the posting page could not be opened directly)
+- Ability to code in at least one programming language; a STEM degree is preferred but not essential.
+- Graduates design and build technology solutions, improve existing systems, and use data, scripting and automation to solve problems.
+- The 2026 Prague listing described a 1–2-year fast-track programme with a stack spanning Java, C++, C#, Python, SQL/NoSQL, JavaScript/TypeScript, containers and Kubernetes, CI/CD and machine learning.
+
+**Selection process reported by candidates** (anonymous reports, 2020–2026, several locations — the exact stages vary)
+1. Online application.
+2. Online assessments: behavioural / situational-judgement questions and a timed coding test (HackerRank- or HackerEarth-style; typically 2 easy–medium problems in about 45 minutes in Java, C++ or Python). Some versions add OOP/Java multiple-choice questions and SQL queries.
+3. Asynchronous video interview (reported for a 2026 graduate process).
+4. Interviews or an assessment centre: a technical interview (OOP pillars with real-life examples, core Java, SQL joins, a coding problem followed by complexity, edge cases and test cases) and a behavioural interview about past experiences; some candidates describe a case study or a short role-play exercise.
+
+**Values and mindset Barclays states in its job postings**
+- Values: Respect, Integrity, Service, Excellence, Stewardship.
+- Mindset: Empower, Challenge, Drive.
+
+Prague-specific candidate reports mention a dynamic-programming problem with time/space follow-ups (software engineer, 2026), a "most frequent element in an array" task (part-time developer, 2024) and Java multiple-choice questions on exceptions, inheritance, complexity and string functions (2020).`,
+    techStack: [
+      "Java",
+      "Python",
+      "C# / C++",
+      "SQL",
+      "JavaScript / TypeScript",
+      "Containers & Kubernetes",
+      "CI/CD",
+    ],
+    prepNotes: `- Online test: practise timed sets of 2 easy–medium problems in 45 minutes (arrays, strings, hash maps, greedy, basic DP) in Java; say the complexity and test edge cases before submitting.
+- SQL: joins (INNER/LEFT), GROUP BY/HAVING, "second highest value" queries — "Second Highest Salary" is on Barclays' LeetCode list.
+- OOP & Java: the four pillars with real-life examples; exceptions, inheritance vs composition, collections, String immutability, threads basics.
+- Behavioural: 1–2 STAR stories per value and examples of Empower, Challenge and Drive; "Why Barclays, why technology in banking, why Prague?".
+- Video interview: rehearse answers on camera with a time limit.
+- Banking context helps: why correctness, idempotency and transactions matter for payments.`,
+    sourceNote:
+      "Compiled on 11 Nov 2026 from web-search summaries: the Barclays posting (the page itself could not be opened from the build environment), Barclays job postings describing values, mindset and the application steps, and anonymous candidate reports (Glassdoor, 1point3acres, GeeksforGeeks, Interview Query and prep sites, 2020–2026, mixed locations and roles). Treat the process as indicative and follow your invitation emails.",
+    focus: {
+      complexity: 3,
+      "arrays-strings": 3,
+      "hashmap-hashset": 3,
+      greedy: 3,
+      sorting: 2,
+      "two-pointers": 2,
+      "sliding-window": 2,
+      "stack-queue": 2,
+      "binary-search": 2,
+      "bfs-dfs": 2,
+      "dynamic-programming": 2,
+      "linked-lists": 1,
+      recursion: 1,
+      trees: 1,
+      oop: 3,
+      "interfaces-abstraction": 2,
+      exceptions: 2,
+      collections: 2,
+      immutability: 1,
+      "java-concurrency": 2,
+      "sql-queries": 3,
+      "transactions-isolation": 2,
+      idempotency: 1,
+      "rest-api-design": 1,
+      "docker-kubernetes": 1,
+      "ci-cd": 1,
+      "thinking-aloud": 3,
+      "behavioral-star": 3,
+    },
+    problems: [
+      "two-sum",
+      "valid-parentheses",
+      "merge-intervals",
+      "number-of-islands",
+      "group-anagrams",
+      "longest-substring-without-repeating-characters",
+      "best-time-to-buy-and-sell-stock",
+    ],
+    presets: [
+      {
+        title: "Online coding test (Java, 2 problems)",
+        type: "algorithms",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
+      {
+        title: "Technical interview: OOP, Java & SQL",
+        type: "core_cs",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "java",
+      },
+      {
+        title: "Values & experience interview",
+        type: "behavioral",
+        difficulty: "medium",
+        durationMinutes: 30,
+        language: "java",
+      },
+      {
+        title: "Coding round (Python)",
+        type: "algorithms",
+        difficulty: "easy",
+        durationMinutes: 45,
+        language: "python",
+      },
+    ],
+    checklist: [
+      "Solve 2 easy–medium problems in 45 minutes in Java three times, without hints",
+      "Write SQL with INNER/LEFT JOIN, GROUP BY/HAVING and a second-highest-value query",
+      "Explain the four OOP pillars with real-life examples",
+      "Prepare one STAR story for each value: Respect, Integrity, Service, Excellence, Stewardship",
+      "Prepare examples of Empower, Challenge and Drive from your own experience",
+      "Record answers to 3 behavioural questions on video with a 2-minute limit",
+      "Answer 'Why Barclays, why technology in banking, why Prague?' in under 2 minutes",
+      "Run the coding-test and values mock interviews for this track and review the evaluations",
+    ],
+  },
 ];

@@ -130,7 +130,7 @@ Phase 4 — Advanced learning
 | `npm test` (Vitest)                                         | 87 tests pass: domain logic, code runner, problem-bank parsers, i18n parity, content integrity, component tests |
 | `npm run test:e2e` (Playwright, production build)           | 7 tests pass against a fresh test database, a mock Anthropic API and synthetic problem-bank fixtures            |
 | `npm run content:verify-harnesses`                          | all 10 reference solutions pass in Java, Python and TypeScript                                                  |
-| `npm run db:setup` twice                                    | idempotent: 8 paths, 104 lessons, 10 problems, 5 labs, 7 companies                                              |
+| `npm run db:setup` twice                                    | idempotent: 8 paths, 104 lessons, 10 problems, 5 labs, 8 companies                                              |
 | `npm run content:check-links`                               | 0 broken; most links unverifiable from the build environment (network policy) — see README                      |
 | AI interviewer against the real Anthropic API               | not exercised in automated tests (mock only)                                                                    |
 | `npm run bank:import` against the real sources              | 3,397 problems, 423 companies with data, 36,347 company/period entries, 16 patterns; re-run is idempotent       |

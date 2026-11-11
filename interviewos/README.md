@@ -253,7 +253,7 @@ How to read it:
   but they never count as verified practice for topic readiness. The 10 problems InterviewOS can run
   itself are marked "Solve in InterviewOS"; attempts there are verified as usual.
 - Company tracks link to dataset lists through `COMPANY_DATASET_NAMES` in `content/problem-bank.ts`.
-  Microsoft and Apple are mapped; CDN77, Second Foundation, Ataccama, Apify and Momence have no list in
+  Microsoft, Apple and Barclays are mapped; CDN77, Second Foundation, Ataccama, Apify and Momence have no list in
   the dataset, and their pages say so. LeetCode tags and patterns map to lessons in the same file.
 
 Importing:
@@ -316,14 +316,14 @@ synthetic fixtures in `e2e/fixtures/problem-bank/` — their frequencies are mad
 
 ## Content
 
-| Area                       | Amount                                                                                                                                                                                                                           |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Learning paths             | 8 (DSA, Java, Linux & Networking, Backend, TypeScript & React, System Design, AI Engineering, Communication)                                                                                                                     |
-| Lessons                    | 104, each with objectives, prerequisites, explanation, readings, worked examples, misconceptions, exercises, interview questions, self-assessment, completion criteria, quiz, interview-mode explanation rubric and review cards |
-| System design case studies | 7 (URL shortener, notifications, booking platform, rate limiter, feature flags, developer portal, LLM vulnerability triage)                                                                                                      |
-| Coding problems            | 10, with tests, hints, reference solutions in Java/Python/TypeScript and complexity                                                                                                                                              |
-| Labs                       | 5 (Linux networking, Java concurrency, PostgreSQL, fullstack, booking-system design), verified by pasted evidence and reflection, never by opening them                                                                          |
-| Company tracks             | 7 (Microsoft DevDiv Core AI, CDN77, Second Foundation, Ataccama, Apify, Momence, Apple) — focus weights are inferred from the job descriptions and your notes, labelled as inferred in the app; edit them                        |
+| Area                       | Amount                                                                                                                                                                                                                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Learning paths             | 8 (DSA, Java, Linux & Networking, Backend, TypeScript & React, System Design, AI Engineering, Communication)                                                                                                                                                                                                         |
+| Lessons                    | 104, each with objectives, prerequisites, explanation, readings, worked examples, misconceptions, exercises, interview questions, self-assessment, completion criteria, quiz, interview-mode explanation rubric and review cards                                                                                     |
+| System design case studies | 7 (URL shortener, notifications, booking platform, rate limiter, feature flags, developer portal, LLM vulnerability triage)                                                                                                                                                                                          |
+| Coding problems            | 10, with tests, hints, reference solutions in Java/Python/TypeScript and complexity                                                                                                                                                                                                                                  |
+| Labs                       | 5 (Linux networking, Java concurrency, PostgreSQL, fullstack, booking-system design), verified by pasted evidence and reflection, never by opening them                                                                                                                                                              |
+| Company tracks             | 8 (Microsoft DevDiv Core AI, CDN77, Second Foundation, Ataccama, Apify, Momence, Apple, Barclays 2027 Technology Developer Graduate Programme Prague) — focus weights are inferred from the job descriptions, your notes and (for Barclays) public candidate reports, with the source shown on each track; edit them |
 
 Lessons live in `content/lessons/<path>/<slug>.md` (YAML frontmatter + four Markdown sections) and are
 validated by `src/lib/content/lesson-parser.ts`; `content/content.test.ts` checks that every
