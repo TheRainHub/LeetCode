@@ -50,6 +50,8 @@ export interface InterviewerPromptInput {
   company?: { name: string; role: string; focusTopics: string[] } | null;
   candidateProfile: string;
   practisedProblems: string[];
+  /** A specific system design question to run (system design interviews only). */
+  designQuestion?: { title: string; prompt: string } | null;
 }
 
 export const LANGUAGE_NAMES = { java: "Java", typescript: "TypeScript", python: "Python" } as const;
@@ -64,12 +66,16 @@ export function buildInterviewerSystemPrompt(input: InterviewerPromptInput): str
     ? `\n<practised_problems>\nThe candidate has already practised: ${input.practisedProblems.join(", ")}.\n</practised_problems>\n`
     : "";
 
+  const designQuestion = input.designQuestion
+    ? `\n<design_question>\nRun the interview on this question: "${input.designQuestion.prompt}" Present it in your own words, then let the candidate clarify requirements before designing. Do not offer a reference architecture.\n</design_question>\n`
+    : "";
+
   return `You are a realistic, fair technical interviewer conducting a ${input.durationMinutes}-minute ${TYPE_LABELS[input.type]} interview${target}. ${DIFFICULTY_GUIDE[input.difficulty]} The candidate writes code in ${LANGUAGE_NAMES[input.language]}.
 
 <candidate_background>
 ${input.candidateProfile.trim() || "No background provided."}
 </candidate_background>
-${focus}${practised}
+${focus}${practised}${designQuestion}
 <interview_format>
 ${FORMAT[input.type]}
 </interview_format>

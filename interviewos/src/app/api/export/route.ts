@@ -47,6 +47,8 @@ export async function GET() {
     studySessions: sessions,
     studyTasks: await db.select().from(s.studyTasks).where(inArray(s.studyTasks.sessionId, sessionIds)),
     calendarEvents: await db.select().from(s.calendarEvents).where(eq(s.calendarEvents.userId, userId)),
+    systemDesignDrafts: await db.select().from(s.sdDrafts).where(eq(s.sdDrafts.userId, userId)),
+    systemDesignAttempts: await db.select().from(s.sdAttempts).where(eq(s.sdAttempts.userId, userId)),
     problemBankProgress: await db
       .select({
         slug: s.bankProblems.slug,

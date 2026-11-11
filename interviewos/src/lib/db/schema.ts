@@ -650,6 +650,8 @@ export const mockInterviews = pgTable(
     systemPrompt: text("system_prompt").notNull(),
     hintsRequested: integer("hints_requested").default(0).notNull(),
     lastError: text("last_error"),
+    /** System design question (content/system-design.ts slug) this interview practises, if any. */
+    sdQuestionSlug: text("sd_question_slug"),
     startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
   },
@@ -1050,4 +1052,38 @@ export const bankProgress = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.problemId] })],
+);
+
+/* ------------------------------------------------------------------ */
+/* System design practice                                              */
+/* ------------------------------------------------------------------ */
+
+/** The user's written answer for a design question, one section per interview phase. */
+export const sdDrafts = pgTable(
+  "sd_drafts",
+  {
+    userId: userRef(),
+    questionSlug: text("question_slug").notNull(),
+    sections: jsonb("sections").$type<Record<string, string>>().notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.questionSlug] })],
+);
+
+/** A graded practice attempt: rubric checks from self-assessment or AI review. */
+export const sdAttempts = pgTable(
+  "sd_attempts",
+  {
+    id: id(),
+    userId: userRef(),
+    questionSlug: text("question_slug").notNull(),
+    rubricChecks: jsonb("rubric_checks").$type<boolean[]>().notNull(),
+    /** 0..1 share of rubric items covered */
+    score: real("score").notNull(),
+    durationSeconds: integer("duration_seconds").default(0).notNull(),
+    gradedBy: gradedByEnum("graded_by").notNull(),
+    feedback: text("feedback"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("sd_attempts_user_question_idx").on(t.userId, t.questionSlug)],
 );

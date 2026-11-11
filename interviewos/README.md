@@ -22,6 +22,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [How code is executed](#how-code-is-executed)
 - [How progress is measured](#how-progress-is-measured)
 - [Problem bank (optional)](#problem-bank-optional)
+- [System design practice](#system-design-practice)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
 - [Deploying to Vercel](#deploying-to-vercel)
@@ -276,6 +277,31 @@ npm run bank:import
 (all 39 exist). Whether algorithm-visualizer.org itself is online could not be checked from the build
 environment.
 
+## System design practice
+
+**Practice → System design** is a catalogue of 31 system design interview questions grouped by area
+(core infrastructure, social & content, search, messaging, storage & collaboration, media, location &
+marketplaces, commerce & payments, developer platforms), with filters by difficulty, your status and
+the public list a question appears in.
+
+- **Sources.** Question titles follow public lists — [NeetCode's system design practice](https://neetcode.io/practice/practice/systemDesign)
+  and the LeetCode Discuss post [Most asked system design questions](https://leetcode.com/discuss/post/5806013/most-asked-system-design-questions-by-09-2zyv/).
+  A question shows an "appears in" badge only where search results confirmed it is on that list;
+  neither page could be opened from the build environment, so per-company tags are not included.
+  Every brief — requirements, estimates, components, deep dives, pitfalls, follow-ups and rubric — is
+  original InterviewOS content in `content/system-design.ts`. Difficulty is an InterviewOS estimate.
+- **Workspace.** Each question has a 45-minute timer with a suggested pace, and an answer split into
+  the interview phases (requirements, estimates, API, data model, high-level design, deep dives,
+  trade-offs). The answer autosaves to the database, with a local backup for edits made just before
+  closing the tab. The guide stays hidden until you ask for it.
+- **Grading.** Self-assess against the question's rubric plus three process items, or — with an
+  Anthropic API key — ask for a strict AI review against the same rubric. **Start mock interview**
+  opens a 45-minute AI system design interview on that exact question.
+- **Status.** Practised = a graded attempt or a completed mock interview; Strong = a graded attempt
+  covering at least 80% of the rubric, or a mock interview scoring at least 70. A long draft alone
+  never counts as practised. The fundamentals panel links the lessons most questions rely on, with
+  your topic status. Seven questions link to a full worked case study lesson.
+
 ## Tests and checks
 
 | Command                              | What it checks                                                                                                                |
@@ -311,7 +337,8 @@ the server + interview-mode explanation (and the topic does not become interview
 alone); TypeScript solution run in the browser and recorded with a complexity review; mock interview
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
 interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
-status, and the matching problems on company and lesson pages. The problem bank is imported from small
+status, and the matching problems on company and lesson pages; system design filters, an autosaved
+answer, self-assessment, AI review and a mock interview on the chosen question. The problem bank is imported from small
 synthetic fixtures in `e2e/fixtures/problem-bank/` — their frequencies are made up.
 
 ## Content

@@ -127,3 +127,25 @@ describe("problem bank mappings", () => {
       expect(companySlugs.has(slug), `company ${slug}`).toBe(true);
   });
 });
+
+describe("system design catalogue", () => {
+  it("has unique, well-formed questions that reference existing lessons", async () => {
+    const { SD_QUESTIONS, SD_FUNDAMENTALS, SD_SOURCES } = await import("./system-design");
+    const { SD_CATEGORIES } = await import("@/lib/content/defs");
+    expect(new Set(SD_QUESTIONS.map((q) => q.slug)).size).toBe(SD_QUESTIONS.length);
+    for (const q of SD_QUESTIONS) {
+      expect(SD_CATEGORIES, q.slug).toContain(q.category);
+      for (const c of q.concepts) expect(lessonSlugs.has(c), `${q.slug} concept ${c}`).toBe(true);
+      if (q.caseStudy) expect(lessonSlugs.has(q.caseStudy), `${q.slug} case study`).toBe(true);
+      for (const src of q.listedIn) expect(SD_SOURCES[src], `${q.slug} source ${src}`).toBeTruthy();
+      expect(q.clarify.length, q.slug).toBeGreaterThanOrEqual(3);
+      expect(q.functional.length, q.slug).toBeGreaterThanOrEqual(3);
+      expect(q.nonFunctional.length, q.slug).toBeGreaterThanOrEqual(3);
+      expect(q.components.length, q.slug).toBeGreaterThanOrEqual(4);
+      expect(q.deepDives.length, q.slug).toBeGreaterThanOrEqual(3);
+      expect(q.rubric.length, q.slug).toBeGreaterThanOrEqual(5);
+    }
+    for (const g of SD_FUNDAMENTALS)
+      for (const l of g.lessons) expect(lessonSlugs.has(l), `fundamental ${l}`).toBe(true);
+  });
+});
