@@ -6,8 +6,10 @@ AI mock interviewer, a capacity-aware study scheduler and honest progress analyt
 
 It is built for one person on one machine. Nothing is shared; there is no login.
 
-> **Do not deploy this to the public internet.** There is no authentication: anyone who can reach the
-> server can read and change all data and spend your Anthropic API credits.
+> **Set `APP_PASSWORD` before exposing it to a network.** Apart from that single password (HTTP Basic
+> Auth) there is no authentication: anyone with the password can read and change all data and spend
+> your Anthropic API credits. On Vercel the app refuses to start without it — see
+> [Deploying to Vercel](#deploying-to-vercel).
 
 ---
 
@@ -22,6 +24,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [Problem bank (optional)](#problem-bank-optional)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
+- [Deploying to Vercel](#deploying-to-vercel)
 - [Data, privacy and backups](#data-privacy-and-backups)
 - [Known limitations](#known-limitations)
 - [Project structure](#project-structure)
@@ -310,6 +313,61 @@ environment this was built in — its network policy refused connections to docu
 the script reports as `UNVERIFIED` rather than broken. GitHub-hosted readings were confirmed to exist
 via GitHub search. Run the command once on a normal connection; it exits non-zero only for links that
 are genuinely broken.
+
+## Deploying to Vercel
+
+The repository is ready for Vercel: `vercel.json` sets the build command to `scripts/vercel-build.sh`,
+which runs the migrations, the idempotent seed and the problem-bank import before `next build`, so the
+hosted database is prepared on every deploy. You need a Vercel account and a hosted PostgreSQL
+database (Neon's free tier through the Vercel Marketplace works).
+
+1. **Choose the branch.** Vercel deploys from GitHub. InterviewOS lives on the branch
+   `claude/interviewos-platform-design-j0yq3o` (PR #1). Either merge it into `main`, or after
+   importing set **Settings → Git → Production Branch** to that branch. Until then every push still
+   gets a preview deployment.
+2. **Import the project.** On vercel.com: **Add New → Project → Import** `TheRainHub/LeetCode`, and set
+   **Root Directory** to `interviewos`. The framework (Next.js) and the build command are picked up
+   automatically.
+3. **Environment variables** (before the first deploy):
+
+   | Variable               | Value                                                                                           |
+   | ---------------------- | ----------------------------------------------------------------------------------------------- |
+   | `APP_PASSWORD`         | **Required.** A long random password; the browser asks for it (any user name).                  |
+   | `APP_TIMEZONE`         | `Europe/Prague`                                                                                 |
+   | `ANTHROPIC_API_KEY`    | Optional — enables the AI interviewer and AI grading. Other `ANTHROPIC_*` as in `.env.example`. |
+   | `BANK_IMPORT_ON_BUILD` | Optional — `false` skips refreshing the problem bank on each deploy.                            |
+
+4. **Database.** In the project: **Storage → Create Database → Neon** (or connect an existing
+   PostgreSQL) for all environments. The integration is expected to add `DATABASE_URL` (pooled) and
+   `DATABASE_URL_UNPOOLED` (direct); if your provider uses other names, set `DATABASE_URL` yourself —
+   `POSTGRES_URL` and `POSTGRES_URL_NON_POOLING` are also recognised. Pooled connections are detected
+   (`-pooler` hosts, port 6543, or `DATABASE_POOLED=true`) and prepared statements are switched off for
+   them; migrations and the seed use the direct URL when one is set.
+5. **Deploy** (or **Redeploy** if the first build ran before the database existed). Open the URL and
+   enter the password.
+
+Notes:
+
+- Your local database and the hosted one are separate; the hosted app starts with no progress. To
+  carry your local progress over, replace the hosted database with a full copy of the local one (run
+  it after at least one deploy, from the same version of the code; it overwrites everything in the
+  hosted database). Use the direct (unpooled) connection string from the Vercel project's
+  environment variables:
+
+  ```bash
+  pg_dump --clean --if-exists --no-owner --no-privileges postgres://interviewos:interviewos@localhost:5432/interviewos | psql "<DATABASE_URL_UNPOOLED>"
+  ```
+
+- The interview and AI-grading routes allow up to 300 seconds (`maxDuration`). If your Vercel plan or
+  function settings allow less, the deployment reports it; enable Fluid compute in the project's
+  function settings or lower the value in `src/app/api/interviews/[id]/messages/route.ts`,
+  `src/app/api/interviews/[id]/evaluate/route.ts`, `src/app/learn/lesson/[slug]/page.tsx` and
+  `src/app/experience/page.tsx`.
+- Code execution does not change: TypeScript runs in your browser; Java and Python harnesses run on
+  your own machine.
+- These steps were verified locally (the build script against a fresh database, the password gate on
+  a production build with `VERCEL=1`). A real Vercel deployment could not be run from the environment
+  this was built in.
 
 ## Data, privacy and backups
 

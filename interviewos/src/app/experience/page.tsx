@@ -13,6 +13,9 @@ import { getCurrentUserId, getI18n } from "@/server/user";
 
 export const metadata = { title: "My Engineering Experience" };
 
+// Server actions on this page include AI feedback on answers.
+export const maxDuration = 300;
+
 export default async function ExperiencePage() {
   const userId = getCurrentUserId();
   const [{ m }, projects, stories] = await Promise.all([

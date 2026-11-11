@@ -29,6 +29,9 @@ const bodySchema = z.discriminatedUnion("action", [
  * Streams the interviewer's reply as NDJSON lines:
  *   {"type":"delta","text":"…"} … {"type":"done"} | {"type":"error","message":"…"}
  */
+// Interviewer replies stream for as long as the model needs (Vercel function limit).
+export const maxDuration = 300;
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!isAiConfigured())
     return NextResponse.json({ error: "AI is not configured on the server." }, { status: 503 });
