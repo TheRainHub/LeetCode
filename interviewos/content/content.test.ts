@@ -111,3 +111,19 @@ describe("companies, plan and projects", () => {
       expect(`${p.result} ${p.problem}`).not.toMatch(/\d+\s?%|\d+x faster|reduced .* by \d/i);
   });
 });
+
+describe("problem bank mappings", () => {
+  it("point at lessons and company tracks that exist", async () => {
+    const { TAG_TO_LESSON, PATTERN_TO_LESSON, VISUALIZATIONS, COMPANY_DATASET_NAMES } =
+      await import("./problem-bank");
+    for (const [tag, lesson] of Object.entries(TAG_TO_LESSON))
+      expect(lessonSlugs.has(lesson), `tag ${tag} → ${lesson}`).toBe(true);
+    for (const [n, lesson] of Object.entries(PATTERN_TO_LESSON))
+      if (lesson) expect(lessonSlugs.has(lesson), `pattern ${n} → ${lesson}`).toBe(true);
+    for (const lesson of Object.keys(VISUALIZATIONS))
+      expect(lessonSlugs.has(lesson), `visualizations for ${lesson}`).toBe(true);
+    const companySlugs = new Set(COMPANIES.map((c) => c.slug));
+    for (const slug of Object.keys(COMPANY_DATASET_NAMES))
+      expect(companySlugs.has(slug), `company ${slug}`).toBe(true);
+  });
+});
