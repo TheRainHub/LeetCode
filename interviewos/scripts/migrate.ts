@@ -2,11 +2,12 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { directDatabaseUrl, usesTransactionPooler } from "../src/lib/db/url";
 
-const url = process.env.DATABASE_URL ?? "postgres://interviewos:interviewos@localhost:5432/interviewos";
+const url = directDatabaseUrl();
 
 async function main() {
-  const sql = postgres(url, { max: 1, onnotice: () => {} });
+  const sql = postgres(url, { max: 1, prepare: !usesTransactionPooler(url), onnotice: () => {} });
   try {
     await migrate(drizzle(sql), { migrationsFolder: "./drizzle" });
     console.log("[migrate] database is up to date");

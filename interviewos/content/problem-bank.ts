@@ -113,6 +113,7 @@ export const PATTERN_TO_LESSON: Record<number, string | null> = {
 export const COMPANY_DATASET_NAMES: Record<string, string[]> = {
   microsoft: ["Microsoft"],
   apple: ["Apple"],
+  barclays: ["Barclays"],
 };
 
 /**

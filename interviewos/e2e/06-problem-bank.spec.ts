@@ -51,11 +51,12 @@ test("problem bank: filter by company and period, track a self-reported status, 
 test("company and lesson pages show matching bank problems", async ({ page }) => {
   await page.goto("/companies/microsoft");
   const card = page.getByTestId("company-bank");
-  await expect(card).toContainText("Last 3 months");
-  await expect(card).toContainText("1 of 4 solved (self-reported)");
-  await expect(card.getByRole("link", { name: /All 4 problems for this company/ })).toHaveAttribute(
+  // The fixture's 3-month list has only 4 problems (< 5), so the card falls back to all time (6).
+  await expect(card).toContainText("All time");
+  await expect(card).toContainText("1 of 6 solved (self-reported)");
+  await expect(card.getByRole("link", { name: /All 6 problems for this company/ })).toHaveAttribute(
     "href",
-    "/practice/bank?company=microsoft&window=3m",
+    "/practice/bank?company=microsoft",
   );
 
   await page.goto("/companies/cdn77");

@@ -117,3 +117,45 @@ export interface ProjectDef {
   result: string;
   lessonsLearned: string;
 }
+
+export const SD_CATEGORIES = [
+  "infrastructure",
+  "social",
+  "search",
+  "messaging",
+  "collaboration",
+  "media",
+  "location",
+  "commerce",
+  "developer",
+] as const;
+export type SdCategory = (typeof SD_CATEGORIES)[number];
+
+/** Public lists a design question appears in (only where verified). */
+export type SdSourceKey = "neetcode" | "leetcode-most-asked";
+
+/** A system design interview question with an original practice brief. */
+export interface SdQuestionDef {
+  slug: string;
+  title: string;
+  category: SdCategory;
+  /** InterviewOS estimate for a new-graduate / junior interview, not a value from the sources. */
+  difficulty: "easy" | "medium" | "hard";
+  /** The question as an interviewer would pose it. */
+  prompt: string;
+  /** Lesson slugs that teach the concepts this question exercises. */
+  concepts: string[];
+  /** Lesson slug of a full worked case study, if one exists. */
+  caseStudy?: string;
+  listedIn: SdSourceKey[];
+  clarify: string[];
+  functional: string[];
+  nonFunctional: string[];
+  estimates: string[];
+  components: string[];
+  deepDives: { title: string; notes: string }[];
+  pitfalls: string[];
+  followUps: string[];
+  /** Question-specific self-assessment items. */
+  rubric: string[];
+}

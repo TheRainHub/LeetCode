@@ -74,6 +74,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: slug.replace(/-/g, " ") };
 }
 
+// Server actions on this page include AI grading of explanations.
+export const maxDuration = 300;
+
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [{ m }, data, bankPractice] = await Promise.all([

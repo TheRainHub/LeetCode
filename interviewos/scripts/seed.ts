@@ -12,6 +12,7 @@ import { join, relative } from "node:path";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { directDatabaseUrl, usesTransactionPooler } from "../src/lib/db/url";
 import { COMPANIES } from "../content/companies";
 import { CURRICULUM } from "../content/curriculum";
 import { LABS } from "../content/labs";
@@ -22,8 +23,8 @@ import { parseLesson, type ParsedLesson } from "../src/lib/content/lesson-parser
 import { LANGUAGES, type Language } from "../src/lib/content/types";
 import * as s from "../src/lib/db/schema";
 
-const url = process.env.DATABASE_URL ?? "postgres://interviewos:interviewos@localhost:5432/interviewos";
-const sql = postgres(url, { max: 1, onnotice: () => {} });
+const url = directDatabaseUrl();
+const sql = postgres(url, { max: 1, prepare: !usesTransactionPooler(url), onnotice: () => {} });
 const db = drizzle(sql, { schema: s });
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -394,6 +395,38 @@ async function seedCalendar(tx: Tx) {
   }
 }
 
+async function seedApplications(tx: Tx) {
+  // Applications the user told us about. Created once with the stage only — no invented dates;
+  // the user records dates and later stages in the app.
+  const known = [
+    {
+      company: "barclays",
+      role: "2027 Technology Developer Graduate Programme — Prague",
+      notes:
+        "Posting: https://search.jobs.barclays/job/prague/2027-technology-developer-graduate-programme-prague/13015/103079268208\nApplication date not recorded yet.",
+    },
+  ];
+  for (const a of known) {
+    const [company] = await tx
+      .select({ id: s.companies.id })
+      .from(s.companies)
+      .where(eq(s.companies.slug, a.company));
+    if (!company) continue;
+    const existing = await tx
+      .select({ id: s.applications.id })
+      .from(s.applications)
+      .where(and(eq(s.applications.userId, LOCAL_USER_ID), eq(s.applications.companyId, company.id)));
+    if (existing.length) continue;
+    await tx.insert(s.applications).values({
+      userId: LOCAL_USER_ID,
+      companyId: company.id,
+      role: a.role,
+      stage: "applied",
+      notes: a.notes,
+    });
+  }
+}
+
 async function main() {
   const files = listMarkdown(LESSONS_DIR);
   const lessons = files.map((f) => parseLesson(readFileSync(f, "utf8"), relative(process.cwd(), f)));
@@ -408,6 +441,7 @@ async function main() {
     await seedCompanies(tx, topicIds, problemIds);
     await seedProjects(tx);
     await seedCalendar(tx);
+    await seedApplications(tx);
 
     // Remove content that no longer exists in the source files.
     const slugs = lessons.map((l) => l.slug);

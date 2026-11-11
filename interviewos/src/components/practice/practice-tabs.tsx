@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getI18n } from "@/server/user";
 
-export type PracticeTab = "problems" | "labs" | "review" | "bank" | "patterns";
+export type PracticeTab = "problems" | "labs" | "review" | "bank" | "patterns" | "systemDesign";
 
 const HREF: Record<PracticeTab, string> = {
   problems: "/practice?tab=problems",
@@ -11,11 +11,12 @@ const HREF: Record<PracticeTab, string> = {
   review: "/practice?tab=review",
   bank: "/practice/bank",
   patterns: "/practice/patterns",
+  systemDesign: "/practice/system-design",
 };
 
 export async function PracticeTabs({ current, reviewDue = 0 }: { current: PracticeTab; reviewDue?: number }) {
   const { m } = await getI18n();
-  const label: Record<PracticeTab, string> = { ...m.practice.tabs, ...m.bank.tabs };
+  const label: Record<PracticeTab, string> = { ...m.practice.tabs, ...m.bank.tabs, systemDesign: m.sd.tab };
   return (
     <nav
       className="border-border bg-surface-2 mb-4 inline-flex flex-wrap gap-0.5 rounded-md border p-0.5"

@@ -1,3 +1,4 @@
+import { databaseUrl } from "@/lib/db/url";
 import { z } from "zod";
 
 const effort = z.enum(["low", "medium", "high", "xhigh", "max"]);
@@ -21,7 +22,7 @@ let cached: Env | undefined;
 /** Validated server environment. Never import this from client components. */
 export function env(): Env {
   if (!cached) {
-    const parsed = schema.safeParse(process.env);
+    const parsed = schema.safeParse({ ...process.env, DATABASE_URL: databaseUrl() });
     if (!parsed.success) {
       const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
       throw new Error(`Invalid environment configuration: ${issues}`);

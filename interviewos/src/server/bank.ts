@@ -247,6 +247,8 @@ export async function getLessonBankPractice(lesson: string, limit = 8) {
 }
 
 const WINDOW_FALLBACK: BankWindow[] = ["3m", "6m", "all"];
+/** A recent period is only shown when it has at least this many problems; otherwise a longer one is used. */
+const MIN_WINDOW_PROBLEMS = 5;
 
 /** Top reported problems for an InterviewOS company track, if the dataset has its list. */
 export async function getCompanyBankSummary(companyId: number, limit = 10) {
@@ -258,7 +260,15 @@ export async function getCompanyBankSummary(companyId: number, limit = 10) {
   const primary = linked[0];
   if (!primary) return null;
   const userId = getCurrentUserId();
-  for (const window of WINDOW_FALLBACK) {
+  const counts = (await db.execute(sql`
+    select "window", count(*)::int as n from bank_problem_companies where bank_company_id = ${primary.id} group by "window"`)) as unknown as {
+    window: BankWindow;
+    n: number;
+  }[];
+  const count = (w: BankWindow) => counts.find((c) => c.window === w)?.n ?? 0;
+  const preferred =
+    WINDOW_FALLBACK.find((w) => count(w) >= MIN_WINDOW_PROBLEMS) ?? WINDOW_FALLBACK.find((w) => count(w) > 0);
+  for (const window of preferred ? [preferred] : []) {
     const rows = (await db.execute(sql`
       select b.id, b.slug, b.title, b.url, b.difficulty, b.tags, cp.slug as internal_slug, pr.status,
         fq.frequency, 0 as company_count, '[]'::json as patterns, count(*) over ()::int as total

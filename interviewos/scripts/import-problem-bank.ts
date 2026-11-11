@@ -17,6 +17,7 @@ import { join, resolve } from "node:path";
 import { inArray, isNotNull, notInArray, sql as dsql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { directDatabaseUrl, usesTransactionPooler } from "../src/lib/db/url";
 import { BANK_SOURCES, COMPANY_DATASET_NAMES, PATTERN_TO_LESSON } from "../content/problem-bank";
 import * as s from "../src/lib/db/schema";
 import {
@@ -35,8 +36,8 @@ const option = (name: string) => {
 const sourcesDir = resolve(option("--sources") ?? ".data-sources");
 const fetch = !flag("--no-fetch");
 
-const url = process.env.DATABASE_URL ?? "postgres://interviewos:interviewos@localhost:5432/interviewos";
-const sql = postgres(url, { max: 1, onnotice: () => {} });
+const url = directDatabaseUrl();
+const sql = postgres(url, { max: 1, prepare: !usesTransactionPooler(url), onnotice: () => {} });
 const db = drizzle(sql, { schema: s });
 
 const git = (cwd: string, ...a: string[]) =>

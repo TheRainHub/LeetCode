@@ -6,8 +6,10 @@ AI mock interviewer, a capacity-aware study scheduler and honest progress analyt
 
 It is built for one person on one machine. Nothing is shared; there is no login.
 
-> **Do not deploy this to the public internet.** There is no authentication: anyone who can reach the
-> server can read and change all data and spend your Anthropic API credits.
+> **Set `APP_PASSWORD` before exposing it to a network.** Apart from that single password (HTTP Basic
+> Auth) there is no authentication: anyone with the password can read and change all data and spend
+> your Anthropic API credits. On Vercel the app refuses to start without it — see
+> [Deploying to Vercel](#deploying-to-vercel).
 
 ---
 
@@ -20,8 +22,10 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [How code is executed](#how-code-is-executed)
 - [How progress is measured](#how-progress-is-measured)
 - [Problem bank (optional)](#problem-bank-optional)
+- [System design practice](#system-design-practice)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
+- [Deploying to Vercel](#deploying-to-vercel)
 - [Data, privacy and backups](#data-privacy-and-backups)
 - [Known limitations](#known-limitations)
 - [Project structure](#project-structure)
@@ -63,7 +67,28 @@ sudo -u postgres psql -c "CREATE ROLE interviewos LOGIN PASSWORD 'interviewos';"
 sudo -u postgres psql -c "CREATE DATABASE interviewos OWNER interviewos;"
 ```
 
-macOS with Homebrew PostgreSQL:
+macOS with Homebrew — install and start the server first (`psql` alone is only the client):
+
+```bash
+brew install postgresql@16
+```
+
+```bash
+brew services start postgresql@16
+```
+
+`postgresql@16` is not linked into your `PATH`; add it (Apple Silicon path shown; on Intel Macs use
+`/usr/local/opt/postgresql@16/bin`), open a new terminal, and check that the server answers:
+
+```bash
+echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc
+```
+
+```bash
+pg_isready
+```
+
+Then create the role and the database (Homebrew's superuser is your macOS user):
 
 ```bash
 psql postgres -c "CREATE ROLE interviewos LOGIN PASSWORD 'interviewos';"
@@ -229,7 +254,7 @@ How to read it:
   but they never count as verified practice for topic readiness. The 10 problems InterviewOS can run
   itself are marked "Solve in InterviewOS"; attempts there are verified as usual.
 - Company tracks link to dataset lists through `COMPANY_DATASET_NAMES` in `content/problem-bank.ts`.
-  Microsoft and Apple are mapped; CDN77, Second Foundation, Ataccama, Apify and Momence have no list in
+  Microsoft, Apple and Barclays are mapped; CDN77, Second Foundation, Ataccama, Apify and Momence have no list in
   the dataset, and their pages say so. LeetCode tags and patterns map to lessons in the same file.
 
 Importing:
@@ -251,6 +276,31 @@ npm run bank:import
 `npm run bank:verify-visualizations` checks every visualizer link against the algorithms repository
 (all 39 exist). Whether algorithm-visualizer.org itself is online could not be checked from the build
 environment.
+
+## System design practice
+
+**Practice → System design** is a catalogue of 31 system design interview questions grouped by area
+(core infrastructure, social & content, search, messaging, storage & collaboration, media, location &
+marketplaces, commerce & payments, developer platforms), with filters by difficulty, your status and
+the public list a question appears in.
+
+- **Sources.** Question titles follow public lists — [NeetCode's system design practice](https://neetcode.io/practice/practice/systemDesign)
+  and the LeetCode Discuss post [Most asked system design questions](https://leetcode.com/discuss/post/5806013/most-asked-system-design-questions-by-09-2zyv/).
+  A question shows an "appears in" badge only where search results confirmed it is on that list;
+  neither page could be opened from the build environment, so per-company tags are not included.
+  Every brief — requirements, estimates, components, deep dives, pitfalls, follow-ups and rubric — is
+  original InterviewOS content in `content/system-design.ts`. Difficulty is an InterviewOS estimate.
+- **Workspace.** Each question has a 45-minute timer with a suggested pace, and an answer split into
+  the interview phases (requirements, estimates, API, data model, high-level design, deep dives,
+  trade-offs). The answer autosaves to the database, with a local backup for edits made just before
+  closing the tab. The guide stays hidden until you ask for it.
+- **Grading.** Self-assess against the question's rubric plus three process items, or — with an
+  Anthropic API key — ask for a strict AI review against the same rubric. **Start mock interview**
+  opens a 45-minute AI system design interview on that exact question.
+- **Status.** Practised = a graded attempt or a completed mock interview; Strong = a graded attempt
+  covering at least 80% of the rubric, or a mock interview scoring at least 70. A long draft alone
+  never counts as practised. The fundamentals panel links the lessons most questions rely on, with
+  your topic status. Seven questions link to a full worked case study lesson.
 
 ## Tests and checks
 
@@ -287,19 +337,20 @@ the server + interview-mode explanation (and the topic does not become interview
 alone); TypeScript solution run in the browser and recorded with a complexity review; mock interview
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
 interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
-status, and the matching problems on company and lesson pages. The problem bank is imported from small
+status, and the matching problems on company and lesson pages; system design filters, an autosaved
+answer, self-assessment, AI review and a mock interview on the chosen question. The problem bank is imported from small
 synthetic fixtures in `e2e/fixtures/problem-bank/` — their frequencies are made up.
 
 ## Content
 
-| Area                       | Amount                                                                                                                                                                                                                           |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Learning paths             | 8 (DSA, Java, Linux & Networking, Backend, TypeScript & React, System Design, AI Engineering, Communication)                                                                                                                     |
-| Lessons                    | 104, each with objectives, prerequisites, explanation, readings, worked examples, misconceptions, exercises, interview questions, self-assessment, completion criteria, quiz, interview-mode explanation rubric and review cards |
-| System design case studies | 7 (URL shortener, notifications, booking platform, rate limiter, feature flags, developer portal, LLM vulnerability triage)                                                                                                      |
-| Coding problems            | 10, with tests, hints, reference solutions in Java/Python/TypeScript and complexity                                                                                                                                              |
-| Labs                       | 5 (Linux networking, Java concurrency, PostgreSQL, fullstack, booking-system design), verified by pasted evidence and reflection, never by opening them                                                                          |
-| Company tracks             | 7 (Microsoft DevDiv Core AI, CDN77, Second Foundation, Ataccama, Apify, Momence, Apple) — focus weights are inferred from the job descriptions and your notes, labelled as inferred in the app; edit them                        |
+| Area                       | Amount                                                                                                                                                                                                                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Learning paths             | 8 (DSA, Java, Linux & Networking, Backend, TypeScript & React, System Design, AI Engineering, Communication)                                                                                                                                                                                                         |
+| Lessons                    | 104, each with objectives, prerequisites, explanation, readings, worked examples, misconceptions, exercises, interview questions, self-assessment, completion criteria, quiz, interview-mode explanation rubric and review cards                                                                                     |
+| System design case studies | 7 (URL shortener, notifications, booking platform, rate limiter, feature flags, developer portal, LLM vulnerability triage)                                                                                                                                                                                          |
+| Coding problems            | 10, with tests, hints, reference solutions in Java/Python/TypeScript and complexity                                                                                                                                                                                                                                  |
+| Labs                       | 5 (Linux networking, Java concurrency, PostgreSQL, fullstack, booking-system design), verified by pasted evidence and reflection, never by opening them                                                                                                                                                              |
+| Company tracks             | 8 (Microsoft DevDiv Core AI, CDN77, Second Foundation, Ataccama, Apify, Momence, Apple, Barclays 2027 Technology Developer Graduate Programme Prague) — focus weights are inferred from the job descriptions, your notes and (for Barclays) public candidate reports, with the source shown on each track; edit them |
 
 Lessons live in `content/lessons/<path>/<slug>.md` (YAML frontmatter + four Markdown sections) and are
 validated by `src/lib/content/lesson-parser.ts`; `content/content.test.ts` checks that every
@@ -310,6 +361,61 @@ environment this was built in — its network policy refused connections to docu
 the script reports as `UNVERIFIED` rather than broken. GitHub-hosted readings were confirmed to exist
 via GitHub search. Run the command once on a normal connection; it exits non-zero only for links that
 are genuinely broken.
+
+## Deploying to Vercel
+
+The repository is ready for Vercel: `vercel.json` sets the build command to `scripts/vercel-build.sh`,
+which runs the migrations, the idempotent seed and the problem-bank import before `next build`, so the
+hosted database is prepared on every deploy. You need a Vercel account and a hosted PostgreSQL
+database (Neon's free tier through the Vercel Marketplace works).
+
+1. **Choose the branch.** Vercel deploys from GitHub. InterviewOS lives on the branch
+   `claude/interviewos-platform-design-j0yq3o` (PR #1). Either merge it into `main`, or after
+   importing set **Settings → Git → Production Branch** to that branch. Until then every push still
+   gets a preview deployment.
+2. **Import the project.** On vercel.com: **Add New → Project → Import** `TheRainHub/LeetCode`, and set
+   **Root Directory** to `interviewos`. The framework (Next.js) and the build command are picked up
+   automatically.
+3. **Environment variables** (before the first deploy):
+
+   | Variable               | Value                                                                                           |
+   | ---------------------- | ----------------------------------------------------------------------------------------------- |
+   | `APP_PASSWORD`         | **Required.** A long random password; the browser asks for it (any user name).                  |
+   | `APP_TIMEZONE`         | `Europe/Prague`                                                                                 |
+   | `ANTHROPIC_API_KEY`    | Optional — enables the AI interviewer and AI grading. Other `ANTHROPIC_*` as in `.env.example`. |
+   | `BANK_IMPORT_ON_BUILD` | Optional — `false` skips refreshing the problem bank on each deploy.                            |
+
+4. **Database.** In the project: **Storage → Create Database → Neon** (or connect an existing
+   PostgreSQL) for all environments. The integration is expected to add `DATABASE_URL` (pooled) and
+   `DATABASE_URL_UNPOOLED` (direct); if your provider uses other names, set `DATABASE_URL` yourself —
+   `POSTGRES_URL` and `POSTGRES_URL_NON_POOLING` are also recognised. Pooled connections are detected
+   (`-pooler` hosts, port 6543, or `DATABASE_POOLED=true`) and prepared statements are switched off for
+   them; migrations and the seed use the direct URL when one is set.
+5. **Deploy** (or **Redeploy** if the first build ran before the database existed). Open the URL and
+   enter the password.
+
+Notes:
+
+- Your local database and the hosted one are separate; the hosted app starts with no progress. To
+  carry your local progress over, replace the hosted database with a full copy of the local one (run
+  it after at least one deploy, from the same version of the code; it overwrites everything in the
+  hosted database). Use the direct (unpooled) connection string from the Vercel project's
+  environment variables:
+
+  ```bash
+  pg_dump --clean --if-exists --no-owner --no-privileges postgres://interviewos:interviewos@localhost:5432/interviewos | psql "<DATABASE_URL_UNPOOLED>"
+  ```
+
+- The interview and AI-grading routes allow up to 300 seconds (`maxDuration`). If your Vercel plan or
+  function settings allow less, the deployment reports it; enable Fluid compute in the project's
+  function settings or lower the value in `src/app/api/interviews/[id]/messages/route.ts`,
+  `src/app/api/interviews/[id]/evaluate/route.ts`, `src/app/learn/lesson/[slug]/page.tsx` and
+  `src/app/experience/page.tsx`.
+- Code execution does not change: TypeScript runs in your browser; Java and Python harnesses run on
+  your own machine.
+- These steps were verified locally (the build script against a fresh database, the password gate on
+  a production build with `VERCEL=1`). A real Vercel deployment could not be run from the environment
+  this was built in.
 
 ## Data, privacy and backups
 

@@ -1,4 +1,5 @@
 import "server-only";
+import { SD_QUESTIONS } from "@content/system-design";
 import type Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { and, asc, desc, eq, gt, max } from "drizzle-orm";
@@ -38,8 +39,13 @@ export async function createInterview(input: {
   difficulty: "easy" | "medium" | "hard";
   durationMinutes: number;
   language: "java" | "typescript" | "python";
+  /** System design question slug (content/system-design.ts) to run, if any. */
+  sdQuestionSlug?: string | null;
 }) {
   const userId = getCurrentUserId();
+  const designQuestion = input.sdQuestionSlug
+    ? (SD_QUESTIONS.find((q) => q.slug === input.sdQuestionSlug) ?? null)
+    : null;
   const settings = await getSettings();
   let company: { id: number; name: string; role: string; focusTopics: string[] } | null = null;
   if (input.companySlug) {
@@ -68,6 +74,7 @@ export async function createInterview(input: {
     company,
     candidateProfile: settings.interviewerProfile,
     practisedProblems: practised.map((p) => p.title),
+    designQuestion: designQuestion ? { title: designQuestion.title, prompt: designQuestion.prompt } : null,
   });
 
   const [row] = await db
@@ -81,6 +88,7 @@ export async function createInterview(input: {
       language: input.language,
       model: env().ANTHROPIC_MODEL,
       systemPrompt,
+      sdQuestionSlug: designQuestion?.slug ?? null,
     })
     .returning({ id: mockInterviews.id });
   log.info("interview", "created", { id: row!.id, type: input.type, company: company?.name ?? null });

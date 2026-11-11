@@ -127,6 +127,21 @@ const server = createServer((req, res) => {
         body,
       });
       if (body.stream) return sse(res, chatReply(body));
+      const isDesignReview = typeof body.system === "string" && body.system.includes("written system design");
+      const rubricSize = isDesignReview
+        ? (String(body.messages?.[0]?.content ?? "").match(/^\d+\. /gm) ?? []).length
+        : 0;
+      const payload = isDesignReview
+        ? {
+            // Deterministic: every even-numbered rubric item counts as covered.
+            rubric: Array.from({ length: rubricSize }, (_, index) => ({
+              index,
+              covered: index % 2 === 0,
+              evidence: "mock evidence",
+            })),
+            feedback: "- Mock review: clear requirements.\n- Missing: estimates that drive decisions.",
+          }
+        : EVALUATION;
       res.writeHead(200, { "content-type": "application/json" });
       res.end(
         JSON.stringify({
@@ -134,7 +149,7 @@ const server = createServer((req, res) => {
           type: "message",
           role: "assistant",
           model: body.model,
-          content: [{ type: "text", text: JSON.stringify(EVALUATION) }],
+          content: [{ type: "text", text: JSON.stringify(payload) }],
           stop_reason: "end_turn",
           stop_sequence: null,
           usage: { input_tokens: 500, output_tokens: 300 },
