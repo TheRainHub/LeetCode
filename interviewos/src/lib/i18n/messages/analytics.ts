@@ -3,13 +3,15 @@ import { defineMessages } from "../define";
 export const analytics = defineMessages(
   {
     title: "Analytics",
-    description: "Observed performance from your recorded attempts, reviews and interviews — kept separate from estimated readiness.",
+    description:
+      "Observed performance from your recorded attempts, reviews and interviews — kept separate from estimated readiness.",
     observedTag: "Observed",
     estimatedTag: "Estimated",
     showTable: "Show data table",
     accuracy: {
       title: "Accuracy by topic",
-      help: (n: number) => `Correct share of graded results (quizzes, explanations, coding, reviews, interviews). Topics need at least ${n} results.`,
+      help: (n: number) =>
+        `Correct share of graded results (quizzes, explanations, coding, reviews, interviews). Topics need at least ${n} results.`,
       insufficient: (n: number) => `${n} topic(s) with some results but not enough data yet`,
       topic: "Topic",
       results: "Results",
@@ -27,12 +29,18 @@ export const analytics = defineMessages(
     weekly: {
       title: "Weekly learning time",
       help: "Logged active time (minutes) by activity, last 8 weeks.",
-      series: { learning: "Lessons & exercises", coding: "Coding", review: "Reviews", other: "Labs, interviews & experience" },
+      series: {
+        learning: "Lessons & exercises",
+        coding: "Coding",
+        review: "Reviews",
+        other: "Labs, interviews & experience",
+      },
       week: "Week of",
     },
     retention: {
       title: "Review retention",
-      help: (n: number) => `Share of card reviews recalled (not graded “Again”). Weeks need at least ${n} reviews.`,
+      help: (n: number) =>
+        `Share of card reviews recalled (not graded “Again”). Weeks need at least ${n} reviews.`,
       reviews: "Reviews",
     },
     interviews: {
@@ -57,13 +65,15 @@ export const analytics = defineMessages(
   },
   {
     title: "Аналитика",
-    description: "Наблюдаемые результаты по вашим попыткам, повторениям и собеседованиям — отдельно от оценки готовности.",
+    description:
+      "Наблюдаемые результаты по вашим попыткам, повторениям и собеседованиям — отдельно от оценки готовности.",
     observedTag: "Наблюдение",
     estimatedTag: "Оценка",
     showTable: "Показать таблицу данных",
     accuracy: {
       title: "Точность по темам",
-      help: (n: number) => `Доля верных оценённых результатов (тесты, объяснения, код, повторения, собеседования). Для темы нужно минимум ${n} результата.`,
+      help: (n: number) =>
+        `Доля верных оценённых результатов (тесты, объяснения, код, повторения, собеседования). Для темы нужно минимум ${n} результата.`,
       insufficient: (n: number) => `Тем с результатами, но пока без достаточных данных: ${n}`,
       topic: "Тема",
       results: "Результатов",
@@ -81,12 +91,18 @@ export const analytics = defineMessages(
     weekly: {
       title: "Время занятий по неделям",
       help: "Записанное активное время (минуты) по видам занятий за последние 8 недель.",
-      series: { learning: "Уроки и упражнения", coding: "Код", review: "Повторения", other: "Лабораторные, собеседования и опыт" },
+      series: {
+        learning: "Уроки и упражнения",
+        coding: "Код",
+        review: "Повторения",
+        other: "Лабораторные, собеседования и опыт",
+      },
       week: "Неделя с",
     },
     retention: {
       title: "Удержание при повторении",
-      help: (n: number) => `Доля карточек, которые вы вспомнили (не «Снова»). Для недели нужно минимум ${n} повторений.`,
+      help: (n: number) =>
+        `Доля карточек, которые вы вспомнили (не «Снова»). Для недели нужно минимум ${n} повторений.`,
       reviews: "Повторений",
     },
     interviews: {

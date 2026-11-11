@@ -9,5 +9,7 @@ export type TimeKind = (typeof timeEntries.$inferInsert)["kind"];
 export async function logTime(kind: TimeKind, seconds: number, ref?: string) {
   const s = Math.round(Math.min(Math.max(seconds, 0), 4 * 3600));
   if (s < 5) return;
-  await db.insert(timeEntries).values({ userId: getCurrentUserId(), date: await getToday(), seconds: s, kind, ref });
+  await db
+    .insert(timeEntries)
+    .values({ userId: getCurrentUserId(), date: await getToday(), seconds: s, kind, ref });
 }

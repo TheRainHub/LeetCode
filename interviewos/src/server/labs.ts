@@ -16,8 +16,21 @@ export async function listLabs() {
   ]);
   return labs.map((l) => {
     const mine = attempts.filter((a) => a.labId === l.id);
-    const status = mine.some((a) => a.status === "verified") ? "verified" : mine.length ? "in_progress" : null;
-    return { id: l.id, slug: l.slug, title: l.title, summary: l.summary, estimatedMinutes: l.estimatedMinutes, difficulty: l.difficulty, stepCount: l.steps.length, status };
+    const status = mine.some((a) => a.status === "verified")
+      ? "verified"
+      : mine.length
+        ? "in_progress"
+        : null;
+    return {
+      id: l.id,
+      slug: l.slug,
+      title: l.title,
+      summary: l.summary,
+      estimatedMinutes: l.estimatedMinutes,
+      difficulty: l.difficulty,
+      stepCount: l.steps.length,
+      status,
+    };
   });
 }
 
@@ -37,5 +50,10 @@ export async function getLab(slug: string) {
       .innerJoin(topics, eq(topics.id, labTopics.topicId))
       .where(eq(labTopics.labId, lab.id)),
   ]);
-  return { lab, attempt: attempts[0] ?? null, verifiedBefore: attempts.some((a) => a.status === "verified"), topics: topicRows };
+  return {
+    lab,
+    attempt: attempts[0] ?? null,
+    verifiedBefore: attempts.some((a) => a.status === "verified"),
+    topics: topicRows,
+  };
 }

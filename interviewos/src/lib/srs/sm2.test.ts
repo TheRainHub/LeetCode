@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { gradeFromCodingAttempt, INITIAL_SRS_STATE, MAX_INTERVAL_DAYS, MIN_EASE, nextEase, review } from "./sm2";
+import {
+  gradeFromCodingAttempt,
+  INITIAL_SRS_STATE,
+  MAX_INTERVAL_DAYS,
+  MIN_EASE,
+  nextEase,
+  review,
+} from "./sm2";
 
 const today = "2026-11-09";
 
@@ -54,10 +61,21 @@ describe("SM-2 variant", () => {
   it("maps coding attempts to grades honestly", () => {
     const base = { durationSeconds: 600, targetSeconds: 900 };
     expect(gradeFromCodingAttempt({ ...base, outcome: "passed", independence: "independent" })).toBe("good");
-    expect(gradeFromCodingAttempt({ ...base, durationSeconds: 300, outcome: "passed", independence: "independent" })).toBe("easy");
+    expect(
+      gradeFromCodingAttempt({
+        ...base,
+        durationSeconds: 300,
+        outcome: "passed",
+        independence: "independent",
+      }),
+    ).toBe("easy");
     expect(gradeFromCodingAttempt({ ...base, outcome: "passed", independence: "with_hints" })).toBe("hard");
-    expect(gradeFromCodingAttempt({ ...base, outcome: "passed", independence: "with_solution" })).toBe("again");
+    expect(gradeFromCodingAttempt({ ...base, outcome: "passed", independence: "with_solution" })).toBe(
+      "again",
+    );
     expect(gradeFromCodingAttempt({ ...base, outcome: "failed", independence: "independent" })).toBe("again");
-    expect(gradeFromCodingAttempt({ ...base, outcome: "not_run", independence: "independent" })).toBe("again");
+    expect(gradeFromCodingAttempt({ ...base, outcome: "not_run", independence: "independent" })).toBe(
+      "again",
+    );
   });
 });

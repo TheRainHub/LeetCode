@@ -16,7 +16,11 @@ import { getI18n, getToday } from "@/server/user";
 
 export const metadata = { title: "Knowledge Base" };
 
-export default async function KnowledgePage({ searchParams }: { searchParams: Promise<{ q?: string; area?: string; status?: string }> }) {
+export default async function KnowledgePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; area?: string; status?: string }>;
+}) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 100);
   const [{ m, locale }, states, today] = await Promise.all([getI18n(), getTopicStates(), getToday()]);
@@ -32,25 +36,32 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
   }
   const areas = [...new Set(states.map((s) => s.area))];
   const filtered = states.filter(
-    (s) => (!matching || matching.has(s.slug)) && (!sp.area || s.area === sp.area) && (!sp.status || s.status === sp.status),
+    (s) =>
+      (!matching || matching.has(s.slug)) &&
+      (!sp.area || s.area === sp.area) &&
+      (!sp.status || s.status === sp.status),
   );
   const link = (params: Record<string, string | undefined>) => {
     const u = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q: q || undefined, area: sp.area, status: sp.status, ...params })) if (v) u.set(k, v);
+    for (const [k, v] of Object.entries({ q: q || undefined, area: sp.area, status: sp.status, ...params }))
+      if (v) u.set(k, v);
     return `/knowledge?${u.toString()}`;
   };
 
   return (
     <PageContainer wide>
       <PageHeader title={K.title} description={K.description} />
-      <form action="/knowledge" className="mb-3 flex max-w-xl items-center gap-2 rounded-md border border-border bg-surface-2 px-2.5">
-        <Search className="size-4 text-subtle-foreground" />
+      <form
+        action="/knowledge"
+        className="border-border bg-surface-2 mb-3 flex max-w-xl items-center gap-2 rounded-md border px-2.5"
+      >
+        <Search className="text-subtle-foreground size-4" />
         <input
           name="q"
           defaultValue={q}
           placeholder={K.search}
           aria-label={K.search}
-          className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-subtle-foreground"
+          className="placeholder:text-subtle-foreground h-9 flex-1 bg-transparent text-sm outline-none"
         />
         {sp.area ? <input type="hidden" name="area" value={sp.area} /> : null}
         {sp.status ? <input type="hidden" name="status" value={sp.status} /> : null}
@@ -58,24 +69,40 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
       <div className="mb-4 flex flex-wrap items-center gap-1.5 text-xs">
         <span className="text-muted-foreground">{K.area}:</span>
         {[undefined, ...areas].map((a) => (
-          <Link key={a ?? "all"} href={link({ area: a })} className={cn("rounded px-2 py-0.5", sp.area === a ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground")}>
-            {a ? K.areas[a] ?? a : m.common.labels.all}
+          <Link
+            key={a ?? "all"}
+            href={link({ area: a })}
+            className={cn(
+              "rounded px-2 py-0.5",
+              sp.area === a ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {a ? (K.areas[a] ?? a) : m.common.labels.all}
           </Link>
         ))}
-        <span className="ml-3 text-muted-foreground">{m.common.labels.status}:</span>
+        <span className="text-muted-foreground ml-3">{m.common.labels.status}:</span>
         {[undefined, ...TOPIC_STATUSES].map((st) => (
-          <Link key={st ?? "all"} href={link({ status: st })} className={cn("rounded px-2 py-0.5", sp.status === st ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground")}>
+          <Link
+            key={st ?? "all"}
+            href={link({ status: st })}
+            className={cn(
+              "rounded px-2 py-0.5",
+              sp.status === st
+                ? "bg-surface-3 text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
             {st ? m.common.status[st] : m.common.labels.all}
           </Link>
         ))}
       </div>
-      <p className="mb-2 text-xs text-muted-foreground">{K.results(filtered.length)}</p>
+      <p className="text-muted-foreground mb-2 text-xs">{K.results(filtered.length)}</p>
       {filtered.length === 0 ? (
         <EmptyState title={K.noResults} />
       ) : (
         <Card className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-border bg-surface-2 text-left text-[11px] text-muted-foreground">
+            <thead className="border-border bg-surface-2 text-muted-foreground border-b text-left text-[11px]">
               <tr>
                 <th className="px-3 py-2 font-medium">{K.columns.topic}</th>
                 <th className="px-3 py-2 font-medium">{K.area}</th>
@@ -85,21 +112,33 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
                 <th className="px-3 py-2 font-medium">{K.columns.priority}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-border divide-y">
               {filtered.map((t) => (
                 <tr key={t.id} className="hover:bg-surface-2">
                   <td className="px-3 py-2">
-                    <Link href={`/learn/lesson/${t.slug}`} className="font-medium hover:text-primary">
+                    <Link href={`/learn/lesson/${t.slug}`} className="hover:text-primary font-medium">
                       {t.title}
                     </Link>
                   </td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground">{K.areas[t.area] ?? t.area}</td>
+                  <td className="text-muted-foreground px-3 py-2 text-xs">{K.areas[t.area] ?? t.area}</td>
                   <td className="px-3 py-2">
                     <StatusBadge status={t.status} />
                   </td>
-                  <td className="px-3 py-2 text-xs tabular-nums">{t.accuracy === null ? <NotEnoughData label={m.common.labels.notEnoughData} /> : `${Math.round(t.accuracy * 100)}% (${t.attempts})`}</td>
+                  <td className="px-3 py-2 text-xs tabular-nums">
+                    {t.accuracy === null ? (
+                      <NotEnoughData label={m.common.labels.notEnoughData} />
+                    ) : (
+                      `${Math.round(t.accuracy * 100)}% (${t.attempts})`
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-xs">
-                    {t.nextReviewOn ? <span className={t.nextReviewOn <= today ? "text-primary" : "text-muted-foreground"}>{formatDay(t.nextReviewOn, locale)}</span> : <span className="text-subtle-foreground">—</span>}
+                    {t.nextReviewOn ? (
+                      <span className={t.nextReviewOn <= today ? "text-primary" : "text-muted-foreground"}>
+                        {formatDay(t.nextReviewOn, locale)}
+                      </span>
+                    ) : (
+                      <span className="text-subtle-foreground">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     <PrioritySelect topicId={t.id} value={t.priority} />
@@ -110,7 +149,7 @@ export default async function KnowledgePage({ searchParams }: { searchParams: Pr
           </table>
         </Card>
       )}
-      <details className="mt-6 rounded-lg border border-border bg-surface p-4 text-sm">
+      <details className="border-border bg-surface mt-6 rounded-lg border p-4 text-sm">
         <summary className="cursor-pointer font-medium">{K.statusLegend}</summary>
         <ul className="mt-3 flex flex-col gap-2">
           {TOPIC_STATUSES.map((s) => (

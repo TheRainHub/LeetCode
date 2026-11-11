@@ -58,7 +58,9 @@ export function ConfidencePicker({ lessonId, value }: { lessonId: number; value:
               }
               className={cn(
                 "cursor-pointer rounded-md border px-2.5 py-1 text-xs transition-colors",
-                value === v ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground hover:bg-surface-2",
+                value === v
+                  ? "border-primary bg-primary-soft text-primary"
+                  : "border-border text-muted-foreground hover:bg-surface-2",
               )}
             >
               {v} · {label}
@@ -95,7 +97,7 @@ export function NotesEditor({ lessonId, initial }: { lessonId: number; initial: 
           }, 700);
         }}
       />
-      <p className="mt-1 h-4 text-[11px] text-subtle-foreground">
+      <p className="text-subtle-foreground mt-1 h-4 text-[11px]">
         {status === "saving" ? m.common.actions.saving : status === "saved" ? m.common.actions.saved : ""}
       </p>
     </div>
@@ -106,7 +108,7 @@ export function RevealAnswer({ question, answer }: { question: string; answer: s
   const { m } = useI18n();
   const [open, setOpen] = useState(false);
   return (
-    <li className="rounded-md border border-border bg-surface">
+    <li className="border-border bg-surface rounded-md border">
       <button
         type="button"
         className="flex w-full cursor-pointer items-start justify-between gap-3 px-3 py-2.5 text-left text-sm"
@@ -114,12 +116,16 @@ export function RevealAnswer({ question, answer }: { question: string; answer: s
         onClick={() => setOpen((o) => !o)}
       >
         <span>{question}</span>
-        <span className="flex shrink-0 items-center gap-1 text-[11px] text-subtle-foreground">
+        <span className="text-subtle-foreground flex shrink-0 items-center gap-1 text-[11px]">
           {open ? m.learn.lesson.hideKeyPoints : m.learn.lesson.showKeyPoints}
           <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
         </span>
       </button>
-      {open ? <p className="border-t border-border px-3 py-2.5 text-sm leading-relaxed text-muted-foreground">{answer}</p> : null}
+      {open ? (
+        <p className="border-border text-muted-foreground border-t px-3 py-2.5 text-sm leading-relaxed">
+          {answer}
+        </p>
+      ) : null}
     </li>
   );
 }

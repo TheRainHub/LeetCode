@@ -33,20 +33,37 @@ export async function GET() {
     reviewSchedules: schedules,
     reviewLogs: await db.select().from(s.reviewLogs).where(inArray(s.reviewLogs.scheduleId, scheduleIds)),
     mockInterviews: interviews,
-    interviewMessages: (await db.select().from(s.interviewMessages).where(inArray(s.interviewMessages.interviewId, interviewIds))).map((x) => ({ ...x, apiContent: undefined })),
-    interviewEvaluations: await db.select().from(s.interviewEvaluations).where(inArray(s.interviewEvaluations.interviewId, interviewIds)),
+    interviewMessages: (
+      await db
+        .select()
+        .from(s.interviewMessages)
+        .where(inArray(s.interviewMessages.interviewId, interviewIds))
+    ).map((x) => ({ ...x, apiContent: undefined })),
+    interviewEvaluations: await db
+      .select()
+      .from(s.interviewEvaluations)
+      .where(inArray(s.interviewEvaluations.interviewId, interviewIds)),
     studyPlans: plans,
     studySessions: sessions,
     studyTasks: await db.select().from(s.studyTasks).where(inArray(s.studyTasks.sessionId, sessionIds)),
     calendarEvents: await db.select().from(s.calendarEvents).where(eq(s.calendarEvents.userId, userId)),
     weeklyObjectives: await db.select().from(s.weeklyObjectives).where(eq(s.weeklyObjectives.userId, userId)),
     applications: apps,
-    applicationEvents: await db.select().from(s.applicationEvents).where(inArray(s.applicationEvents.applicationId, appIds)),
-    companyChecklistItems: await db.select().from(s.companyChecklistItems).where(eq(s.companyChecklistItems.userId, userId)),
+    applicationEvents: await db
+      .select()
+      .from(s.applicationEvents)
+      .where(inArray(s.applicationEvents.applicationId, appIds)),
+    companyChecklistItems: await db
+      .select()
+      .from(s.companyChecklistItems)
+      .where(eq(s.companyChecklistItems.userId, userId)),
     companyNotes: await db.select().from(s.companyNotes).where(eq(s.companyNotes.userId, userId)),
     personalProjects: await db.select().from(s.personalProjects).where(eq(s.personalProjects.userId, userId)),
     starStories: await db.select().from(s.starStories).where(eq(s.starStories.userId, userId)),
-    experiencePractice: await db.select().from(s.experiencePractice).where(eq(s.experiencePractice.userId, userId)),
+    experiencePractice: await db
+      .select()
+      .from(s.experiencePractice)
+      .where(eq(s.experiencePractice.userId, userId)),
     timeEntries: await db.select().from(s.timeEntries).where(eq(s.timeEntries.userId, userId)),
   };
   return new NextResponse(JSON.stringify(data, null, 2), {

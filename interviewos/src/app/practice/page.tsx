@@ -15,17 +15,23 @@ import { getI18n, getToday } from "@/server/user";
 export const metadata = { title: "Practice" };
 
 const PROGRESS_ICON: Record<ProblemProgress, React.ReactNode> = {
-  none: <CircleDashed className="size-4 text-subtle-foreground" />,
-  attempted: <CircleDot className="size-4 text-warning" />,
-  with_help: <CircleCheck className="size-4 text-primary" />,
-  independent: <CircleCheck className="size-4 text-success" />,
+  none: <CircleDashed className="text-subtle-foreground size-4" />,
+  attempted: <CircleDot className="text-warning size-4" />,
+  with_help: <CircleCheck className="text-primary size-4" />,
+  independent: <CircleCheck className="text-success size-4" />,
 };
 
 const TABS = ["problems", "labs", "review"] as const;
 
-export default async function PracticePage({ searchParams }: { searchParams: Promise<{ tab?: string; difficulty?: string; status?: string }> }) {
+export default async function PracticePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; difficulty?: string; status?: string }>;
+}) {
   const sp = await searchParams;
-  const tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as (typeof TABS)[number]) : "problems";
+  const tab = (TABS as readonly string[]).includes(sp.tab ?? "")
+    ? (sp.tab as (typeof TABS)[number])
+    : "problems";
   const [{ m, locale }, today, problems, labs, dueCards, dueProblems] = await Promise.all([
     getI18n(),
     getToday(),
@@ -48,7 +54,10 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
   return (
     <PageContainer>
       <PageHeader title={P.title} description={P.description} />
-      <nav className="mb-4 inline-flex gap-0.5 rounded-md border border-border bg-surface-2 p-0.5" aria-label={P.title}>
+      <nav
+        className="border-border bg-surface-2 mb-4 inline-flex gap-0.5 rounded-md border p-0.5"
+        aria-label={P.title}
+      >
         {TABS.map((t) => (
           <Link
             key={t}
@@ -56,11 +65,15 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
             aria-current={tab === t ? "page" : undefined}
             className={cn(
               "flex h-7 items-center gap-1.5 rounded-[5px] px-3 text-xs font-medium",
-              tab === t ? "bg-surface text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+              tab === t
+                ? "bg-surface text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {P.tabs[t]}
-            {t === "review" && dueCards.length + dueProblems.length > 0 ? <Badge tone="primary">{dueCards.length + dueProblems.length}</Badge> : null}
+            {t === "review" && dueCards.length + dueProblems.length > 0 ? (
+              <Badge tone="primary">{dueCards.length + dueProblems.length}</Badge>
+            ) : null}
           </Link>
         ))}
       </nav>
@@ -70,20 +83,38 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
           <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs">
             <span className="text-muted-foreground">{P.filters.difficulty}:</span>
             {[undefined, "easy", "medium", "hard"].map((d) => (
-              <Link key={d ?? "all"} href={link({ difficulty: d })} className={cn("rounded px-2 py-0.5", sp.difficulty === d ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground")}>
+              <Link
+                key={d ?? "all"}
+                href={link({ difficulty: d })}
+                className={cn(
+                  "rounded px-2 py-0.5",
+                  sp.difficulty === d
+                    ? "bg-surface-3 text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
                 {d ? m.common.difficulty[d as "easy"] : P.filters.all}
               </Link>
             ))}
-            <span className="ml-3 text-muted-foreground">{P.filters.status}:</span>
+            <span className="text-muted-foreground ml-3">{P.filters.status}:</span>
             {[undefined, "none", "attempted", "with_help", "independent"].map((s) => (
-              <Link key={s ?? "all"} href={link({ status: s })} className={cn("rounded px-2 py-0.5", sp.status === s ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground")}>
+              <Link
+                key={s ?? "all"}
+                href={link({ status: s })}
+                className={cn(
+                  "rounded px-2 py-0.5",
+                  sp.status === s
+                    ? "bg-surface-3 text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
                 {s ? P.problemStatus[s as ProblemProgress] : P.filters.all}
               </Link>
             ))}
           </div>
           <Card className="overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="border-b border-border bg-surface-2 text-left text-[11px] text-muted-foreground">
+              <thead className="border-border bg-surface-2 text-muted-foreground border-b text-left text-[11px]">
                 <tr>
                   <th className="w-8 px-3 py-2" />
                   <th className="px-3 py-2 font-medium">{P.columns.problem}</th>
@@ -92,7 +123,7 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
                   <th className="hidden px-3 py-2 font-medium sm:table-cell">{P.columns.review}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 {filtered.map((p) => (
                   <tr key={p.id} className="hover:bg-surface-2">
                     <td className="px-3 py-2.5" title={P.problemStatus[p.progress]}>
@@ -100,14 +131,26 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
                       <span className="sr-only">{P.problemStatus[p.progress]}</span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <Link href={`/practice/problems/${p.slug}`} className="font-medium hover:text-primary">
+                      <Link href={`/practice/problems/${p.slug}`} className="hover:text-primary font-medium">
                         {p.order}. {p.title}
                       </Link>
-                      <p className="text-[11px] text-subtle-foreground">{p.summary}</p>
+                      <p className="text-subtle-foreground text-[11px]">{p.summary}</p>
                     </td>
-                    <td className="hidden px-3 py-2.5 text-xs text-muted-foreground md:table-cell">{p.pattern}</td>
+                    <td className="text-muted-foreground hidden px-3 py-2.5 text-xs md:table-cell">
+                      {p.pattern}
+                    </td>
                     <td className="px-3 py-2.5">
-                      <Badge tone={p.difficulty === "easy" ? "success" : p.difficulty === "medium" ? "warning" : "danger"}>{m.common.difficulty[p.difficulty]}</Badge>
+                      <Badge
+                        tone={
+                          p.difficulty === "easy"
+                            ? "success"
+                            : p.difficulty === "medium"
+                              ? "warning"
+                              : "danger"
+                        }
+                      >
+                        {m.common.difficulty[p.difficulty]}
+                      </Badge>
                     </td>
                     <td className="hidden px-3 py-2.5 text-xs sm:table-cell">
                       {p.dueOn ? (
@@ -125,7 +168,7 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
               </tbody>
             </table>
           </Card>
-          <p className="mt-3 text-[11px] text-subtle-foreground">{P.executionNote}</p>
+          <p className="text-subtle-foreground mt-3 text-[11px]">{P.executionNote}</p>
         </>
       ) : null}
 
@@ -133,17 +176,17 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {labs.map((l) => (
             <Link key={l.id} href={`/practice/labs/${l.slug}`} className="group">
-              <Card className="h-full p-4 group-hover:border-border-strong">
+              <Card className="group-hover:border-border-strong h-full p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-sm font-semibold group-hover:text-primary">{l.title}</h2>
+                  <h2 className="group-hover:text-primary text-sm font-semibold">{l.title}</h2>
                   {l.status === "verified" ? (
                     <Badge tone="success">{m.labs.status.verified}</Badge>
                   ) : l.status === "in_progress" ? (
                     <Badge tone="warning">{m.labs.status.in_progress}</Badge>
                   ) : null}
                 </div>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{l.summary}</p>
-                <div className="mt-3 flex items-center gap-3 text-[11px] text-subtle-foreground">
+                <p className="text-muted-foreground mt-1.5 text-xs leading-relaxed">{l.summary}</p>
+                <div className="text-subtle-foreground mt-3 flex items-center gap-3 text-[11px]">
                   <span className="flex items-center gap-1">
                     <Clock className="size-3" />
                     {m.common.minutes(l.estimatedMinutes)}
@@ -164,7 +207,7 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <Card className="p-4">
             <div className="flex items-center gap-2">
-              <Layers className="size-4 text-subtle-foreground" />
+              <Layers className="text-subtle-foreground size-4" />
               <h2 className="text-sm font-semibold">{P.reviewSummary.cards(dueCards.length)}</h2>
             </div>
             {dueCards.length ? (
@@ -172,7 +215,7 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
                 <Link href="/practice/review">{P.reviewSummary.start}</Link>
               </Button>
             ) : (
-              <p className="mt-2 text-xs text-muted-foreground">{P.reviewSummary.none}</p>
+              <p className="text-muted-foreground mt-2 text-xs">{P.reviewSummary.none}</p>
             )}
           </Card>
           <Card className="p-4">
@@ -181,7 +224,7 @@ export default async function PracticePage({ searchParams }: { searchParams: Pro
               <ul className="mt-2 flex flex-col gap-1">
                 {dueProblems.map((p) => (
                   <li key={p.scheduleId}>
-                    <Link href={`/practice/problems/${p.slug}`} className="text-sm hover:text-primary">
+                    <Link href={`/practice/problems/${p.slug}`} className="hover:text-primary text-sm">
                       {p.title}
                     </Link>
                   </li>

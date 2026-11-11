@@ -15,10 +15,20 @@ export function WeekChart({ data }: { data: { date: string; seconds: number }[] 
     <div className="h-20 w-full" aria-hidden>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "var(--subtle-foreground)" }} />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 10, fill: "var(--subtle-foreground)" }}
+          />
           <Tooltip
             cursor={{ fill: "var(--surface-3)" }}
-            contentStyle={{ background: "var(--surface-3)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 12 }}
+            contentStyle={{
+              background: "var(--surface-3)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              fontSize: 12,
+            }}
             labelFormatter={(_, p) => (p?.[0]?.payload as { full?: string } | undefined)?.full ?? ""}
             formatter={(v) => [`${v} min`, ""]}
           />

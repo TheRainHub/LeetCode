@@ -16,7 +16,9 @@ const files = (function list(d: string): string[] {
     return statSync(f).isDirectory() ? list(f) : n.endsWith(".md") ? [f] : [];
   });
 })(dir);
-const lessons: ParsedLesson[] = files.map((f) => parseLesson(readFileSync(f, "utf8"), relative(process.cwd(), f)));
+const lessons: ParsedLesson[] = files.map((f) =>
+  parseLesson(readFileSync(f, "utf8"), relative(process.cwd(), f)),
+);
 const lessonSlugs = new Set(lessons.map((l) => l.slug));
 const moduleSlugs = new Set(CURRICULUM.flatMap((p) => p.modules.map((m) => m.slug)));
 const problemSlugs = new Set(PROBLEMS.map((p) => p.slug));
@@ -29,9 +31,13 @@ describe("lessons", () => {
   });
   it("reference existing paths, modules, prerequisites and problems", () => {
     for (const l of lessons) {
-      expect(CURRICULUM.find((p) => p.slug === l.path), `${l.slug} path`).toBeTruthy();
+      expect(
+        CURRICULUM.find((p) => p.slug === l.path),
+        `${l.slug} path`,
+      ).toBeTruthy();
       expect(moduleSlugs.has(l.module), `${l.slug} module ${l.module}`).toBe(true);
-      for (const pre of l.prerequisites) expect(lessonSlugs.has(pre), `${l.slug} prerequisite ${pre}`).toBe(true);
+      for (const pre of l.prerequisites)
+        expect(lessonSlugs.has(pre), `${l.slug} prerequisite ${pre}`).toBe(true);
       for (const p of l.problems) expect(problemSlugs.has(p), `${l.slug} problem ${p}`).toBe(true);
     }
   });
@@ -42,7 +48,11 @@ describe("lessons", () => {
     }
   });
   it("every module has at least one lesson", () => {
-    for (const m of moduleSlugs) expect(lessons.some((l) => l.module === m), `module ${m} has no lessons`).toBe(true);
+    for (const m of moduleSlugs)
+      expect(
+        lessons.some((l) => l.module === m),
+        `module ${m} has no lessons`,
+      ).toBe(true);
   });
 });
 
@@ -62,7 +72,13 @@ describe("labs", () => {
     for (const lab of LABS) {
       for (const s of lab.steps) {
         if (s.verification.kind === "paste" && s.verification.pattern) {
-          expect(() => new RegExp(s.verification.kind === "paste" ? s.verification.pattern!.replace(/^\(\?i\)/, "") : "", "i")).not.toThrow();
+          expect(
+            () =>
+              new RegExp(
+                s.verification.kind === "paste" ? s.verification.pattern!.replace(/^\(\?i\)/, "") : "",
+                "i",
+              ),
+          ).not.toThrow();
         }
       }
       for (const t of lab.topics) expect(lessonSlugs.has(t), `${lab.slug} topic ${t}`).toBe(true);
@@ -74,7 +90,8 @@ describe("labs", () => {
 describe("companies, plan and projects", () => {
   it("company focus topics and problems exist", () => {
     for (const c of COMPANIES) {
-      for (const slug of Object.keys(c.focus)) expect(lessonSlugs.has(slug), `${c.slug} focus ${slug}`).toBe(true);
+      for (const slug of Object.keys(c.focus))
+        expect(lessonSlugs.has(slug), `${c.slug} focus ${slug}`).toBe(true);
       for (const p of c.problems) expect(problemSlugs.has(p), `${c.slug} problem ${p}`).toBe(true);
     }
   });
@@ -82,13 +99,15 @@ describe("companies, plan and projects", () => {
     for (const s of INTERVIEW_SPRINT.sessions) {
       for (const t of s.tasks) {
         if (t.kind === "lesson") expect(lessonSlugs.has(t.refSlug!), `plan lesson ${t.refSlug}`).toBe(true);
-        if (t.kind === "problem") expect(problemSlugs.has(t.refSlug!), `plan problem ${t.refSlug}`).toBe(true);
+        if (t.kind === "problem")
+          expect(problemSlugs.has(t.refSlug!), `plan problem ${t.refSlug}`).toBe(true);
         if (t.kind === "lab") expect(labSlugs.has(t.refSlug!), `plan lab ${t.refSlug}`).toBe(true);
       }
     }
     expect(INTERVIEW_SPRINT.sessions).toHaveLength(14);
   });
   it("seeded projects contain no invented metrics", () => {
-    for (const p of PROJECTS) expect(`${p.result} ${p.problem}`).not.toMatch(/\d+\s?%|\d+x faster|reduced .* by \d/i);
+    for (const p of PROJECTS)
+      expect(`${p.result} ${p.problem}`).not.toMatch(/\d+\s?%|\d+x faster|reduced .* by \d/i);
   });
 });

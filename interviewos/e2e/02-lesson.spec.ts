@@ -6,12 +6,17 @@ const lesson = matter(readFileSync("content/lessons/dsa/hashmap-hashset.md", "ut
   quiz: { q: string; options: string[]; answer: number }[];
 };
 
-test("lesson quiz is graded on the server and reading + quiz never make a topic interview-ready", async ({ page }) => {
+test("lesson quiz is graded on the server and reading + quiz never make a topic interview-ready", async ({
+  page,
+}) => {
   await page.goto("/learn/lesson/hashmap-hashset");
   await expect(page.locator("[data-status]").first()).toHaveAttribute("data-status", "not_started");
 
   for (const q of lesson.quiz) {
-    await page.getByRole("group", { name: q.q }).getByRole("radio", { name: q.options[q.answer]!, exact: true }).check();
+    await page
+      .getByRole("group", { name: q.q })
+      .getByRole("radio", { name: q.options[q.answer]!, exact: true })
+      .check();
   }
   await page.getByTestId("quiz-submit").click();
   await expect(page.getByText(`${lesson.quiz.length} / ${lesson.quiz.length} correct`)).toBeVisible();
@@ -23,7 +28,9 @@ test("lesson quiz is graded on the server and reading + quiz never make a topic 
   await page.getByTestId("explain-start").click();
   await page
     .getByRole("textbox", { name: "Your explanation…" })
-    .fill("A hash map hashes the key to pick a bucket in an array; collisions are handled by chaining or probing, and the table resizes when the load factor grows so average lookups stay O(1).");
+    .fill(
+      "A hash map hashes the key to pick a bucket in an array; collisions are handled by chaining or probing, and the table resizes when the load factor grows so average lookups stay O(1).",
+    );
   await page.getByRole("button", { name: "I'm done — show rubric" }).click();
   const rubric = page.getByTestId("explain-exercise").getByRole("checkbox");
   await rubric.first().check();

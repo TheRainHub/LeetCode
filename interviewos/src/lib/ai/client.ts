@@ -39,13 +39,19 @@ export function fallbackOptions(): { betas: Anthropic.Beta.AnthropicBeta[]; fall
 /** Maps SDK errors to messages that are safe and useful to show in the UI. */
 export function describeAiError(err: unknown): string {
   if (err instanceof AiNotConfiguredError || err instanceof AiRefusalError) return err.message;
-  if (err instanceof Anthropic.AuthenticationError) return "The Anthropic API key was rejected. Check ANTHROPIC_API_KEY.";
-  if (err instanceof Anthropic.PermissionDeniedError) return "This API key is not allowed to use the configured model.";
-  if (err instanceof Anthropic.NotFoundError) return `Model "${env().ANTHROPIC_MODEL}" was not found. Check ANTHROPIC_MODEL.`;
-  if (err instanceof Anthropic.RateLimitError) return "Rate limited by the Anthropic API. Wait a moment and try again.";
+  if (err instanceof Anthropic.AuthenticationError)
+    return "The Anthropic API key was rejected. Check ANTHROPIC_API_KEY.";
+  if (err instanceof Anthropic.PermissionDeniedError)
+    return "This API key is not allowed to use the configured model.";
+  if (err instanceof Anthropic.NotFoundError)
+    return `Model "${env().ANTHROPIC_MODEL}" was not found. Check ANTHROPIC_MODEL.`;
+  if (err instanceof Anthropic.RateLimitError)
+    return "Rate limited by the Anthropic API. Wait a moment and try again.";
   if (err instanceof Anthropic.BadRequestError) return `The AI request was rejected: ${err.message}`;
-  if (err instanceof Anthropic.InternalServerError) return "The AI service had a temporary problem. Try again.";
-  if (err instanceof Anthropic.APIConnectionError) return "Could not reach the Anthropic API. Check your network connection.";
+  if (err instanceof Anthropic.InternalServerError)
+    return "The AI service had a temporary problem. Try again.";
+  if (err instanceof Anthropic.APIConnectionError)
+    return "Could not reach the Anthropic API. Check your network connection.";
   if (err instanceof Anthropic.APIError) return `AI request failed (${err.status ?? "unknown"}).`;
   return err instanceof Error ? err.message : "AI request failed.";
 }

@@ -12,7 +12,8 @@ export const settings = defineMessages(
     timezone: "Time zone (IANA, e.g. Europe/Prague)",
     invalidTimezone: "Unknown time zone",
     profile: "Interviewer background",
-    profileHelp: "Shared with the AI interviewer at the start of each mock interview. Only include facts you are comfortable sending to the Anthropic API.",
+    profileHelp:
+      "Shared with the AI interviewer at the start of each mock interview. Only include facts you are comfortable sending to the Anthropic API.",
     save: "Save settings",
     saved: "Settings saved",
     schedule: "Daily budget, rest days and university obligations are configured in the Study Schedule.",
@@ -42,7 +43,8 @@ export const settings = defineMessages(
     timezone: "Часовой пояс (IANA, например Europe/Prague)",
     invalidTimezone: "Неизвестный часовой пояс",
     profile: "Сведения для интервьюера",
-    profileHelp: "Передаются ИИ-интервьюеру в начале каждого пробного собеседования. Указывайте только то, что готовы отправить в Anthropic API.",
+    profileHelp:
+      "Передаются ИИ-интервьюеру в начале каждого пробного собеседования. Указывайте только то, что готовы отправить в Anthropic API.",
     save: "Сохранить настройки",
     saved: "Настройки сохранены",
     schedule: "Дневной бюджет, дни отдыха и учебные обязательства настраиваются в разделе «Расписание».",

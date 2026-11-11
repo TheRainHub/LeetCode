@@ -94,12 +94,22 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @layer base {
@@ -124,7 +134,9 @@
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
@@ -168,17 +180,47 @@
 }
 
 /* highlight.js tokens tuned to the palette */
-.hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #c792ea; }
-.hljs-string, .hljs-attr { color: #9ece6a; }
-.hljs-number, .hljs-literal { color: #ff9e64; }
-.hljs-comment { color: var(--subtle-foreground); font-style: italic; }
-.hljs-title, .hljs-function .hljs-title { color: #7aa2f7; }
-.hljs-type, .hljs-class .hljs-title { color: #2ac3de; }
-[data-theme="light"] .hljs-keyword, [data-theme="light"] .hljs-built_in { color: #7c3aed; }
-[data-theme="light"] .hljs-string { color: #15803d; }
-[data-theme="light"] .hljs-number { color: #c2410c; }
-[data-theme="light"] .hljs-title { color: #1d4ed8; }
-[data-theme="light"] .hljs-type { color: #0e7490; }
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in {
+  color: #c792ea;
+}
+.hljs-string,
+.hljs-attr {
+  color: #9ece6a;
+}
+.hljs-number,
+.hljs-literal {
+  color: #ff9e64;
+}
+.hljs-comment {
+  color: var(--subtle-foreground);
+  font-style: italic;
+}
+.hljs-title,
+.hljs-function .hljs-title {
+  color: #7aa2f7;
+}
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #2ac3de;
+}
+[data-theme="light"] .hljs-keyword,
+[data-theme="light"] .hljs-built_in {
+  color: #7c3aed;
+}
+[data-theme="light"] .hljs-string {
+  color: #15803d;
+}
+[data-theme="light"] .hljs-number {
+  color: #c2410c;
+}
+[data-theme="light"] .hljs-title {
+  color: #1d4ed8;
+}
+[data-theme="light"] .hljs-type {
+  color: #0e7490;
+}
 
 /* react-resizable-panels separators */
 [data-separator] {

@@ -13,7 +13,8 @@ let chatReplies = 0;
 
 const EVALUATION = {
   overallScore: 58,
-  summary: "Mock evaluation: correct core idea, but collision handling and complexity were only partly explained.",
+  summary:
+    "Mock evaluation: correct core idea, but collision handling and complexity were only partly explained.",
   dimensions: {
     technicalCorrectness: { score: 3, evidence: "Described buckets but not resizing." },
     problemSolving: { score: 3, evidence: "Reached the approach after one follow-up." },
@@ -25,7 +26,13 @@ const EVALUATION = {
   },
   strengths: ["Explained hashing into buckets clearly"],
   weaknesses: ["Did not discuss worst-case O(n) lookups"],
-  mistakes: [{ description: "Claimed lookups are always O(1)", evidence: "'always constant time'", correction: "Average O(1); worst case O(n) with many collisions." }],
+  mistakes: [
+    {
+      description: "Claimed lookups are always O(1)",
+      evidence: "'always constant time'",
+      correction: "Average O(1); worst case O(n) with many collisions.",
+    },
+  ],
   modelAnswer: "A hash map hashes the key to a bucket index…",
   recommendedTopics: [
     { topicSlug: "hashmap-hashset", reason: "Collision handling" },
@@ -34,12 +41,20 @@ const EVALUATION = {
   coveredTopics: [{ topicSlug: "hashmap-hashset", score: 0.55 }],
   followUpExercises: [{ title: "Two Sum", description: "Use a map for complements", problemSlug: "two-sum" }],
   spacedRepetition: [
-    { prompt: "Worst-case hash map lookup complexity and why?", answer: "O(n) when many keys collide into one bucket.", topicSlug: "hashmap-hashset" },
+    {
+      prompt: "Worst-case hash map lookup complexity and why?",
+      answer: "O(n) when many keys collide into one bucket.",
+      topicSlug: "hashmap-hashset",
+    },
   ],
 };
 
 function sse(res, events) {
-  res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive" });
+  res.writeHead(200, {
+    "content-type": "text/event-stream",
+    "cache-control": "no-cache",
+    connection: "keep-alive",
+  });
   for (const e of events) res.write(`event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`);
   res.end();
 }
@@ -62,10 +77,19 @@ function chatReply(body) {
         content: [],
         stop_reason: null,
         stop_sequence: null,
-        usage: { input_tokens: 100, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 },
+        usage: {
+          input_tokens: 100,
+          output_tokens: 1,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+        },
       },
     },
-    { type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "", signature: "" } },
+    {
+      type: "content_block_start",
+      index: 0,
+      content_block: { type: "thinking", thinking: "", signature: "" },
+    },
     { type: "content_block_delta", index: 0, delta: { type: "thinking_delta", thinking } },
     { type: "content_block_delta", index: 0, delta: { type: "signature_delta", signature } },
     { type: "content_block_stop", index: 0 },
@@ -73,7 +97,11 @@ function chatReply(body) {
     { type: "content_block_delta", index: 1, delta: { type: "text_delta", text: text.slice(0, half) } },
     { type: "content_block_delta", index: 1, delta: { type: "text_delta", text: text.slice(half) } },
     { type: "content_block_stop", index: 1 },
-    { type: "message_delta", delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 40 } },
+    {
+      type: "message_delta",
+      delta: { stop_reason: "end_turn", stop_sequence: null },
+      usage: { output_tokens: 40 },
+    },
     { type: "message_stop" },
   ];
 }
@@ -90,7 +118,14 @@ const server = createServer((req, res) => {
     req.on("data", (c) => (raw += c));
     req.on("end", () => {
       const body = JSON.parse(raw);
-      requests.push({ path: req.url, headers: { "anthropic-beta": req.headers["anthropic-beta"] ?? null, "x-api-key": req.headers["x-api-key"] ? "<present>" : null }, body });
+      requests.push({
+        path: req.url,
+        headers: {
+          "anthropic-beta": req.headers["anthropic-beta"] ?? null,
+          "x-api-key": req.headers["x-api-key"] ? "<present>" : null,
+        },
+        body,
+      });
       if (body.stream) return sse(res, chatReply(body));
       res.writeHead(200, { "content-type": "application/json" });
       res.end(
@@ -109,7 +144,12 @@ const server = createServer((req, res) => {
     return;
   }
   res.writeHead(404, { "content-type": "application/json" });
-  res.end(JSON.stringify({ type: "error", error: { type: "not_found_error", message: `No mock for ${req.method} ${url.pathname}` } }));
+  res.end(
+    JSON.stringify({
+      type: "error",
+      error: { type: "not_found_error", message: `No mock for ${req.method} ${url.pathname}` },
+    }),
+  );
 });
 
 server.listen(port, "127.0.0.1", () => console.log(`[mock-anthropic] listening on ${port}`));

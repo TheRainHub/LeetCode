@@ -21,12 +21,22 @@ export async function getNextAction(): Promise<NextAction> {
   const tasks = (await getTasksBetween(today, today)).filter((t) => t.status === "todo");
   const first = tasks[0];
   if (first) {
-    return { kind: "task", href: taskHref(first.kind as TaskKind, first.refSlug), title: first.title, minutes: first.minutes };
+    return {
+      kind: "task",
+      href: taskHref(first.kind as TaskKind, first.refSlug),
+      title: first.title,
+      minutes: first.minutes,
+    };
   }
   const cards = await getDueCards(200);
   if (cards.length > 0) return { kind: "review", href: "/practice/review", count: cards.length };
   const problems = await getDueProblems();
-  if (problems[0]) return { kind: "problem_review", href: `/practice/problems/${problems[0].slug}`, title: problems[0].title };
+  if (problems[0])
+    return {
+      kind: "problem_review",
+      href: `/practice/problems/${problems[0].slug}`,
+      title: problems[0].title,
+    };
   const [rec] = await getRecommendations(1);
   if (rec) return { kind: "recommendation", href: `/learn/lesson/${rec.slug}`, title: rec.title };
   return { kind: "explore", href: "/learn" };

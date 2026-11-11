@@ -13,13 +13,13 @@ export function EvaluationRetry({ interviewId, error }: { interviewId: number; e
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(error);
   return (
-    <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-surface p-5">
+    <div className="border-border bg-surface flex flex-col items-start gap-3 rounded-lg border p-5">
       {err ? (
-        <p className="text-sm text-danger" role="alert">
+        <p className="text-danger text-sm" role="alert">
           {S.evaluationFailed}: {err}
         </p>
       ) : (
-        <p className="text-sm text-muted-foreground">{S.evaluating}</p>
+        <p className="text-muted-foreground text-sm">{S.evaluating}</p>
       )}
       <Button
         variant="primary"

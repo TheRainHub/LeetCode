@@ -33,10 +33,34 @@ const productFullstackFocus: CompanyDef["focus"] = {
 };
 
 const productPresets: CompanyDef["presets"] = [
-  { title: "TypeScript coding round", type: "algorithms", difficulty: "medium", durationMinutes: 45, language: "typescript" },
-  { title: "Fullstack feature design", type: "fullstack", difficulty: "medium", durationMinutes: 45, language: "typescript" },
-  { title: "Webhooks & async processing", type: "backend", difficulty: "medium", durationMinutes: 40, language: "typescript" },
-  { title: "Behavioral / product thinking", type: "behavioral", difficulty: "medium", durationMinutes: 30, language: "typescript" },
+  {
+    title: "TypeScript coding round",
+    type: "algorithms",
+    difficulty: "medium",
+    durationMinutes: 45,
+    language: "typescript",
+  },
+  {
+    title: "Fullstack feature design",
+    type: "fullstack",
+    difficulty: "medium",
+    durationMinutes: 45,
+    language: "typescript",
+  },
+  {
+    title: "Webhooks & async processing",
+    type: "backend",
+    difficulty: "medium",
+    durationMinutes: 40,
+    language: "typescript",
+  },
+  {
+    title: "Behavioral / product thinking",
+    type: "behavioral",
+    difficulty: "medium",
+    durationMinutes: 30,
+    language: "typescript",
+  },
 ];
 
 const productChecklist = [
@@ -62,7 +86,14 @@ export const COMPANIES: CompanyDef[] = [
 - Concurrency fundamentals (threads, races, locks) at a conceptual level.
 - How developer tools are architected (language services, extensions, background analysis) and how AI assistance fits in reliably.
 - Behavioral: ownership, collaboration, learning from mistakes.`,
-    techStack: ["C#/.NET", "C++", "TypeScript", "Java/Python for interviews", "Language Server Protocol", "LLM-based assistants"],
+    techStack: [
+      "C#/.NET",
+      "C++",
+      "TypeScript",
+      "Java/Python for interviews",
+      "Language Server Protocol",
+      "LLM-based assistants",
+    ],
     prepNotes: `- Practise thinking aloud: restate the problem, give a brute force, improve it, then code.
 - After coding, trace one example and list edge cases before the interviewer asks.
 - Prepare to discuss the LLM vulnerability triage and Backstage projects as developer-tools / AI-assisted SE experience.`,
@@ -95,13 +126,51 @@ export const COMPANIES: CompanyDef[] = [
       "thinking-aloud": 3,
       "behavioral-star": 3,
     },
-    problems: ["two-sum", "valid-parentheses", "binary-search", "linked-list-cycle", "merge-intervals", "number-of-islands", "top-k-frequent-elements"],
+    problems: [
+      "two-sum",
+      "valid-parentheses",
+      "binary-search",
+      "linked-list-cycle",
+      "merge-intervals",
+      "number-of-islands",
+      "top-k-frequent-elements",
+    ],
     presets: [
-      { title: "Coding round (Java)", type: "algorithms", difficulty: "medium", durationMinutes: 45, language: "java" },
-      { title: "Coding round (Python)", type: "algorithms", difficulty: "medium", durationMinutes: 45, language: "python" },
-      { title: "Core CS: OOP & concurrency", type: "core_cs", difficulty: "medium", durationMinutes: 40, language: "java" },
-      { title: "AI-assisted developer tools", type: "ai_engineering", difficulty: "medium", durationMinutes: 40, language: "python" },
-      { title: "Behavioral", type: "behavioral", difficulty: "medium", durationMinutes: 30, language: "java" },
+      {
+        title: "Coding round (Java)",
+        type: "algorithms",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
+      {
+        title: "Coding round (Python)",
+        type: "algorithms",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "python",
+      },
+      {
+        title: "Core CS: OOP & concurrency",
+        type: "core_cs",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "java",
+      },
+      {
+        title: "AI-assisted developer tools",
+        type: "ai_engineering",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "python",
+      },
+      {
+        title: "Behavioral",
+        type: "behavioral",
+        difficulty: "medium",
+        durationMinutes: 30,
+        language: "java",
+      },
     ],
     checklist: [
       "Solve 8 of the 10 core problems independently in Java",
@@ -125,7 +194,16 @@ export const COMPANIES: CompanyDef[] = [
 - CDN architecture: edge caching, cache keys, TTLs, purging, origin shielding.
 - Practical debugging — reading \`ss\`, \`curl -v\`, \`dig\`, \`tcpdump\` output and forming hypotheses.
 - Solid programming fundamentals.`,
-    techStack: ["Linux", "Bash", "TCP/IP", "DNS", "TLS", "HTTP/1.1–3", "Reverse proxies (e.g. nginx)", "Monitoring"],
+    techStack: [
+      "Linux",
+      "Bash",
+      "TCP/IP",
+      "DNS",
+      "TLS",
+      "HTTP/1.1–3",
+      "Reverse proxies (e.g. nginx)",
+      "Monitoring",
+    ],
     prepNotes: `- Do the Linux Networking lab on your own machine and keep the outputs — explaining real output is better than reciting theory.
 - Be ready to walk through "what happens when you type a URL" down to DNS, TCP, TLS and caching layers.`,
     sourceNote: INFERRED,
@@ -153,9 +231,27 @@ export const COMPANIES: CompanyDef[] = [
     },
     problems: ["two-sum", "valid-parentheses", "longest-substring-without-repeating-characters"],
     presets: [
-      { title: "Networking fundamentals", type: "core_cs", difficulty: "medium", durationMinutes: 40, language: "python" },
-      { title: "Linux troubleshooting scenario", type: "backend", difficulty: "medium", durationMinutes: 40, language: "python" },
-      { title: "CDN caching design", type: "system_design", difficulty: "medium", durationMinutes: 45, language: "python" },
+      {
+        title: "Networking fundamentals",
+        type: "core_cs",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "python",
+      },
+      {
+        title: "Linux troubleshooting scenario",
+        type: "backend",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "python",
+      },
+      {
+        title: "CDN caching design",
+        type: "system_design",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "python",
+      },
     ],
     checklist: [
       "Complete the Linux Networking lab with pasted evidence",
@@ -202,11 +298,35 @@ export const COMPANIES: CompanyDef[] = [
       "kotlin-fundamentals": 3,
       "locking-concurrency": 2,
     },
-    problems: ["two-sum", "top-k-frequent-elements", "merge-intervals", "binary-search", "longest-substring-without-repeating-characters"],
+    problems: [
+      "two-sum",
+      "top-k-frequent-elements",
+      "merge-intervals",
+      "binary-search",
+      "longest-substring-without-repeating-characters",
+    ],
     presets: [
-      { title: "Java coding round", type: "algorithms", difficulty: "medium", durationMinutes: 45, language: "java" },
-      { title: "Concurrency deep dive", type: "core_cs", difficulty: "hard", durationMinutes: 40, language: "java" },
-      { title: "JVM & performance", type: "core_cs", difficulty: "medium", durationMinutes: 30, language: "java" },
+      {
+        title: "Java coding round",
+        type: "algorithms",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
+      {
+        title: "Concurrency deep dive",
+        type: "core_cs",
+        difficulty: "hard",
+        durationMinutes: 40,
+        language: "java",
+      },
+      {
+        title: "JVM & performance",
+        type: "core_cs",
+        difficulty: "medium",
+        durationMinutes: 30,
+        language: "java",
+      },
     ],
     checklist: [
       "Complete the Java Concurrency lab with outputs from all three counter versions",
@@ -229,7 +349,18 @@ export const COMPANIES: CompanyDef[] = [
 - REST and GraphQL API design; distributed-systems basics.
 - Docker, Kubernetes and GitOps (ArgoCD) — directly relevant to your Make experience.
 - LLM agents and AI reliability; end-to-end feature ownership and product thinking.`,
-    techStack: ["Java", "Spring Boot", "TypeScript", "React", "PostgreSQL", "GraphQL", "Docker", "Kubernetes", "ArgoCD", "LLM agents"],
+    techStack: [
+      "Java",
+      "Spring Boot",
+      "TypeScript",
+      "React",
+      "PostgreSQL",
+      "GraphQL",
+      "Docker",
+      "Kubernetes",
+      "ArgoCD",
+      "LLM agents",
+    ],
     prepNotes: `- Your Make experience (Kubernetes, ArgoCD, CI/CD, LLM agents) maps closely; prepare concrete stories with your actual responsibilities.
 - Do the PostgreSQL lab and be ready to read an EXPLAIN ANALYZE plan aloud.`,
     sourceNote: INFERRED,
@@ -264,10 +395,34 @@ export const COMPANIES: CompanyDef[] = [
     },
     problems: ["two-sum", "group-anagrams", "merge-intervals", "top-k-frequent-elements"],
     presets: [
-      { title: "Fullstack feature round", type: "fullstack", difficulty: "medium", durationMinutes: 45, language: "java" },
-      { title: "Backend & PostgreSQL", type: "backend", difficulty: "medium", durationMinutes: 45, language: "java" },
-      { title: "LLM agent reliability", type: "ai_engineering", difficulty: "medium", durationMinutes: 40, language: "typescript" },
-      { title: "System design", type: "system_design", difficulty: "medium", durationMinutes: 45, language: "java" },
+      {
+        title: "Fullstack feature round",
+        type: "fullstack",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
+      {
+        title: "Backend & PostgreSQL",
+        type: "backend",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
+      {
+        title: "LLM agent reliability",
+        type: "ai_engineering",
+        difficulty: "medium",
+        durationMinutes: 40,
+        language: "typescript",
+      },
+      {
+        title: "System design",
+        type: "system_design",
+        difficulty: "medium",
+        durationMinutes: 45,
+        language: "java",
+      },
     ],
     checklist: [
       "Complete the PostgreSQL lab including concurrent updates",
@@ -293,7 +448,12 @@ export const COMPANIES: CompanyDef[] = [
     prepNotes: "- Replace this track's focus areas once you have the real job description.",
     sourceNote: INFERRED,
     focus: productFullstackFocus,
-    problems: ["two-sum", "group-anagrams", "longest-substring-without-repeating-characters", "merge-intervals"],
+    problems: [
+      "two-sum",
+      "group-anagrams",
+      "longest-substring-without-repeating-characters",
+      "merge-intervals",
+    ],
     presets: productPresets,
     checklist: productChecklist,
   },

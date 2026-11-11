@@ -20,7 +20,11 @@ You may assume that each input has **exactly one** solution, and you may not use
     "Exactly one valid answer exists",
   ],
   examples: [
-    { input: "nums = [2,7,11,15], target = 9", output: "[0,1]", explanation: "nums[0] + nums[1] = 2 + 7 = 9" },
+    {
+      input: "nums = [2,7,11,15], target = 9",
+      output: "[0,1]",
+      explanation: "nums[0] + nums[1] = 2 + 7 = 9",
+    },
     { input: "nums = [3,2,4], target = 6", output: "[1,2]" },
     { input: "nums = [3,3], target = 6", output: "[0,1]" },
   ],
@@ -221,7 +225,8 @@ class Solution:
   ],
   expectedTime: "O(n)",
   expectedSpace: "O(n)",
-  complexityNotes: "Each character is pushed and popped at most once. In the worst case (all openers) the stack holds n characters.",
+  complexityNotes:
+    "Each character is pushed and popped at most once. In the worst case (all openers) the stack holds n characters.",
   commonMistakes: [
     "Forgetting the final emptiness check.",
     "Popping from an empty stack (exception in Java, undefined in TS).",
@@ -240,7 +245,9 @@ class Solution:
     { name: "starts with closer", args: ["]"], expected: false },
     { name: "deep nesting", args: ["(([]){})"], expected: true },
   ],
-  externalLinks: [{ title: "LeetCode 20 — Valid Parentheses", url: "https://leetcode.com/problems/valid-parentheses/" }],
+  externalLinks: [
+    { title: "LeetCode 20 — Valid Parentheses", url: "https://leetcode.com/problems/valid-parentheses/" },
+  ],
 };
 
 export const bestTimeToBuyAndSellStock: ProblemDef = {
@@ -258,7 +265,11 @@ export const bestTimeToBuyAndSellStock: ProblemDef = {
 You want to maximize your profit by choosing **one day to buy** and a **different, later day to sell**. Return the maximum profit you can achieve. If no profit is possible, return \`0\`.`,
   constraints: ["1 ≤ prices.length ≤ 10⁵", "0 ≤ prices[i] ≤ 10⁴"],
   examples: [
-    { input: "prices = [7,1,5,3,6,4]", output: "5", explanation: "Buy on day 1 (price 1), sell on day 4 (price 6)." },
+    {
+      input: "prices = [7,1,5,3,6,4]",
+      output: "5",
+      explanation: "Buy on day 1 (price 1), sell on day 4 (price 6).",
+    },
     { input: "prices = [7,6,4,3,1]", output: "0", explanation: "Prices only fall; do not trade." },
   ],
   hints: [
@@ -345,7 +356,10 @@ class Solution:
     { name: "flat", args: [[5, 5, 5]], expected: 0 },
   ],
   externalLinks: [
-    { title: "LeetCode 121 — Best Time to Buy and Sell Stock", url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/" },
+    {
+      title: "LeetCode 121 — Best Time to Buy and Sell Stock",
+      url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    },
   ],
 };
 
@@ -362,7 +376,12 @@ export const binarySearch: ProblemDef = {
   statement: `Given an array of integers \`nums\` sorted in **ascending order** and an integer \`target\`, return the index of \`target\` if it exists, otherwise return \`-1\`.
 
 You must write an algorithm with **O(log n)** runtime complexity.`,
-  constraints: ["1 ≤ nums.length ≤ 10⁴", "−10⁴ < nums[i], target < 10⁴", "All integers in nums are unique", "nums is sorted ascending"],
+  constraints: [
+    "1 ≤ nums.length ≤ 10⁴",
+    "−10⁴ < nums[i], target < 10⁴",
+    "All integers in nums are unique",
+    "nums is sorted ascending",
+  ],
   examples: [
     { input: "nums = [-1,0,3,5,9,12], target = 9", output: "4" },
     { input: "nums = [-1,0,3,5,9,12], target = 2", output: "-1" },
@@ -438,7 +457,8 @@ class Solution:
   ],
   expectedTime: "O(log n)",
   expectedSpace: "O(1)",
-  complexityNotes: "The search interval halves each iteration; iterative implementation uses constant extra space (a recursive one would use O(log n) stack).",
+  complexityNotes:
+    "The search interval halves each iteration; iterative implementation uses constant extra space (a recursive one would use O(log n) stack).",
   commonMistakes: [
     "while (lo < hi) with hi = mid − 1 — skips the last candidate.",
     "lo = mid instead of mid + 1 — infinite loop when hi = lo + 1.",
@@ -464,7 +484,9 @@ class Solution:
     { name: "last index", args: [[2, 4, 6, 8], 8], expected: 3 },
     { name: "larger than all", args: [[2, 4, 6, 8], 9], expected: -1 },
   ],
-  externalLinks: [{ title: "LeetCode 704 — Binary Search", url: "https://leetcode.com/problems/binary-search/" }],
+  externalLinks: [
+    { title: "LeetCode 704 — Binary Search", url: "https://leetcode.com/problems/binary-search/" },
+  ],
 };
 
 export const linkedListCycle: ProblemDef = {
@@ -484,7 +506,11 @@ A cycle exists if some node can be reached again by continuously following \`nex
 **Test input format (internal):** tests describe the list as \`values\` plus \`pos\` — the index the tail's \`next\` points to, or \`-1\` for no cycle. \`pos\` is **not** passed to your function; you only receive \`head\`.`,
   constraints: ["0 ≤ number of nodes ≤ 10⁴", "−10⁵ ≤ Node.val ≤ 10⁵", "Follow-up: O(1) extra memory"],
   examples: [
-    { input: "head = [3,2,0,-4], pos = 1", output: "true", explanation: "The tail connects back to the node with value 2." },
+    {
+      input: "head = [3,2,0,-4], pos = 1",
+      output: "true",
+      explanation: "The tail connects back to the node with value 2.",
+    },
     { input: "head = [1,2], pos = 0", output: "true" },
     { input: "head = [1], pos = -1", output: "false" },
   ],
@@ -554,13 +580,18 @@ class Solution:
   ],
   expectedTime: "O(n)",
   expectedSpace: "O(1)",
-  complexityNotes: "Fast pointer either reaches the end in ≤ n/2 steps or both pointers enter the cycle and meet within one cycle length.",
+  complexityNotes:
+    "Fast pointer either reaches the end in ≤ n/2 steps or both pointers enter the cycle and meet within one cycle length.",
   commonMistakes: [
     "Comparing node values instead of node identity.",
     "Dereferencing fast.next.next without checking fast.next.",
     "Checking slow == fast before the first move (they start equal).",
   ],
-  signature: { method: "hasCycle", params: [{ name: "head", type: "linkedListWithCycle" }], returns: "boolean" },
+  signature: {
+    method: "hasCycle",
+    params: [{ name: "head", type: "linkedListWithCycle" }],
+    returns: "boolean",
+  },
   comparator: "exact",
   tests: [
     { name: "example 1", args: [{ values: [3, 2, 0, -4], pos: 1 }], expected: true },
@@ -572,5 +603,7 @@ class Solution:
     { name: "tail self loop", args: [{ values: [1, 2, 3, 4, 5, 6], pos: 5 }], expected: true },
     { name: "repeated values, no cycle", args: [{ values: [1, 1, 1, 1], pos: -1 }], expected: false },
   ],
-  externalLinks: [{ title: "LeetCode 141 — Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle/" }],
+  externalLinks: [
+    { title: "LeetCode 141 — Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle/" },
+  ],
 };

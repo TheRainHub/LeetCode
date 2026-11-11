@@ -15,7 +15,7 @@ export function Kbd({ children, className }: { children: React.ReactNode; classN
   return (
     <kbd
       className={cn(
-        "inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-surface-2 px-1 font-mono text-[10px] text-muted-foreground",
+        "border-border bg-surface-2 text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded border px-1 font-mono text-[10px]",
         className,
       )}
     >
@@ -25,7 +25,7 @@ export function Kbd({ children, className }: { children: React.ReactNode; classN
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-md bg-surface-3", className)} />;
+  return <div className={cn("bg-surface-3 animate-pulse rounded-md", className)} />;
 }
 
 export function EmptyState({
@@ -44,20 +44,22 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border px-6 py-8 text-center",
+        "border-border flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed px-6 py-8 text-center",
         className,
       )}
     >
       {icon ? <div className="text-subtle-foreground [&_svg]:size-5">{icon}</div> : null}
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {description ? <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">{description}</p> : null}
+      <p className="text-foreground text-sm font-medium">{title}</p>
+      {description ? (
+        <p className="text-muted-foreground max-w-sm text-xs leading-relaxed">{description}</p>
+      ) : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
   );
 }
 
 export function NotEnoughData({ label, className }: { label: string; className?: string }) {
-  return <span className={cn("text-xs text-subtle-foreground italic", className)}>{label}</span>;
+  return <span className={cn("text-subtle-foreground text-xs italic", className)}>{label}</span>;
 }
 
 export function Stat({
@@ -73,17 +75,25 @@ export function Stat({
 }) {
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">{label}</span>
-      <span className="text-xl font-semibold tabular-nums text-foreground">{value}</span>
-      {hint ? <span className="text-[11px] text-subtle-foreground">{hint}</span> : null}
+      <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">{label}</span>
+      <span className="text-foreground text-xl font-semibold tabular-nums">{value}</span>
+      {hint ? <span className="text-subtle-foreground text-[11px]">{hint}</span> : null}
     </div>
   );
 }
 
-export function SectionHeading({ children, className, action }: { children: React.ReactNode; className?: string; action?: React.ReactNode }) {
+export function SectionHeading({
+  children,
+  className,
+  action,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div className={cn("mb-2 flex items-center justify-between gap-2", className)}>
-      <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{children}</h3>
+      <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">{children}</h3>
       {action}
     </div>
   );

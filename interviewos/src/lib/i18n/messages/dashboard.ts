@@ -20,7 +20,8 @@ export const dashboard = defineMessages(
       developing: "Developing",
       interview_capable: "Interview-capable",
       strong: "Strong",
-      notAssessedHelp: "Complete quizzes, coding attempts and reviews — the level is shown after at least 10 graded results across 3 practiced topics.",
+      notAssessedHelp:
+        "Complete quizzes, coding attempts and reviews — the level is shown after at least 10 graded results across 3 practiced topics.",
       basis: (graded: number) => `Based on ${graded} graded results`,
     },
     plan: {
@@ -28,7 +29,8 @@ export const dashboard = defineMessages(
       empty: "Nothing scheduled today",
       emptyHelp: "Your plan has no tasks for today. Use the time for reviews or a recommended topic.",
       noPlan: "No study plan yet",
-      noPlanHelp: "Generate a plan from the 14-session interview sprint. It is placed around your daily budget, rest days and university obligations.",
+      noPlanHelp:
+        "Generate a plan from the 14-session interview sprint. It is placed around your daily budget, rest days and university obligations.",
       createPlan: "Create a study plan",
       markUnavailable: "I'm unavailable today",
       markUnavailableHelp: "Moves today's unfinished tasks to the next available days.",
@@ -49,7 +51,11 @@ export const dashboard = defineMessages(
       notYetToday: "Study 5+ minutes today to extend it",
       help: "Days with ≥ 5 min of logged learning. Rest days don't break it.",
     },
-    week: { title: "This week", total: (h: string) => `${h} logged`, empty: "No time logged in the last 7 days" },
+    week: {
+      title: "This week",
+      total: (h: string) => `${h} logged`,
+      empty: "No time logged in the last 7 days",
+    },
     problems: {
       title: "Coding problems",
       solved: "Solved",
@@ -62,7 +68,10 @@ export const dashboard = defineMessages(
       weakest: "Weakest areas",
       help: "Accuracy over graded results; shown after 8+ results in an area.",
     },
-    recommended: { title: "Recommended topics", empty: "Complete a few exercises to get personalised recommendations." },
+    recommended: {
+      title: "Recommended topics",
+      empty: "Complete a few exercises to get personalised recommendations.",
+    },
     reviews: {
       title: "Spaced repetition",
       dueToday: "Due today",
@@ -81,12 +90,18 @@ export const dashboard = defineMessages(
       in_progress: "in progress",
       high_priority: "high priority",
       low_accuracy: (acc: number) => `accuracy ${Math.round(acc * 100)}%`,
-      interview_soon: (company: string, days: number) => `${company} interview in ${days} ${days === 1 ? "day" : "days"}`,
+      interview_soon: (company: string, days: number) =>
+        `${company} interview in ${days} ${days === 1 ? "day" : "days"}`,
       active_application: (company: string) => `${company} application`,
       from_mock_interview: "flagged in last mock interview",
       next_in_path: "next in path",
     },
-    eventKinds: { interview: "Interview", university: "University", unavailable: "Unavailable", other: "Event" },
+    eventKinds: {
+      interview: "Interview",
+      university: "University",
+      unavailable: "Unavailable",
+      other: "Event",
+    },
   },
   {
     title: "Обзор",
@@ -95,7 +110,8 @@ export const dashboard = defineMessages(
     nextUp: "Дальше",
     next: {
       task: (title: string, minutes: number) => `${title} · ${minutes} мин`,
-      review: (n: number) => `${n} ${plural("ru", n, { one: "карточка", few: "карточки", many: "карточек" })} к повторению`,
+      review: (n: number) =>
+        `${n} ${plural("ru", n, { one: "карточка", few: "карточки", many: "карточек" })} к повторению`,
       problemReview: (title: string) => `Решить заново: ${title}`,
       recommendation: (title: string) => `Рекомендуется: ${title}`,
       explore: "Выберите учебный трек, чтобы начать",
@@ -107,7 +123,8 @@ export const dashboard = defineMessages(
       developing: "Развитие",
       interview_capable: "Готов к собеседованиям",
       strong: "Сильный",
-      notAssessedHelp: "Проходите тесты, решайте задачи и повторяйте карточки — уровень появится после 10 оценённых результатов по 3 темам.",
+      notAssessedHelp:
+        "Проходите тесты, решайте задачи и повторяйте карточки — уровень появится после 10 оценённых результатов по 3 темам.",
       basis: (graded: number) => `На основе ${graded} оценённых результатов`,
     },
     plan: {
@@ -136,7 +153,11 @@ export const dashboard = defineMessages(
       notYetToday: "Позанимайтесь 5+ минут, чтобы продлить серию",
       help: "Дни с ≥ 5 мин занятий. Дни отдыха серию не прерывают.",
     },
-    week: { title: "Эта неделя", total: (h: string) => `${h} записано`, empty: "За последние 7 дней времени не записано" },
+    week: {
+      title: "Эта неделя",
+      total: (h: string) => `${h} записано`,
+      empty: "За последние 7 дней времени не записано",
+    },
     problems: {
       title: "Задачи",
       solved: "Решено",
@@ -149,7 +170,10 @@ export const dashboard = defineMessages(
       weakest: "Слабые области",
       help: "Точность по оценённым результатам; показывается после 8+ результатов в области.",
     },
-    recommended: { title: "Рекомендуемые темы", empty: "Выполните несколько упражнений, чтобы получить персональные рекомендации." },
+    recommended: {
+      title: "Рекомендуемые темы",
+      empty: "Выполните несколько упражнений, чтобы получить персональные рекомендации.",
+    },
     reviews: {
       title: "Интервальные повторения",
       dueToday: "Сегодня",
@@ -174,6 +198,11 @@ export const dashboard = defineMessages(
       from_mock_interview: "отмечено на пробном собеседовании",
       next_in_path: "следующая в треке",
     },
-    eventKinds: { interview: "Собеседование", university: "Учёба", unavailable: "Недоступен", other: "Событие" },
+    eventKinds: {
+      interview: "Собеседование",
+      university: "Учёба",
+      unavailable: "Недоступен",
+      other: "Событие",
+    },
   },
 );

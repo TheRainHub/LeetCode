@@ -6,7 +6,11 @@ describe("estimateReadiness", () => {
   it("returns null when coverage or the number of started topics is too low", () => {
     expect(estimateReadiness([]).estimate).toBeNull();
     expect(estimateReadiness([{ topicId: 1, weight: 3, status: "interview_ready" }]).estimate).toBeNull();
-    const many = Array.from({ length: 20 }, (_, i) => ({ topicId: i, weight: 2, status: i < 3 ? ("practicing" as const) : ("not_started" as const) }));
+    const many = Array.from({ length: 20 }, (_, i) => ({
+      topicId: i,
+      weight: 2,
+      status: i < 3 ? ("practicing" as const) : ("not_started" as const),
+    }));
     expect(estimateReadiness(many).estimate).toBeNull(); // 15% coverage
   });
 
@@ -25,11 +29,22 @@ describe("estimateReadiness", () => {
 
 describe("preparationLevel", () => {
   it("is not assessed without enough graded evidence", () => {
-    expect(preparationLevel({ gradedResults: 4, topicsPracticed: 5, topicsReady: 3, totalTopics: 100, avgInterviewScore: null, interviewsCompleted: 0 })).toBe("not_assessed");
+    expect(
+      preparationLevel({
+        gradedResults: 4,
+        topicsPracticed: 5,
+        topicsReady: 3,
+        totalTopics: 100,
+        avgInterviewScore: null,
+        interviewsCompleted: 0,
+      }),
+    ).toBe("not_assessed");
   });
   it("requires observed interview scores for 'strong'", () => {
     const base = { gradedResults: 200, topicsPracticed: 80, topicsReady: 70, totalTopics: 100 };
-    expect(preparationLevel({ ...base, avgInterviewScore: null, interviewsCompleted: 0 })).toBe("interview_capable");
+    expect(preparationLevel({ ...base, avgInterviewScore: null, interviewsCompleted: 0 })).toBe(
+      "interview_capable",
+    );
     expect(preparationLevel({ ...base, avgInterviewScore: 80, interviewsCompleted: 3 })).toBe("strong");
   });
 });
@@ -46,15 +61,26 @@ describe("recommendTopics", () => {
     prerequisitesMet: true,
     ...extra,
   });
-  const base = { today: "2026-11-12", upcomingInterviews: [], activeApplications: [], mockInterviewTopicIds: new Set<number>() };
+  const base = {
+    today: "2026-11-12",
+    upcomingInterviews: [],
+    activeApplications: [],
+    mockInterviewTopicIds: new Set<number>(),
+  };
 
   it("prioritizes due reviews and needs_review topics", () => {
     const recs = recommendTopics({
       ...base,
-      topics: [topic(1), topic(2, { status: "needs_review", nextReviewOn: "2026-11-10" }), topic(3, { status: "practicing" })],
+      topics: [
+        topic(1),
+        topic(2, { status: "needs_review", nextReviewOn: "2026-11-10" }),
+        topic(3, { status: "practicing" }),
+      ],
     });
     expect(recs[0]!.topicId).toBe(2);
-    expect(recs[0]!.reasons.map((r) => r.kind)).toEqual(expect.arrayContaining(["needs_review", "review_due"]));
+    expect(recs[0]!.reasons.map((r) => r.kind)).toEqual(
+      expect.arrayContaining(["needs_review", "review_due"]),
+    );
   });
 
   it("boosts topics that matter for an upcoming interview, with a reason", () => {
@@ -68,7 +94,10 @@ describe("recommendTopics", () => {
   });
 
   it("skips interview-ready topics without due reviews and demotes unmet prerequisites", () => {
-    const recs = recommendTopics({ ...base, topics: [topic(1, { status: "interview_ready" }), topic(2, { prerequisitesMet: false }), topic(3)] });
+    const recs = recommendTopics({
+      ...base,
+      topics: [topic(1, { status: "interview_ready" }), topic(2, { prerequisitesMet: false }), topic(3)],
+    });
     expect(recs.map((r) => r.topicId)).toEqual([3, 2]);
   });
 });

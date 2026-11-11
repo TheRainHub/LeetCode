@@ -19,7 +19,11 @@ const GradeSchema = z.object({
       }),
     )
     .describe("one entry per rubric item, in order"),
-  feedback: z.string().describe("3-6 bullet points in Markdown: what was correct, what was wrong or missing, one concrete improvement"),
+  feedback: z
+    .string()
+    .describe(
+      "3-6 bullet points in Markdown: what was correct, what was wrong or missing, one concrete improvement",
+    ),
 });
 
 /**
@@ -29,10 +33,18 @@ const GradeSchema = z.object({
 export async function gradeExplanationAction(input: {
   exerciseId: number;
   response: string;
-}): Promise<{ ok: true; data: { score: number; rubricChecks: boolean[]; feedback: string } } | { ok: false; error: string }> {
+}): Promise<
+  | { ok: true; data: { score: number; rubricChecks: boolean[]; feedback: string } }
+  | { ok: false; error: string }
+> {
   try {
-    const data = z.object({ exerciseId: z.number().int().positive(), response: z.string().trim().min(40).max(12000) }).parse(input);
-    const [ex] = await db.select().from(exercises).where(and(eq(exercises.id, data.exerciseId), eq(exercises.kind, "explain")));
+    const data = z
+      .object({ exerciseId: z.number().int().positive(), response: z.string().trim().min(40).max(12000) })
+      .parse(input);
+    const [ex] = await db
+      .select()
+      .from(exercises)
+      .where(and(eq(exercises.id, data.exerciseId), eq(exercises.kind, "explain")));
     if (!ex?.rubric?.length) throw new Error("Exercise not found");
 
     const rubricText = ex.rubric.map((r, i) => `${i}. ${r}`).join("\n");

@@ -7,8 +7,12 @@ import { Quiz } from "./quiz";
 
 const submitQuizAction = vi.fn();
 const toastError = vi.fn();
-vi.mock("@/app/learn/actions", () => ({ submitQuizAction: (...args: unknown[]) => submitQuizAction(...args) }));
-vi.mock("sonner", () => ({ toast: { error: (...args: unknown[]) => toastError(...args), success: vi.fn() } }));
+vi.mock("@/app/learn/actions", () => ({
+  submitQuizAction: (...args: unknown[]) => submitQuizAction(...args),
+}));
+vi.mock("sonner", () => ({
+  toast: { error: (...args: unknown[]) => toastError(...args), success: vi.fn() },
+}));
 
 const questions = [
   { id: 11, prompt: "Binary search runs in", options: ["O(n)", "O(log n)"] },
@@ -37,8 +41,20 @@ describe("Quiz", () => {
         total: 2,
         passed: false,
         feedback: [
-          { exerciseId: 11, selected: 1, correctOption: 1, isCorrect: true, explanation: "Halves the range each step." },
-          { exerciseId: 12, selected: 1, correctOption: 0, isCorrect: false, explanation: "Average O(1) with a good hash." },
+          {
+            exerciseId: 11,
+            selected: 1,
+            correctOption: 1,
+            isCorrect: true,
+            explanation: "Halves the range each step.",
+          },
+          {
+            exerciseId: 12,
+            selected: 1,
+            correctOption: 0,
+            isCorrect: false,
+            explanation: "Average O(1) with a good hash.",
+          },
         ],
       },
     });

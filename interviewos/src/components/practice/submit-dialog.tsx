@@ -15,7 +15,17 @@ import { useI18n } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import type { Execution } from "./tests-panel";
 
-function ComplexityInput({ label, value, onChange, id }: { label: string; value: string; onChange: (v: string) => void; id: string }) {
+function ComplexityInput({
+  label,
+  value,
+  onChange,
+  id,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  id: string;
+}) {
   const { m } = useI18n();
   const custom = value !== "" && !COMMON_COMPLEXITIES.includes(value);
   const [other, setOther] = useState(custom);
@@ -44,7 +54,15 @@ function ComplexityInput({ label, value, onChange, id }: { label: string; value:
         ))}
         <option value="__other">{m.practice.ws.other}</option>
       </Select>
-      {other ? <Input className="mt-1.5 font-mono" value={value} onChange={(e) => onChange(e.target.value)} placeholder="O(…)" aria-label={label} /> : null}
+      {other ? (
+        <Input
+          className="mt-1.5 font-mono"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="O(…)"
+          aria-label={label}
+        />
+      ) : null}
     </Field>
   );
 }
@@ -126,13 +144,27 @@ export function SubmitDialog({
         {review ? (
           <div className="flex flex-col gap-4" data-testid="attempt-review">
             <div className="flex flex-wrap gap-1.5">
-              <Badge tone={review.outcome === "passed" ? "success" : review.outcome === "not_run" ? "outline" : "danger"}>{w.outcomes[review.outcome]}</Badge>
+              <Badge
+                tone={
+                  review.outcome === "passed"
+                    ? "success"
+                    : review.outcome === "not_run"
+                      ? "outline"
+                      : "danger"
+                }
+              >
+                {w.outcomes[review.outcome]}
+              </Badge>
               <Badge>{w.executionModes[review.executionMode]}</Badge>
-              <Badge tone={review.independence === "independent" ? "primary" : "warning"}>{w.independenceValues[review.independence]}</Badge>
-              {review.testsTotal ? <Badge tone="neutral">{w.passedOf(review.testsPassed, review.testsTotal)}</Badge> : null}
+              <Badge tone={review.independence === "independent" ? "primary" : "warning"}>
+                {w.independenceValues[review.independence]}
+              </Badge>
+              {review.testsTotal ? (
+                <Badge tone="neutral">{w.passedOf(review.testsPassed, review.testsTotal)}</Badge>
+              ) : null}
             </div>
             <table className="w-full text-sm">
-              <thead className="text-left text-[11px] text-muted-foreground">
+              <thead className="text-muted-foreground text-left text-[11px]">
                 <tr>
                   <th className="pb-1 font-medium" />
                   <th className="pb-1 font-medium">{w.review.yourClaim}</th>
@@ -147,12 +179,14 @@ export function SubmitDialog({
                     ["Space", space, review.expectedSpace, review.spaceCorrect],
                   ] as const
                 ).map(([label, claim, expected, ok]) => (
-                  <tr key={label} className="border-t border-border">
-                    <td className="py-1.5 text-muted-foreground">{label}</td>
+                  <tr key={label} className="border-border border-t">
+                    <td className="text-muted-foreground py-1.5">{label}</td>
                     <td className="py-1.5 font-mono">{claim}</td>
                     <td className="py-1.5 font-mono">{expected}</td>
                     <td className="py-1.5">
-                      <span className={cn("flex items-center gap-1 text-xs", ok ? "text-success" : "text-danger")}>
+                      <span
+                        className={cn("flex items-center gap-1 text-xs", ok ? "text-success" : "text-danger")}
+                      >
                         {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
                         {ok ? w.review.correct : w.review.incorrect}
                       </span>
@@ -161,8 +195,10 @@ export function SubmitDialog({
                 ))}
               </tbody>
             </table>
-            <p className="text-sm text-muted-foreground">{review.complexityNotes}</p>
-            <p className="text-xs text-subtle-foreground">{w.review.nextReview(formatDay(review.nextReviewOn, locale))}</p>
+            <p className="text-muted-foreground text-sm">{review.complexityNotes}</p>
+            <p className="text-subtle-foreground text-xs">
+              {w.review.nextReview(formatDay(review.nextReviewOn, locale))}
+            </p>
             <div className="flex gap-2">
               <Button
                 variant="primary"
@@ -181,12 +217,14 @@ export function SubmitDialog({
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-3 rounded-md border border-border bg-surface-2 p-3 text-xs sm:grid-cols-3">
+            <div className="border-border bg-surface-2 grid grid-cols-1 gap-3 rounded-md border p-3 text-xs sm:grid-cols-3">
               <div>
                 <p className="text-muted-foreground">{w.execution}</p>
                 <p className="mt-0.5 font-medium">
                   {w.executionModes[effective.mode]}
-                  {effective.mode !== "none" ? ` · ${w.passedOf(effective.results.filter((r) => r.passed).length, effective.results.length)}` : ""}
+                  {effective.mode !== "none"
+                    ? ` · ${w.passedOf(effective.results.filter((r) => r.passed).length, effective.results.length)}`
+                    : ""}
                 </p>
               </div>
               <div>
@@ -199,7 +237,7 @@ export function SubmitDialog({
               </div>
             </div>
             {effective.mode === "none" ? (
-              <p className="flex items-start gap-2 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning">
+              <p className="bg-warning-soft text-warning flex items-start gap-2 rounded-md px-3 py-2 text-xs">
                 <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
                 {w.notExecutedWarning}
               </p>
@@ -209,7 +247,13 @@ export function SubmitDialog({
               <ComplexityInput id="claim-space" label={w.claimedSpace} value={space} onChange={setSpace} />
             </div>
             <Field label={w.reflection} htmlFor="reflection">
-              <Textarea id="reflection" rows={3} value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder={w.reflectionPlaceholder} />
+              <Textarea
+                id="reflection"
+                rows={3}
+                value={reflection}
+                onChange={(e) => setReflection(e.target.value)}
+                placeholder={w.reflectionPlaceholder}
+              />
             </Field>
             <Field label={w.confidence}>
               <div className="flex gap-1.5" role="radiogroup" aria-label={w.confidence}>
@@ -222,7 +266,9 @@ export function SubmitDialog({
                     onClick={() => setConfidence(v)}
                     className={cn(
                       "size-8 cursor-pointer rounded-md border text-sm",
-                      confidence === v ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground hover:bg-surface-2",
+                      confidence === v
+                        ? "border-primary bg-primary-soft text-primary"
+                        : "border-border text-muted-foreground hover:bg-surface-2",
                     )}
                   >
                     {v}
@@ -230,7 +276,13 @@ export function SubmitDialog({
                 ))}
               </div>
             </Field>
-            <Button variant="primary" className="self-start" onClick={submit} disabled={pending || !time.trim() || !space.trim()} data-testid="record-attempt">
+            <Button
+              variant="primary"
+              className="self-start"
+              onClick={submit}
+              disabled={pending || !time.trim() || !space.trim()}
+              data-testid="record-attempt"
+            >
               {w.record}
             </Button>
           </div>

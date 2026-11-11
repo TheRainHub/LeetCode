@@ -38,15 +38,18 @@ export function ActiveTimer({ kind, refId }: { kind: Kind; refId: string }) {
     };
     const interval = window.setInterval(tick, 5000);
     const flushInterval = window.setInterval(flush, 60_000);
-    const onVisibility = () => (document.visibilityState === "hidden" ? flush() : (lastTick.current = Date.now()));
-    for (const ev of ["keydown", "mousemove", "scroll", "pointerdown"]) window.addEventListener(ev, onInput, { passive: true });
+    const onVisibility = () =>
+      document.visibilityState === "hidden" ? flush() : (lastTick.current = Date.now());
+    for (const ev of ["keydown", "mousemove", "scroll", "pointerdown"])
+      window.addEventListener(ev, onInput, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", flush);
     return () => {
       flush();
       window.clearInterval(interval);
       window.clearInterval(flushInterval);
-      for (const ev of ["keydown", "mousemove", "scroll", "pointerdown"]) window.removeEventListener(ev, onInput);
+      for (const ev of ["keydown", "mousemove", "scroll", "pointerdown"])
+        window.removeEventListener(ev, onInput);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", flush);
     };

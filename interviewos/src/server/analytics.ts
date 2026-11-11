@@ -1,7 +1,15 @@
 import "server-only";
 import { and, asc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { codingAttempts, codingProblems, interviewEvaluations, mockInterviews, reviewLogs, reviewSchedules, timeEntries } from "@/lib/db/schema";
+import {
+  codingAttempts,
+  codingProblems,
+  interviewEvaluations,
+  mockInterviews,
+  reviewLogs,
+  reviewSchedules,
+  timeEntries,
+} from "@/lib/db/schema";
 import { addDays, startOfWeek } from "@/lib/dates";
 import { getCompanyReadiness, getTopicStates, MIN_RESULTS_FOR_ACCURACY } from "./insights";
 import { getCurrentUserId, getToday } from "./user";
@@ -43,7 +51,11 @@ export async function getAnalytics() {
       .innerJoin(codingProblems, eq(codingProblems.id, codingAttempts.problemId))
       .where(eq(codingAttempts.userId, userId)),
     db
-      .select({ date: timeEntries.date, kind: timeEntries.kind, seconds: sql<number>`sum(${timeEntries.seconds})::int` })
+      .select({
+        date: timeEntries.date,
+        kind: timeEntries.kind,
+        seconds: sql<number>`sum(${timeEntries.seconds})::int`,
+      })
       .from(timeEntries)
       .where(and(eq(timeEntries.userId, userId), gte(timeEntries.date, firstWeek)))
       .groupBy(timeEntries.date, timeEntries.kind),
@@ -53,7 +65,12 @@ export async function getAnalytics() {
       .innerJoin(reviewSchedules, eq(reviewSchedules.id, reviewLogs.scheduleId))
       .where(and(eq(reviewSchedules.userId, userId), isNotNull(reviewSchedules.cardId))),
     db
-      .select({ id: mockInterviews.id, type: mockInterviews.type, endedAt: mockInterviews.endedAt, score: interviewEvaluations.overallScore })
+      .select({
+        id: mockInterviews.id,
+        type: mockInterviews.type,
+        endedAt: mockInterviews.endedAt,
+        score: interviewEvaluations.overallScore,
+      })
       .from(mockInterviews)
       .innerJoin(interviewEvaluations, eq(interviewEvaluations.interviewId, mockInterviews.id))
       .where(eq(mockInterviews.userId, userId))
@@ -67,7 +84,15 @@ export async function getAnalytics() {
 
   // Coding.
   const passed = attempts.filter((a) => a.outcome === "passed");
-  const perProblem = new Map<number, { title: string; slug: string; seconds: number[]; best: "independent" | "with_hints" | "with_solution" | null }>();
+  const perProblem = new Map<
+    number,
+    {
+      title: string;
+      slug: string;
+      seconds: number[];
+      best: "independent" | "with_hints" | "with_solution" | null;
+    }
+  >();
   const rank = { independent: 3, with_hints: 2, with_solution: 1 } as const;
   for (const a of attempts) {
     const e = perProblem.get(a.problemId) ?? { title: a.title, slug: a.slug, seconds: [], best: null };
@@ -101,7 +126,10 @@ export async function getAnalytics() {
     return {
       week: w,
       reviews: inWeek.length,
-      retention: inWeek.length >= MIN_REVIEWS_PER_WEEK ? inWeek.filter((r) => r.grade !== "again").length / inWeek.length : null,
+      retention:
+        inWeek.length >= MIN_REVIEWS_PER_WEEK
+          ? inWeek.filter((r) => r.grade !== "again").length / inWeek.length
+          : null,
     };
   });
 
@@ -112,11 +140,19 @@ export async function getAnalytics() {
 
   return {
     minResults: MIN_RESULTS_FOR_ACCURACY,
-    accuracy: rated.map((t) => ({ slug: t.slug, title: t.title, area: t.area, accuracy: t.accuracy!, attempts: t.attempts })),
+    accuracy: rated.map((t) => ({
+      slug: t.slug,
+      title: t.title,
+      area: t.area,
+      accuracy: t.accuracy!,
+      attempts: t.attempts,
+    })),
     insufficient,
     coding: {
       attempts: attempts.length,
-      avgSeconds: passed.length ? Math.round(passed.reduce((s, a) => s + a.durationSeconds, 0) / passed.length) : null,
+      avgSeconds: passed.length
+        ? Math.round(passed.reduce((s, a) => s + a.durationSeconds, 0) / passed.length)
+        : null,
       independent: problems.filter((p) => p.best === "independent").length,
       withHints: problems.filter((p) => p.best === "with_hints").length,
       withSolution: problems.filter((p) => p.best === "with_solution").length,
@@ -124,9 +160,21 @@ export async function getAnalytics() {
     },
     weekly,
     retention,
-    interviews: interviews.map((i) => ({ id: i.id, type: i.type, date: (i.endedAt ?? new Date()).toISOString().slice(0, 10), score: i.score })),
+    interviews: interviews.map((i) => ({
+      id: i.id,
+      type: i.type,
+      date: (i.endedAt ?? new Date()).toISOString().slice(0, 10),
+      score: i.score,
+    })),
     calibration,
-    readiness: readiness.map((r) => ({ name: r.name, slug: r.slug, estimate: r.readiness.estimate, coverage: r.readiness.coverage, observed: r.avgMockScore, mocks: r.mockCount })),
+    readiness: readiness.map((r) => ({
+      name: r.name,
+      slug: r.slug,
+      estimate: r.readiness.estimate,
+      coverage: r.readiness.coverage,
+      observed: r.avgMockScore,
+      mocks: r.mockCount,
+    })),
   };
 }
 

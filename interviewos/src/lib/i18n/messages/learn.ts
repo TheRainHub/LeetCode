@@ -6,7 +6,8 @@ export const learn = defineMessages(
     description: "Structured modules with theory, worked examples, exercises and evidence-based completion.",
     lessons: (n: number) => `${n} ${n === 1 ? "lesson" : "lessons"}`,
     modules: (n: number) => `${n} ${n === 1 ? "module" : "modules"}`,
-    progressLabel: (ready: number, practiced: number, total: number) => `${ready} ready · ${practiced} in practice · ${total} topics`,
+    progressLabel: (ready: number, practiced: number, total: number) =>
+      `${ready} ready · ${practiced} in practice · ${total} topics`,
     depth: { full: "Full lesson", concise: "Concise lesson" },
     depthHelp: {
       full: "In-depth lesson with full theory and worked examples.",
@@ -26,7 +27,8 @@ export const learn = defineMessages(
       showKeyPoints: "Show key points",
       hideKeyPoints: "Hide key points",
       quiz: "Check your understanding",
-      quizHelp: "Recognition check. Passing (≥ 70%) counts as recognition evidence — not as interview readiness.",
+      quizHelp:
+        "Recognition check. Passing (≥ 70%) counts as recognition evidence — not as interview readiness.",
       explain: "Explain it under interview conditions",
       selfAssessment: "Self-assessment",
       completion: "Completion criteria",
@@ -65,7 +67,8 @@ export const learn = defineMessages(
       answerAll: "Answer every question first.",
     },
     explain: {
-      intro: "The lesson is hidden while you answer. Speak or write as you would to an interviewer, then grade yourself honestly against the rubric.",
+      intro:
+        "The lesson is hidden while you answer. Speak or write as you would to an interviewer, then grade yourself honestly against the rubric.",
       start: "Start interview mode",
       timer: "Elapsed",
       placeholder: "Your explanation…",
@@ -87,10 +90,12 @@ export const learn = defineMessages(
   },
   {
     title: "Учебные треки",
-    description: "Структурированные модули с теорией, разобранными примерами, упражнениями и проверкой освоения.",
+    description:
+      "Структурированные модули с теорией, разобранными примерами, упражнениями и проверкой освоения.",
     lessons: (n: number) => `${n} ${plural("ru", n, { one: "урок", few: "урока", many: "уроков" })}`,
     modules: (n: number) => `${n} ${plural("ru", n, { one: "модуль", few: "модуля", many: "модулей" })}`,
-    progressLabel: (ready: number, practiced: number, total: number) => `${ready} готово · ${practiced} в практике · всего тем ${total}`,
+    progressLabel: (ready: number, practiced: number, total: number) =>
+      `${ready} готово · ${practiced} в практике · всего тем ${total}`,
     depth: { full: "Полный урок", concise: "Краткий урок" },
     depthHelp: {
       full: "Подробный урок с полной теорией и разобранными примерами.",
@@ -110,7 +115,8 @@ export const learn = defineMessages(
       showKeyPoints: "Показать ключевые пункты",
       hideKeyPoints: "Скрыть ключевые пункты",
       quiz: "Проверьте понимание",
-      quizHelp: "Проверка узнавания. Результат ≥ 70% засчитывается как узнавание — но не как готовность к собеседованию.",
+      quizHelp:
+        "Проверка узнавания. Результат ≥ 70% засчитывается как узнавание — но не как готовность к собеседованию.",
       explain: "Объясните в условиях собеседования",
       selfAssessment: "Самооценка",
       completion: "Критерии завершения",
@@ -149,7 +155,8 @@ export const learn = defineMessages(
       answerAll: "Сначала ответьте на все вопросы.",
     },
     explain: {
-      intro: "Пока вы отвечаете, урок скрыт. Отвечайте так, как ответили бы интервьюеру, затем честно оцените себя по критериям.",
+      intro:
+        "Пока вы отвечаете, урок скрыт. Отвечайте так, как ответили бы интервьюеру, затем честно оцените себя по критериям.",
       start: "Начать режим собеседования",
       timer: "Прошло",
       placeholder: "Ваше объяснение…",

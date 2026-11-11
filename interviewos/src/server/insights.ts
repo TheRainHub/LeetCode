@@ -105,14 +105,24 @@ export const getCompanyReadiness = cache(async (): Promise<CompanyReadiness[]> =
     db.select().from(companyFocusTopics).where(gt(companyFocusTopics.weight, 0)),
     getTopicStates(),
     db
-      .select({ companyId: applications.companyId, stage: applications.stage, updatedAt: applications.updatedAt })
+      .select({
+        companyId: applications.companyId,
+        stage: applications.stage,
+        updatedAt: applications.updatedAt,
+      })
       .from(applications)
       .where(eq(applications.userId, userId))
       .orderBy(desc(applications.updatedAt)),
     db
       .select({ companyId: calendarEvents.companyId, date: calendarEvents.date })
       .from(calendarEvents)
-      .where(and(eq(calendarEvents.userId, userId), eq(calendarEvents.kind, "interview"), gte(calendarEvents.date, today)))
+      .where(
+        and(
+          eq(calendarEvents.userId, userId),
+          eq(calendarEvents.kind, "interview"),
+          gte(calendarEvents.date, today),
+        ),
+      )
       .orderBy(asc(calendarEvents.date)),
     db
       .select({ companyId: mockInterviews.companyId, score: interviewEvaluations.overallScore })
@@ -124,7 +134,11 @@ export const getCompanyReadiness = cache(async (): Promise<CompanyReadiness[]> =
   return companyRows.map((c) => {
     const f = focus.filter((x) => x.companyId === c.id);
     const readiness = estimateReadiness(
-      f.map((x) => ({ topicId: x.topicId, weight: x.weight, status: stateById.get(x.topicId)?.status ?? "not_started" })),
+      f.map((x) => ({
+        topicId: x.topicId,
+        weight: x.weight,
+        status: stateById.get(x.topicId)?.status ?? "not_started",
+      })),
     );
     const cm = mocks.filter((x) => x.companyId === c.id);
     return {
@@ -161,7 +175,10 @@ export async function getRecommendations(limit = 5): Promise<Recommendation[]> {
       .limit(1),
   ]);
   const lessonTopic = new Map(
-    (await db.select({ id: lessons.id, topicId: lessons.topicId }).from(lessons)).map((l) => [l.id, l.topicId]),
+    (await db.select({ id: lessons.id, topicId: lessons.topicId }).from(lessons)).map((l) => [
+      l.id,
+      l.topicId,
+    ]),
   );
   const stateById = new Map(states.map((s) => [s.id, s]));
   const slugToId = new Map(states.map((s) => [s.slug, s.id]));
@@ -177,7 +194,9 @@ export async function getRecommendations(limit = 5): Promise<Recommendation[]> {
       });
 
   const mockTopicIds = new Set<number>(
-    (lastEval[0]?.topics ?? []).map((t) => slugToId.get(t.topicSlug)).filter((x): x is number => x !== undefined),
+    (lastEval[0]?.topics ?? [])
+      .map((t) => slugToId.get(t.topicSlug))
+      .filter((x): x is number => x !== undefined),
   );
 
   return recommendTopics(
@@ -269,16 +288,22 @@ export async function getCodingSummary() {
     .where(eq(codingAttempts.userId, userId));
   const solved = new Set(rows.filter((r) => r.outcome === "passed").map((r) => r.problemId));
   const independent = new Set(
-    rows.filter((r) => r.outcome === "passed" && r.independence === "independent" && r.executionMode !== "none").map((r) => r.problemId),
+    rows
+      .filter((r) => r.outcome === "passed" && r.independence === "independent" && r.executionMode !== "none")
+      .map((r) => r.problemId),
   );
-  const withHelp = new Set(rows.filter((r) => r.outcome === "passed" && r.independence !== "independent").map((r) => r.problemId));
+  const withHelp = new Set(
+    rows.filter((r) => r.outcome === "passed" && r.independence !== "independent").map((r) => r.problemId),
+  );
   const passed = rows.filter((r) => r.outcome === "passed");
   return {
     attempts: rows.length,
     solved: solved.size,
     solvedIndependently: independent.size,
     solvedWithHelp: withHelp.size,
-    avgSolveSeconds: passed.length ? Math.round(passed.reduce((s, r) => s + r.durationSeconds, 0) / passed.length) : null,
+    avgSolveSeconds: passed.length
+      ? Math.round(passed.reduce((s, r) => s + r.durationSeconds, 0) / passed.length)
+      : null,
   };
 }
 

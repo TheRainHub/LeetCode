@@ -52,12 +52,26 @@ export async function saveProjectAction(input: z.input<typeof projectSchema>): P
   }
 }
 
-export async function savePracticeAnswerAction(input: { projectId: number; question: string; answer: string; selfScore: number; durationSeconds: number }): Promise<Result> {
+export async function savePracticeAnswerAction(input: {
+  projectId: number;
+  question: string;
+  answer: string;
+  selfScore: number;
+  durationSeconds: number;
+}): Promise<Result> {
   try {
     const d = z
-      .object({ projectId: id, question: z.string().trim().min(5).max(1000), answer: z.string().trim().min(10).max(20000), selfScore: z.number().int().min(1).max(5), durationSeconds: z.number().min(0).max(7200) })
+      .object({
+        projectId: id,
+        question: z.string().trim().min(5).max(1000),
+        answer: z.string().trim().min(10).max(20000),
+        selfScore: z.number().int().min(1).max(5),
+        durationSeconds: z.number().min(0).max(7200),
+      })
       .parse(input);
-    await db.insert(experiencePractice).values({ userId: getCurrentUserId(), ...d, durationSeconds: Math.round(d.durationSeconds) });
+    await db
+      .insert(experiencePractice)
+      .values({ userId: getCurrentUserId(), ...d, durationSeconds: Math.round(d.durationSeconds) });
     await logTime("experience", d.durationSeconds, `project:${d.projectId}`);
     await completeMatchingTasks("experience", null);
     revalidatePath("/experience", "layout");
@@ -84,7 +98,10 @@ export async function saveStoryAction(input: z.input<typeof storySchema>): Promi
     const { id: storyId, ...d } = storySchema.parse(input);
     const userId = getCurrentUserId();
     if (storyId) {
-      await db.update(starStories).set({ ...d, updatedAt: new Date() }).where(and(eq(starStories.id, storyId), eq(starStories.userId, userId)));
+      await db
+        .update(starStories)
+        .set({ ...d, updatedAt: new Date() })
+        .where(and(eq(starStories.id, storyId), eq(starStories.userId, userId)));
     } else {
       await db.insert(starStories).values({ ...d, userId });
     }
@@ -98,7 +115,9 @@ export async function saveStoryAction(input: z.input<typeof storySchema>): Promi
 export async function deleteStoryAction(input: { id: number }): Promise<Result> {
   try {
     const d = z.object({ id }).parse(input);
-    await db.delete(starStories).where(and(eq(starStories.id, d.id), eq(starStories.userId, getCurrentUserId())));
+    await db
+      .delete(starStories)
+      .where(and(eq(starStories.id, d.id), eq(starStories.userId, getCurrentUserId())));
     revalidatePath("/experience", "layout");
     return { ok: true };
   } catch (e) {
@@ -107,21 +126,38 @@ export async function deleteStoryAction(input: { id: number }): Promise<Result> 
 }
 
 const QuestionsSchema = z.object({
-  questions: z.array(z.object({ question: z.string(), lookFor: z.string() })).describe("6-8 probing interview questions"),
+  questions: z
+    .array(z.object({ question: z.string(), lookFor: z.string() }))
+    .describe("6-8 probing interview questions"),
 });
 
 /** Asks the model for tailored follow-up questions, grounded strictly in the user's own description. */
-export async function generateAiQuestionsAction(input: { projectId: number }): Promise<Result<{ question: string; lookFor: string }[]>> {
+export async function generateAiQuestionsAction(input: {
+  projectId: number;
+}): Promise<Result<{ question: string; lookFor: string }[]>> {
   try {
     const d = z.object({ projectId: id }).parse(input);
-    const [p] = await db.select().from(personalProjects).where(and(eq(personalProjects.id, d.projectId), eq(personalProjects.userId, getCurrentUserId())));
+    const [p] = await db
+      .select()
+      .from(personalProjects)
+      .where(and(eq(personalProjects.id, d.projectId), eq(personalProjects.userId, getCurrentUserId())));
     if (!p) throw new Error("Project not found");
     const description = [
       `Title: ${p.title} (${p.organization})`,
       `Tech: ${p.techStack.join(", ")}`,
-      ...(["problem", "context", "responsibility", "architecture", "decisions", "tradeoffs", "challenges", "result", "lessonsLearned"] as const).map(
-        (k) => `${k}: ${p[k] || "(not provided)"}`,
-      ),
+      ...(
+        [
+          "problem",
+          "context",
+          "responsibility",
+          "architecture",
+          "decisions",
+          "tradeoffs",
+          "challenges",
+          "result",
+          "lessonsLearned",
+        ] as const
+      ).map((k) => `${k}: ${p[k] || "(not provided)"}`),
     ].join("\n");
     const response = await getAnthropic().beta.messages.parse({
       model: env().ANTHROPIC_MODEL,

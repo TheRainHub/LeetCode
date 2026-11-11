@@ -8,7 +8,11 @@ import { useI18n } from "@/lib/i18n/client";
 // Serve Monaco from /public (copied at install) so the editor works offline.
 loader.config({ paths: { vs: "/monaco/vs" } });
 
-const MONACO_LANGUAGE: Record<Language, string> = { java: "java", typescript: "typescript", python: "python" };
+const MONACO_LANGUAGE: Record<Language, string> = {
+  java: "java",
+  typescript: "typescript",
+  python: "python",
+};
 
 function defineThemes(monaco: Monaco) {
   monaco.editor.defineTheme("interviewos-dark", {
@@ -101,7 +105,7 @@ export function CodeEditor({
       beforeMount={defineThemes}
       onMount={onMount}
       onChange={(v) => onChange?.(v ?? "")}
-      loading={<div className="p-4 text-xs text-subtle-foreground">{m.practice.ws.loadingEditor}</div>}
+      loading={<div className="text-subtle-foreground p-4 text-xs">{m.practice.ws.loadingEditor}</div>}
       options={{
         readOnly,
         fontSize: 13.5,

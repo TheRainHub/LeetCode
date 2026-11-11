@@ -22,7 +22,15 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
-export function CreatePlanForm({ templateKey, defaultStart, regenerate }: { templateKey: string; defaultStart: string; regenerate?: boolean }) {
+export function CreatePlanForm({
+  templateKey,
+  defaultStart,
+  regenerate,
+}: {
+  templateKey: string;
+  defaultStart: string;
+  regenerate?: boolean;
+}) {
   const { m } = useI18n();
   const C = m.schedule.create;
   const [start, setStart] = useState(defaultStart);
@@ -30,7 +38,13 @@ export function CreatePlanForm({ templateKey, defaultStart, regenerate }: { temp
   return (
     <div className="flex flex-wrap items-end gap-3">
       <Field label={C.startDate} htmlFor="plan-start">
-        <Input id="plan-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} className="w-44" />
+        <Input
+          id="plan-start"
+          type="date"
+          value={start}
+          onChange={(e) => setStart(e.target.value)}
+          className="w-44"
+        />
       </Field>
       <Button
         variant={regenerate ? "secondary" : "primary"}
@@ -51,7 +65,15 @@ export function CreatePlanForm({ templateKey, defaultStart, regenerate }: { temp
   );
 }
 
-export function CapacitySettingsForm({ budget, restWeekdays, prioritizeUniversity }: { budget: number; restWeekdays: number[]; prioritizeUniversity: boolean }) {
+export function CapacitySettingsForm({
+  budget,
+  restWeekdays,
+  prioritizeUniversity,
+}: {
+  budget: number;
+  restWeekdays: number[];
+  prioritizeUniversity: boolean;
+}) {
   const { m } = useI18n();
   const S = m.schedule.settings;
   const [b, setB] = useState(budget);
@@ -61,7 +83,16 @@ export function CapacitySettingsForm({ budget, restWeekdays, prioritizeUniversit
   return (
     <div className="flex flex-col gap-4">
       <Field label={S.budget} htmlFor="budget">
-        <Input id="budget" type="number" min={10} max={480} step={5} value={b} onChange={(e) => setB(Number(e.target.value) || 0)} className="w-32" />
+        <Input
+          id="budget"
+          type="number"
+          min={10}
+          max={480}
+          step={5}
+          value={b}
+          onChange={(e) => setB(Number(e.target.value) || 0)}
+          className="w-32"
+        />
       </Field>
       <Field label={S.restDays}>
         <div className="flex flex-wrap gap-1">
@@ -73,7 +104,9 @@ export function CapacitySettingsForm({ budget, restWeekdays, prioritizeUniversit
               onClick={() => setRest((r) => (r.includes(d) ? r.filter((x) => x !== d) : [...r, d]))}
               className={cn(
                 "h-7 w-10 cursor-pointer rounded-md border text-xs",
-                rest.includes(d) ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground hover:bg-surface-2",
+                rest.includes(d)
+                  ? "border-primary bg-primary-soft text-primary"
+                  : "border-border text-muted-foreground hover:bg-surface-2",
               )}
             >
               {m.schedule.weekdays[d]}
@@ -85,7 +118,7 @@ export function CapacitySettingsForm({ budget, restWeekdays, prioritizeUniversit
         <Switch checked={uni} onCheckedChange={setUni} aria-label={S.prioritizeUniversity} />
         <span>
           <span className="block text-sm">{S.prioritizeUniversity}</span>
-          <span className="block text-xs text-muted-foreground">{S.prioritizeHelp}</span>
+          <span className="text-muted-foreground block text-xs">{S.prioritizeHelp}</span>
         </span>
       </label>
       <Button
@@ -95,7 +128,11 @@ export function CapacitySettingsForm({ budget, restWeekdays, prioritizeUniversit
         disabled={pending}
         onClick={() =>
           run(async () => {
-            const res = await updateScheduleSettingsAction({ dailyBudgetMinutes: b, restWeekdays: rest, prioritizeUniversity: uni });
+            const res = await updateScheduleSettingsAction({
+              dailyBudgetMinutes: b,
+              restWeekdays: rest,
+              prioritizeUniversity: uni,
+            });
             if (res.ok) toast.success(S.saved(res.data?.moved ?? 0));
             else toast.error(res.error);
           })
@@ -141,7 +178,7 @@ export function MoveTask({ taskId, date }: { taskId: number; date: string }) {
       title={m.schedule.days.move}
       defaultValue={date}
       disabled={pending}
-      className="h-6 w-[7.5rem] rounded border border-border bg-surface-2 px-1 text-[11px] text-muted-foreground"
+      className="border-border bg-surface-2 text-muted-foreground h-6 w-[7.5rem] rounded border px-1 text-[11px]"
       onChange={(e) => {
         const value = e.target.value;
         if (!value || value === date) return;
@@ -179,7 +216,13 @@ export function PullForwardButton() {
   );
 }
 
-export function AddEventForm({ companies, today }: { companies: { slug: string; name: string }[]; today: string }) {
+export function AddEventForm({
+  companies,
+  today,
+}: {
+  companies: { slug: string; name: string }[];
+  today: string;
+}) {
   const { m } = useI18n();
   const E = m.schedule.events;
   const [kind, setKind] = useState<"university" | "interview" | "unavailable" | "other">("university");
@@ -209,7 +252,15 @@ export function AddEventForm({ companies, today }: { companies: { slug: string; 
       </Field>
       {kind === "university" ? (
         <Field label={E.lightDays} htmlFor="ev-light">
-          <Input id="ev-light" type="number" min={0} max={14} value={light} onChange={(e) => setLight(Number(e.target.value) || 0)} className="w-24" />
+          <Input
+            id="ev-light"
+            type="number"
+            min={0}
+            max={14}
+            value={light}
+            onChange={(e) => setLight(Number(e.target.value) || 0)}
+            className="w-24"
+          />
         </Field>
       ) : null}
       {kind === "interview" ? (
@@ -231,7 +282,14 @@ export function AddEventForm({ companies, today }: { companies: { slug: string; 
         disabled={pending || !title.trim() || !date}
         onClick={() =>
           run(async () => {
-            const res = await addEventAction({ kind, title, date, lightDaysBefore: light, companySlug: company || undefined, notes: "" });
+            const res = await addEventAction({
+              kind,
+              title,
+              date,
+              lightDaysBefore: light,
+              companySlug: company || undefined,
+              notes: "",
+            });
             if (!res.ok) return void toast.error(res.error);
             toast.success(E.added);
             setTitle("");
@@ -266,21 +324,38 @@ export function DeleteEventButton({ id }: { id: number }) {
   );
 }
 
-export function Objectives({ weekStart, items }: { weekStart: string; items: { id: number; text: string; done: boolean }[] }) {
+export function Objectives({
+  weekStart,
+  items,
+}: {
+  weekStart: string;
+  items: { id: number; text: string; done: boolean }[];
+}) {
   const { m } = useI18n();
   const O = m.schedule.objectives;
   const [text, setText] = useState("");
   const [pending, run] = useTransition();
   return (
     <div className="flex flex-col gap-2">
-      {items.length === 0 ? <p className="text-xs text-muted-foreground">{O.empty}</p> : null}
+      {items.length === 0 ? <p className="text-muted-foreground text-xs">{O.empty}</p> : null}
       <ul className="flex flex-col gap-1">
         {items.map((o) => (
           <li key={o.id} className="group flex items-center gap-2 text-sm">
-            <Checkbox checked={o.done} onChange={(e) => run(async () => void (await toggleObjectiveAction({ id: o.id, done: e.target.checked })))} aria-label={o.text} />
+            <Checkbox
+              checked={o.done}
+              onChange={(e) =>
+                run(async () => void (await toggleObjectiveAction({ id: o.id, done: e.target.checked })))
+              }
+              aria-label={o.text}
+            />
             <span className={cn("flex-1", o.done && "text-muted-foreground line-through")}>{o.text}</span>
-            <button type="button" className="opacity-0 group-hover:opacity-100" aria-label={m.common.actions.delete} onClick={() => run(async () => void (await deleteObjectiveAction({ id: o.id })))}>
-              <Trash2 className="size-3.5 text-subtle-foreground hover:text-danger" />
+            <button
+              type="button"
+              className="opacity-0 group-hover:opacity-100"
+              aria-label={m.common.actions.delete}
+              onClick={() => run(async () => void (await deleteObjectiveAction({ id: o.id })))}
+            >
+              <Trash2 className="text-subtle-foreground hover:text-danger size-3.5" />
             </button>
           </li>
         ))}
@@ -297,7 +372,12 @@ export function Objectives({ weekStart, items }: { weekStart: string; items: { i
           });
         }}
       >
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={O.placeholder} aria-label={O.title} />
+        <Input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={O.placeholder}
+          aria-label={O.title}
+        />
         <Button type="submit" size="sm" disabled={pending || !text.trim()}>
           <Plus />
         </Button>

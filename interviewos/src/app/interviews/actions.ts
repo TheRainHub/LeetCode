@@ -15,8 +15,11 @@ const schema = z.object({
   language: z.enum(["java", "typescript", "python"]),
 });
 
-export async function createInterviewAction(input: z.input<typeof schema>): Promise<{ ok: false; error: string } | never> {
-  if (!isAiConfigured()) return { ok: false, error: "AI is not configured. Set ANTHROPIC_API_KEY on the server." };
+export async function createInterviewAction(
+  input: z.input<typeof schema>,
+): Promise<{ ok: false; error: string } | never> {
+  if (!isAiConfigured())
+    return { ok: false, error: "AI is not configured. Set ANTHROPIC_API_KEY on the server." };
   const parsed = schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues.map((i) => i.message).join("; ") };
   const id = await createInterview(parsed.data);

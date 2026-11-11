@@ -27,9 +27,12 @@ export function Progress({
       aria-valuemax={100}
       aria-valuenow={Math.round(v)}
       aria-label={label}
-      className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-3", className)}
+      className={cn("bg-surface-3 h-1.5 w-full overflow-hidden rounded-full", className)}
     >
-      <div className={cn("h-full rounded-full transition-[width] duration-500", color)} style={{ width: `${v}%` }} />
+      <div
+        className={cn("h-full rounded-full transition-[width] duration-500", color)}
+        style={{ width: `${v}%` }}
+      />
     </div>
   );
 }

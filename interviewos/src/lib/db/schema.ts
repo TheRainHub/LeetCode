@@ -111,7 +111,10 @@ export const userSettings = pgTable("user_settings", {
   timezone: text("timezone").default("Europe/Prague").notNull(),
   dailyBudgetMinutes: integer("daily_budget_minutes").default(90).notNull(),
   /** 0 = Sunday … 6 = Saturday */
-  restWeekdays: integer("rest_weekdays").array().default(sql`'{}'::integer[]`).notNull(),
+  restWeekdays: integer("rest_weekdays")
+    .array()
+    .default(sql`'{}'::integer[]`)
+    .notNull(),
   prioritizeUniversity: boolean("prioritize_university").default(true).notNull(),
   preferredLanguage: text("preferred_language").$type<Language>().default("java").notNull(),
   /** Background the AI interviewer may use. User-editable; seeded from what the user told us. */
@@ -685,13 +688,17 @@ export const interviewEvaluations = pgTable("interview_evaluations", {
   dimensions: jsonb("dimensions").$type<Record<string, EvaluationDimension>>().notNull(),
   strengths: jsonb("strengths").$type<string[]>().notNull(),
   weaknesses: jsonb("weaknesses").$type<string[]>().notNull(),
-  mistakes: jsonb("mistakes").$type<{ description: string; evidence: string; correction: string }[]>().notNull(),
+  mistakes: jsonb("mistakes")
+    .$type<{ description: string; evidence: string; correction: string }[]>()
+    .notNull(),
   modelAnswer: text("model_answer").notNull(),
   recommendedTopics: jsonb("recommended_topics").$type<{ topicSlug: string; reason: string }[]>().notNull(),
   followUpExercises: jsonb("follow_up_exercises")
     .$type<{ title: string; description: string; problemSlug?: string | null }[]>()
     .notNull(),
-  srsSuggestions: jsonb("srs_suggestions").$type<{ prompt: string; answer: string; topicSlug?: string | null }[]>().notNull(),
+  srsSuggestions: jsonb("srs_suggestions")
+    .$type<{ prompt: string; answer: string; topicSlug?: string | null }[]>()
+    .notNull(),
   model: text("model").notNull(),
   createdAt: createdAt(),
 });
@@ -758,7 +765,10 @@ export const studyTasks = pgTable(
     timesMoved: integer("times_moved").default(0).notNull(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
-  (t) => [index("study_tasks_date_idx").on(t.scheduledDate), index("study_tasks_session_idx").on(t.sessionId)],
+  (t) => [
+    index("study_tasks_date_idx").on(t.scheduledDate),
+    index("study_tasks_session_idx").on(t.sessionId),
+  ],
 );
 
 export const calendarEvents = pgTable(

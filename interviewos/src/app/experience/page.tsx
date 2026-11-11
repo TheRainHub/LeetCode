@@ -17,7 +17,11 @@ export default async function ExperiencePage() {
   const userId = getCurrentUserId();
   const [{ m }, projects, stories] = await Promise.all([
     getI18n(),
-    db.select().from(personalProjects).where(eq(personalProjects.userId, userId)).orderBy(asc(personalProjects.id)),
+    db
+      .select()
+      .from(personalProjects)
+      .where(eq(personalProjects.userId, userId))
+      .orderBy(asc(personalProjects.id)),
     db.select().from(starStories).where(eq(starStories.userId, userId)).orderBy(asc(starStories.id)),
   ]);
   const E = m.experience;
@@ -31,15 +35,17 @@ export default async function ExperiencePage() {
           const pct = Math.round(projectCompleteness(p) * 100);
           return (
             <Link key={p.id} href={`/experience/${p.slug}`} className="group">
-              <Card className="h-full p-4 group-hover:border-border-strong">
+              <Card className="group-hover:border-border-strong h-full p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-sm font-semibold group-hover:text-primary">{p.title}</h3>
-                  <Badge tone={p.needsReview ? "warning" : "success"}>{p.needsReview ? E.needsReview : E.verified}</Badge>
+                  <h3 className="group-hover:text-primary text-sm font-semibold">{p.title}</h3>
+                  <Badge tone={p.needsReview ? "warning" : "success"}>
+                    {p.needsReview ? E.needsReview : E.verified}
+                  </Badge>
                 </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">{p.organization}</p>
-                <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">{p.context || p.problem}</p>
+                <p className="text-muted-foreground mt-0.5 text-xs">{p.organization}</p>
+                <p className="text-muted-foreground mt-2 line-clamp-3 text-xs">{p.context || p.problem}</p>
                 <Progress className="mt-3" value={pct} tone={pct >= 80 ? "success" : "primary"} />
-                <p className="mt-1 text-[11px] text-subtle-foreground">{E.completeness(pct)}</p>
+                <p className="text-subtle-foreground mt-1 text-[11px]">{E.completeness(pct)}</p>
               </Card>
             </Link>
           );

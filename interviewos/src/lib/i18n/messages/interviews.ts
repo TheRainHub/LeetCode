@@ -3,7 +3,8 @@ import { defineMessages } from "../define";
 export const interviews = defineMessages(
   {
     title: "Mock Interviews",
-    description: "Realistic AI interviewer: one question at a time, hints only on request, and a strict evidence-based evaluation.",
+    description:
+      "Realistic AI interviewer: one question at a time, hints only on request, and a strict evidence-based evaluation.",
     disabledTitle: "The AI interviewer is disabled",
     disabledHelp:
       "Add ANTHROPIC_API_KEY to interviewos/.env and restart the server. Your key stays on the server; the browser never sees it. Everything else in InterviewOS works without it.",
@@ -33,12 +34,18 @@ export const interviews = defineMessages(
       title: "History",
       empty: "No interviews yet.",
       score: "Score",
-      status: { in_progress: "In progress", evaluating: "Evaluating", completed: "Completed", abandoned: "Abandoned" },
+      status: {
+        in_progress: "In progress",
+        evaluating: "Evaluating",
+        completed: "Completed",
+        abandoned: "Abandoned",
+      },
     },
     session: {
       interviewer: "Interviewer",
       you: "You",
-      placeholder: "Answer, ask a clarifying question, or think aloud…  (Enter to send, Shift+Enter for a new line)",
+      placeholder:
+        "Answer, ask a clarifying question, or think aloud…  (Enter to send, Shift+Enter for a new line)",
       send: "Send",
       hint: "Request hint",
       hintNote: "Hints are recorded and lower the independence score.",
@@ -75,7 +82,8 @@ export const interviews = defineMessages(
       srs: "Added to spaced repetition",
       transcript: "Transcript",
       hints: (n: number) => `${n} hint(s) requested`,
-      disclaimer: "AI-generated evaluation based only on this transcript. Treat it as feedback, not a hiring decision.",
+      disclaimer:
+        "AI-generated evaluation based only on this transcript. Treat it as feedback, not a hiring decision.",
       dims: {
         technicalCorrectness: "Technical correctness",
         problemSolving: "Problem-solving",
@@ -89,7 +97,8 @@ export const interviews = defineMessages(
   },
   {
     title: "Пробные собеседования",
-    description: "Реалистичный ИИ-интервьюер: один вопрос за раз, подсказки только по запросу и строгая оценка по фактам.",
+    description:
+      "Реалистичный ИИ-интервьюер: один вопрос за раз, подсказки только по запросу и строгая оценка по фактам.",
     disabledTitle: "ИИ-интервьюер отключён",
     disabledHelp:
       "Добавьте ANTHROPIC_API_KEY в interviewos/.env и перезапустите сервер. Ключ остаётся на сервере; браузер его не видит. Всё остальное в InterviewOS работает без него.",
@@ -119,12 +128,18 @@ export const interviews = defineMessages(
       title: "История",
       empty: "Собеседований пока нет.",
       score: "Оценка",
-      status: { in_progress: "Идёт", evaluating: "Оценивается", completed: "Завершено", abandoned: "Прервано" },
+      status: {
+        in_progress: "Идёт",
+        evaluating: "Оценивается",
+        completed: "Завершено",
+        abandoned: "Прервано",
+      },
     },
     session: {
       interviewer: "Интервьюер",
       you: "Вы",
-      placeholder: "Отвечайте, задавайте уточняющие вопросы или рассуждайте вслух…  (Enter — отправить, Shift+Enter — новая строка)",
+      placeholder:
+        "Отвечайте, задавайте уточняющие вопросы или рассуждайте вслух…  (Enter — отправить, Shift+Enter — новая строка)",
       send: "Отправить",
       hint: "Попросить подсказку",
       hintNote: "Подсказки записываются и снижают оценку самостоятельности.",
@@ -161,7 +176,8 @@ export const interviews = defineMessages(
       srs: "Добавлено в интервальные повторения",
       transcript: "Стенограмма",
       hints: (n: number) => `Запрошено подсказок: ${n}`,
-      disclaimer: "Оценка сгенерирована ИИ только по этой стенограмме. Это обратная связь, а не решение о найме.",
+      disclaimer:
+        "Оценка сгенерирована ИИ только по этой стенограмме. Это обратная связь, а не решение о найме.",
       dims: {
         technicalCorrectness: "Техническая корректность",
         problemSolving: "Решение задач",

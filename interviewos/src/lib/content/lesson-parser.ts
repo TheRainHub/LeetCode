@@ -115,7 +115,10 @@ export function parseLesson(source: string, file = "<lesson>"): ParsedLesson {
   }
   const unknown = Object.keys(raw).filter((k) => !(REQUIRED_SECTIONS as readonly string[]).includes(k));
   if (unknown.length > 0) {
-    throw new LessonParseError(file, `unknown H2 section(s): ${unknown.join(", ")} (use ### for subsections)`);
+    throw new LessonParseError(
+      file,
+      `unknown H2 section(s): ${unknown.join(", ")} (use ### for subsections)`,
+    );
   }
   return { ...fm.data, sections };
 }

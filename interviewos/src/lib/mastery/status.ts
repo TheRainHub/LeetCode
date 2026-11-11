@@ -60,14 +60,7 @@ export interface StatusExplanation {
 }
 
 export type MissingRequirement =
-  | "read"
-  | "recognize"
-  | "implement"
-  | "lab"
-  | "explain"
-  | "accuracy"
-  | "more_results"
-  | "overdue_reviews";
+  "read" | "recognize" | "implement" | "lab" | "explain" | "accuracy" | "more_results" | "overdue_reviews";
 
 export function deriveTopicStatus(e: TopicEvidence): StatusExplanation {
   const missing: MissingRequirement[] = [];

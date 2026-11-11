@@ -20,15 +20,29 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const userId = getCurrentUserId();
   const [{ m, locale }, rows] = await Promise.all([
     getI18n(),
-    db.select().from(personalProjects).where(and(eq(personalProjects.userId, userId), eq(personalProjects.slug, slug))),
+    db
+      .select()
+      .from(personalProjects)
+      .where(and(eq(personalProjects.userId, userId), eq(personalProjects.slug, slug))),
   ]);
   const project = rows[0];
   if (!project) notFound();
   const E = m.experience;
   const [answers, stories, allProjects] = await Promise.all([
-    db.select().from(experiencePractice).where(eq(experiencePractice.projectId, project.id)).orderBy(desc(experiencePractice.createdAt)).limit(20),
-    db.select().from(starStories).where(and(eq(starStories.userId, userId), eq(starStories.projectId, project.id))),
-    db.select({ id: personalProjects.id, title: personalProjects.title }).from(personalProjects).where(eq(personalProjects.userId, userId)),
+    db
+      .select()
+      .from(experiencePractice)
+      .where(eq(experiencePractice.projectId, project.id))
+      .orderBy(desc(experiencePractice.createdAt))
+      .limit(20),
+    db
+      .select()
+      .from(starStories)
+      .where(and(eq(starStories.userId, userId), eq(starStories.projectId, project.id))),
+    db
+      .select({ id: personalProjects.id, title: personalProjects.title })
+      .from(personalProjects)
+      .where(eq(personalProjects.userId, userId)),
   ]);
   const questions = generateProjectQuestions(project);
 
@@ -37,14 +51,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <ActiveTimer kind="experience" refId={project.slug} />
       <PageHeader
         eyebrow={
-          <Link href="/experience" className="inline-flex items-center gap-1 hover:text-foreground">
+          <Link href="/experience" className="hover:text-foreground inline-flex items-center gap-1">
             <ChevronLeft className="size-3.5" />
             {E.title}
           </Link>
         }
         title={project.title}
         description={project.organization}
-        actions={<Badge tone={project.needsReview ? "warning" : "success"}>{project.needsReview ? E.needsReview : E.verified}</Badge>}
+        actions={
+          <Badge tone={project.needsReview ? "warning" : "success"}>
+            {project.needsReview ? E.needsReview : E.verified}
+          </Badge>
+        }
       />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
@@ -60,11 +78,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <CardHeader>
               <div>
                 <CardTitle>{E.questions.title}</CardTitle>
-                <p className="text-xs text-muted-foreground">{E.questions.generated}</p>
+                <p className="text-muted-foreground text-xs">{E.questions.generated}</p>
               </div>
             </CardHeader>
             <CardContent>
-              <QuestionList projectId={project.id} questions={questions} aiEnabled={isAiConfigured()} fieldLabels={E.fields} />
+              <QuestionList
+                projectId={project.id}
+                questions={questions}
+                aiEnabled={isAiConfigured()}
+                fieldLabels={E.fields}
+              />
             </CardContent>
           </Card>
           <Card>
@@ -74,11 +97,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </CardHeader>
             <CardContent>
               {stories.length === 0 ? (
-                <p className="text-xs text-muted-foreground">{E.noStories}</p>
+                <p className="text-muted-foreground text-xs">{E.noStories}</p>
               ) : (
                 <ul className="flex flex-col gap-2">
                   {stories.map((s) => (
-                    <li key={s.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
+                    <li
+                      key={s.id}
+                      className="border-border flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                    >
                       <span>
                         {s.title} <Badge className="ml-1">{s.competency}</Badge>
                       </span>
@@ -95,15 +121,16 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </CardHeader>
             <CardContent>
               {answers.length === 0 ? (
-                <p className="text-xs text-muted-foreground">{E.practice.none}</p>
+                <p className="text-muted-foreground text-xs">{E.practice.none}</p>
               ) : (
                 <ul className="flex flex-col gap-3">
                   {answers.map((a) => (
                     <li key={a.id} className="text-sm">
                       <p className="font-medium">{a.question}</p>
-                      <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{a.answer}</p>
-                      <p className="mt-1 text-[11px] text-subtle-foreground">
-                        {a.createdAt.toLocaleDateString(locale === "ru" ? "ru-RU" : "en-GB")} · {a.selfScore}/5
+                      <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{a.answer}</p>
+                      <p className="text-subtle-foreground mt-1 text-[11px]">
+                        {a.createdAt.toLocaleDateString(locale === "ru" ? "ru-RU" : "en-GB")} · {a.selfScore}
+                        /5
                       </p>
                     </li>
                   ))}

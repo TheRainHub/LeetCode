@@ -21,9 +21,27 @@ export interface Story {
   reflection: string;
 }
 
-const EMPTY: Story = { id: null, projectId: null, title: "", competency: "", situation: "", task: "", action: "", result: "", reflection: "" };
+const EMPTY: Story = {
+  id: null,
+  projectId: null,
+  title: "",
+  competency: "",
+  situation: "",
+  task: "",
+  action: "",
+  result: "",
+  reflection: "",
+};
 
-export function StoryDialog({ story, projects, defaultProjectId }: { story?: Story; projects: { id: number; title: string }[]; defaultProjectId?: number }) {
+export function StoryDialog({
+  story,
+  projects,
+  defaultProjectId,
+}: {
+  story?: Story;
+  projects: { id: number; title: string }[];
+  defaultProjectId?: number;
+}) {
   const { m } = useI18n();
   const S = m.experience.star;
   const [open, setOpen] = useState(false);
@@ -51,7 +69,11 @@ export function StoryDialog({ story, projects, defaultProjectId }: { story?: Sto
               <Input id="s-title" value={v.title} onChange={(e) => set("title", e.target.value)} />
             </Field>
             <Field label={S.project} htmlFor="s-project">
-              <Select id="s-project" value={v.projectId ?? ""} onChange={(e) => set("projectId", e.target.value ? Number(e.target.value) : null)}>
+              <Select
+                id="s-project"
+                value={v.projectId ?? ""}
+                onChange={(e) => set("projectId", e.target.value ? Number(e.target.value) : null)}
+              >
                 <option value="">{S.none}</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -66,7 +88,12 @@ export function StoryDialog({ story, projects, defaultProjectId }: { story?: Sto
           </Field>
           {(["situation", "task", "action", "result", "reflection"] as const).map((k) => (
             <Field key={k} label={S[k]} htmlFor={`s-${k}`}>
-              <Textarea id={`s-${k}`} rows={k === "action" ? 4 : 2} value={v[k]} onChange={(e) => set(k, e.target.value)} />
+              <Textarea
+                id={`s-${k}`}
+                rows={k === "action" ? 4 : 2}
+                value={v[k]}
+                onChange={(e) => set(k, e.target.value)}
+              />
             </Field>
           ))}
           <div className="flex gap-2">

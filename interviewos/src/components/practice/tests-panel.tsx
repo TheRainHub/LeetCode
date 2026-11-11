@@ -1,6 +1,18 @@
 "use client";
 
-import { Check, Clipboard, Download, FlaskConical, Loader2, Play, Plus, Terminal, Trash2, TriangleAlert, X } from "lucide-react";
+import {
+  Check,
+  Clipboard,
+  Download,
+  FlaskConical,
+  Loader2,
+  Play,
+  Plus,
+  Terminal,
+  Trash2,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { addCustomTestAction, deleteCustomTestAction } from "@/app/practice/actions";
@@ -8,7 +20,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { generateHarness, HARNESS_COMMANDS, HARNESS_FILENAMES, parseHarnessOutput } from "@/lib/code-runner/harness";
+import {
+  generateHarness,
+  HARNESS_COMMANDS,
+  HARNESS_FILENAMES,
+  parseHarnessOutput,
+} from "@/lib/code-runner/harness";
 import type { TestOutcome } from "@/lib/code-runner/types";
 import type { Comparator, Language, ProblemSignature, ProblemTest } from "@/lib/content/types";
 import { useI18n } from "@/lib/i18n/client";
@@ -16,8 +33,23 @@ import { cn } from "@/lib/utils";
 
 export type Execution =
   | { mode: "none" }
-  | { mode: "browser"; results: TestOutcome[]; logs: string[]; compileError?: string; message?: string; code: string; language: Language }
-  | { mode: "local"; output: string; testNames: string[]; results: TestOutcome[]; code: string; language: Language };
+  | {
+      mode: "browser";
+      results: TestOutcome[];
+      logs: string[];
+      compileError?: string;
+      message?: string;
+      code: string;
+      language: Language;
+    }
+  | {
+      mode: "local";
+      output: string;
+      testNames: string[];
+      results: TestOutcome[];
+      code: string;
+      language: Language;
+    };
 
 export interface CustomTest {
   id: number;
@@ -63,14 +95,17 @@ export function TestsPanel({
   const { m } = useI18n();
   const w = m.practice.ws;
   const allTests: ProblemTest[] = useMemo(
-    () => [...tests, ...customTests.map((c) => ({ name: `custom: ${c.name}`, args: c.args, expected: c.expected }))],
+    () => [
+      ...tests,
+      ...customTests.map((c) => ({ name: `custom: ${c.name}`, args: c.args, expected: c.expected })),
+    ],
     [tests, customTests],
   );
   const stale = execution.mode !== "none" && (execution.code !== code || execution.language !== language);
 
   return (
     <Tabs value={tab} onValueChange={onTabChange} className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5">
+      <div className="border-border flex items-center justify-between gap-2 border-b px-3 py-1.5">
         <TabsList>
           <TabsTrigger value="tests">
             <FlaskConical />
@@ -105,9 +140,14 @@ export function TestsPanel({
       <TabsContent value="tests" className="min-h-0 flex-1 overflow-y-auto p-3">
         <ul className="flex flex-col gap-1.5">
           {tests.map((t) => (
-            <li key={t.name} className="rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">
-              <span className="font-sans text-[11px] text-muted-foreground">{t.name}</span>
-              <div className="mt-1 break-all text-foreground">{signature.params.map((p, i) => `${p.name} = ${short(t.args[i])}`).join(", ")}</div>
+            <li
+              key={t.name}
+              className="border-border bg-surface rounded-md border px-3 py-2 font-mono text-xs"
+            >
+              <span className="text-muted-foreground font-sans text-[11px]">{t.name}</span>
+              <div className="text-foreground mt-1 break-all">
+                {signature.params.map((p, i) => `${p.name} = ${short(t.args[i])}`).join(", ")}
+              </div>
               <div className="text-subtle-foreground">→ {short(t.expected)}</div>
             </li>
           ))}
@@ -117,48 +157,80 @@ export function TestsPanel({
 
       <TabsContent value="results" className="min-h-0 flex-1 overflow-y-auto p-3" data-testid="results-panel">
         {stale ? (
-          <p className="mb-2 flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1.5 text-xs text-warning">
+          <p className="bg-warning-soft text-warning mb-2 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs">
             <TriangleAlert className="size-3.5" />
             {w.staleRun}
           </p>
         ) : null}
         {execution.mode === "none" ? (
-          <div className="flex flex-col gap-2 text-xs text-muted-foreground">
-            <Badge tone="outline" className="self-start">{m.common.labels.notExecuted}</Badge>
+          <div className="text-muted-foreground flex flex-col gap-2 text-xs">
+            <Badge tone="outline" className="self-start">
+              {m.common.labels.notExecuted}
+            </Badge>
             <p>{w.notExecutedYet}</p>
             {language !== "typescript" ? <p>{w.onlyTsInBrowser}</p> : null}
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-muted-foreground text-[11px]">
               {execution.mode === "browser" ? w.runInBrowserNote : w.local.parsed}
             </p>
             {execution.mode === "browser" && execution.compileError ? (
-              <div className="rounded-md border border-danger/40 bg-danger-soft p-2.5 font-mono text-xs text-danger">
+              <div className="border-danger/40 bg-danger-soft text-danger rounded-md border p-2.5 font-mono text-xs">
                 <p className="mb-1 font-sans font-medium">{w.compileError}</p>
                 {execution.compileError}
               </div>
             ) : null}
-            {execution.mode === "browser" && execution.message ? <p className="text-xs text-warning">{execution.message}</p> : null}
+            {execution.mode === "browser" && execution.message ? (
+              <p className="text-warning text-xs">{execution.message}</p>
+            ) : null}
             {execution.results.length > 0 ? (
-              <p className="text-sm font-medium">{w.passedOf(execution.results.filter((r) => r.passed).length, execution.results.length)}</p>
+              <p className="text-sm font-medium">
+                {w.passedOf(execution.results.filter((r) => r.passed).length, execution.results.length)}
+              </p>
             ) : null}
             <ul className="flex flex-col gap-1.5">
               {execution.results.map((r) => (
                 <li
                   key={r.name}
-                  className={cn("rounded-md border px-3 py-2 text-xs", r.passed ? "border-success/30 bg-success-soft/40" : "border-danger/30 bg-danger-soft/40")}
+                  className={cn(
+                    "rounded-md border px-3 py-2 text-xs",
+                    r.passed ? "border-success/30 bg-success-soft/40" : "border-danger/30 bg-danger-soft/40",
+                  )}
                 >
                   <div className="flex items-center gap-2">
-                    {r.passed ? <Check className="size-3.5 text-success" /> : <X className="size-3.5 text-danger" />}
+                    {r.passed ? (
+                      <Check className="text-success size-3.5" />
+                    ) : (
+                      <X className="text-danger size-3.5" />
+                    )}
                     <span className="font-medium">{r.name}</span>
-                    {r.durationMs !== undefined ? <span className="ml-auto text-subtle-foreground tabular-nums">{r.durationMs.toFixed(1)} ms</span> : null}
+                    {r.durationMs !== undefined ? (
+                      <span className="text-subtle-foreground ml-auto tabular-nums">
+                        {r.durationMs.toFixed(1)} ms
+                      </span>
+                    ) : null}
                   </div>
                   {!r.passed ? (
                     <div className="mt-1.5 grid gap-0.5 font-mono break-all">
-                      {r.expected !== undefined ? <span><span className="text-subtle-foreground">{w.expected}: </span>{r.expected}</span> : null}
-                      {r.actual !== undefined ? <span><span className="text-subtle-foreground">{w.actual}: </span>{r.actual}</span> : null}
-                      {r.error ? <span className="text-danger"><span className="text-subtle-foreground">{w.error}: </span>{r.error}</span> : null}
+                      {r.expected !== undefined ? (
+                        <span>
+                          <span className="text-subtle-foreground">{w.expected}: </span>
+                          {r.expected}
+                        </span>
+                      ) : null}
+                      {r.actual !== undefined ? (
+                        <span>
+                          <span className="text-subtle-foreground">{w.actual}: </span>
+                          {r.actual}
+                        </span>
+                      ) : null}
+                      {r.error ? (
+                        <span className="text-danger">
+                          <span className="text-subtle-foreground">{w.error}: </span>
+                          {r.error}
+                        </span>
+                      ) : null}
                     </div>
                   ) : null}
                 </li>
@@ -166,8 +238,10 @@ export function TestsPanel({
             </ul>
             {execution.mode === "browser" && execution.logs.length > 0 ? (
               <div>
-                <p className="mb-1 text-[11px] text-muted-foreground">{w.logs}</p>
-                <pre className="max-h-40 overflow-auto rounded-md bg-surface-2 p-2 font-mono text-[11px]">{execution.logs.join("\n")}</pre>
+                <p className="text-muted-foreground mb-1 text-[11px]">{w.logs}</p>
+                <pre className="bg-surface-2 max-h-40 overflow-auto rounded-md p-2 font-mono text-[11px]">
+                  {execution.logs.join("\n")}
+                </pre>
               </div>
             ) : null}
           </div>
@@ -175,13 +249,28 @@ export function TestsPanel({
       </TabsContent>
 
       <TabsContent value="local" className="min-h-0 flex-1 overflow-y-auto p-3">
-        <LocalRunner signature={signature} comparator={comparator} tests={allTests} language={language} code={code} onResults={onLocalResults} />
+        <LocalRunner
+          signature={signature}
+          comparator={comparator}
+          tests={allTests}
+          language={language}
+          code={code}
+          onResults={onLocalResults}
+        />
       </TabsContent>
     </Tabs>
   );
 }
 
-function CustomTests({ problemId, signature, customTests }: { problemId: number; signature: ProblemSignature; customTests: CustomTest[] }) {
+function CustomTests({
+  problemId,
+  signature,
+  customTests,
+}: {
+  problemId: number;
+  signature: ProblemSignature;
+  customTests: CustomTest[];
+}) {
   const { m } = useI18n();
   const w = m.practice.ws;
   const [open, setOpen] = useState(false);
@@ -202,7 +291,12 @@ function CustomTests({ problemId, signature, customTests }: { problemId: number;
     }
     if (!Array.isArray(parsedArgs)) return void toast.error(w.argsMustBeArray);
     start(async () => {
-      const res = await addCustomTestAction({ problemId, name: name || `case ${customTests.length + 1}`, args: parsedArgs as unknown[], expected: parsedExpected });
+      const res = await addCustomTestAction({
+        problemId,
+        name: name || `case ${customTests.length + 1}`,
+        args: parsedArgs as unknown[],
+        expected: parsedExpected,
+      });
       if (!res.ok) return void toast.error(res.error);
       setName("");
       setArgs("");
@@ -214,7 +308,7 @@ function CustomTests({ problemId, signature, customTests }: { problemId: number;
   return (
     <div className="mt-4">
       <div className="mb-1.5 flex items-center justify-between">
-        <p className="text-[11px] font-medium text-muted-foreground">{w.customTests}</p>
+        <p className="text-muted-foreground text-[11px] font-medium">{w.customTests}</p>
         <Button size="sm" variant="ghost" onClick={() => setOpen((o) => !o)}>
           <Plus />
           {w.addTest}
@@ -223,10 +317,15 @@ function CustomTests({ problemId, signature, customTests }: { problemId: number;
       {customTests.length ? (
         <ul className="mb-2 flex flex-col gap-1.5">
           {customTests.map((c) => (
-            <li key={c.id} className="flex items-start justify-between gap-2 rounded-md border border-dashed border-border px-3 py-2 font-mono text-xs">
+            <li
+              key={c.id}
+              className="border-border flex items-start justify-between gap-2 rounded-md border border-dashed px-3 py-2 font-mono text-xs"
+            >
               <div className="min-w-0">
-                <span className="font-sans text-[11px] text-muted-foreground">{c.name}</span>
-                <div className="break-all">{short(c.args)} → {short(c.expected)}</div>
+                <span className="text-muted-foreground font-sans text-[11px]">{c.name}</span>
+                <div className="break-all">
+                  {short(c.args)} → {short(c.expected)}
+                </div>
               </div>
               <button
                 type="button"
@@ -244,14 +343,36 @@ function CustomTests({ problemId, signature, customTests }: { problemId: number;
         </ul>
       ) : null}
       {open ? (
-        <div className="flex flex-col gap-2 rounded-md border border-border bg-surface p-3">
-          <Input placeholder={w.testName} value={name} onChange={(e) => setName(e.target.value)} aria-label={w.testName} />
-          <label className="text-[11px] text-muted-foreground">
-            {w.argsLabel}: <span className="font-mono">[{signature.params.map((p) => `${p.name}: ${p.type}`).join(", ")}]</span>
+        <div className="border-border bg-surface flex flex-col gap-2 rounded-md border p-3">
+          <Input
+            placeholder={w.testName}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            aria-label={w.testName}
+          />
+          <label className="text-muted-foreground text-[11px]">
+            {w.argsLabel}:{" "}
+            <span className="font-mono">
+              [{signature.params.map((p) => `${p.name}: ${p.type}`).join(", ")}]
+            </span>
           </label>
-          <Textarea rows={2} className="font-mono text-xs" value={args} onChange={(e) => setArgs(e.target.value)} placeholder='[[2,7,11,15], 9]' aria-label={w.argsLabel} />
-          <label className="text-[11px] text-muted-foreground">{w.expectedLabel}</label>
-          <Textarea rows={1} className="min-h-0 font-mono text-xs" value={expected} onChange={(e) => setExpected(e.target.value)} placeholder="[0,1]" aria-label={w.expectedLabel} />
+          <Textarea
+            rows={2}
+            className="font-mono text-xs"
+            value={args}
+            onChange={(e) => setArgs(e.target.value)}
+            placeholder="[[2,7,11,15], 9]"
+            aria-label={w.argsLabel}
+          />
+          <label className="text-muted-foreground text-[11px]">{w.expectedLabel}</label>
+          <Textarea
+            rows={1}
+            className="min-h-0 font-mono text-xs"
+            value={expected}
+            onChange={(e) => setExpected(e.target.value)}
+            placeholder="[0,1]"
+            aria-label={w.expectedLabel}
+          />
           <Button size="sm" variant="primary" className="self-start" onClick={add} disabled={pending}>
             {m.common.actions.add}
           </Button>
@@ -280,7 +401,10 @@ function LocalRunner({
   const l = m.practice.ws.local;
   const [output, setOutput] = useState("");
   const [copied, setCopied] = useState(false);
-  const harness = useMemo(() => generateHarness(language, { code, signature, comparator, tests }), [language, code, signature, comparator, tests]);
+  const harness = useMemo(
+    () => generateHarness(language, { code, signature, comparator, tests }),
+    [language, code, signature, comparator, tests],
+  );
   const names = tests.map((t) => t.name);
 
   const download = () => {
@@ -301,7 +425,11 @@ function LocalRunner({
       testNames: names,
       code,
       language,
-      results: parsed.results.map((r) => ({ name: r.name, passed: r.passed, error: r.passed ? undefined : r.detail })),
+      results: parsed.results.map((r) => ({
+        name: r.name,
+        passed: r.passed,
+        error: r.passed ? undefined : r.detail,
+      })),
     });
     toast.success(l.parsed);
   };
@@ -309,7 +437,7 @@ function LocalRunner({
   return (
     <div className="flex flex-col gap-3 text-xs">
       <p className="font-medium">{l.title}</p>
-      <ol className="flex list-decimal flex-col gap-2 pl-4 text-muted-foreground">
+      <ol className="text-muted-foreground flex list-decimal flex-col gap-2 pl-4">
         <li>
           {l.step1}
           <div className="mt-1.5 flex gap-2">
@@ -332,7 +460,10 @@ function LocalRunner({
           </div>
         </li>
         <li>
-          {l.step2} <code className="rounded bg-surface-3 px-1.5 py-0.5 font-mono text-foreground">{HARNESS_COMMANDS[language]}</code>{" "}
+          {l.step2}{" "}
+          <code className="bg-surface-3 text-foreground rounded px-1.5 py-0.5 font-mono">
+            {HARNESS_COMMANDS[language]}
+          </code>{" "}
           <span className="text-subtle-foreground">({l.requires[language]})</span>
         </li>
         <li>

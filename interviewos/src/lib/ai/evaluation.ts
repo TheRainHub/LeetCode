@@ -7,7 +7,11 @@ import { z } from "zod";
  */
 
 const dimension = z.object({
-  score: z.number().int().nullable().describe("1-5 using the anchors, or null if not exercised in this interview"),
+  score: z
+    .number()
+    .int()
+    .nullable()
+    .describe("1-5 using the anchors, or null if not exercised in this interview"),
   evidence: z.string().describe("one or two sentences citing what happened in the transcript"),
 });
 
@@ -44,12 +48,23 @@ export const EvaluationSchema = z.object({
     }),
   ),
   modelAnswer: z.string().describe("a strong answer to the main question(s), in Markdown"),
-  recommendedTopics: z.array(z.object({ topicSlug: z.string(), reason: z.string() })).describe("slugs from the topic catalog only"),
+  recommendedTopics: z
+    .array(z.object({ topicSlug: z.string(), reason: z.string() }))
+    .describe("slugs from the topic catalog only"),
   coveredTopics: z
-    .array(z.object({ topicSlug: z.string(), score: z.number().describe("0-1 performance on this topic in the interview") }))
+    .array(
+      z.object({
+        topicSlug: z.string(),
+        score: z.number().describe("0-1 performance on this topic in the interview"),
+      }),
+    )
     .describe("topics actually exercised in the interview, slugs from the catalog only"),
   followUpExercises: z.array(
-    z.object({ title: z.string(), description: z.string(), problemSlug: z.string().nullable().describe("problem slug from the catalog or null") }),
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      problemSlug: z.string().nullable().describe("problem slug from the catalog or null"),
+    }),
   ),
   spacedRepetition: z
     .array(z.object({ prompt: z.string(), answer: z.string(), topicSlug: z.string().nullable() }))
@@ -64,11 +79,17 @@ export interface SanitizedEvaluation extends Omit<RawEvaluation, "dimensions"> {
 
 const clampInt = (v: number, min: number, max: number) => Math.min(max, Math.max(min, Math.round(v)));
 
-export function sanitizeEvaluation(raw: RawEvaluation, catalog: { topicSlugs: Set<string>; problemSlugs: Set<string> }): SanitizedEvaluation {
+export function sanitizeEvaluation(
+  raw: RawEvaluation,
+  catalog: { topicSlugs: Set<string>; problemSlugs: Set<string> },
+): SanitizedEvaluation {
   const dimensions = Object.fromEntries(
     DIMENSIONS.map((k) => {
       const d = raw.dimensions[k];
-      return [k, { score: d.score === null ? null : clampInt(d.score, 1, 5), evidence: d.evidence.slice(0, 1000) }];
+      return [
+        k,
+        { score: d.score === null ? null : clampInt(d.score, 1, 5), evidence: d.evidence.slice(0, 1000) },
+      ];
     }),
   ) as SanitizedEvaluation["dimensions"];
   const seenCovered = new Set<string>();
@@ -82,15 +103,26 @@ export function sanitizeEvaluation(raw: RawEvaluation, catalog: { topicSlugs: Se
     modelAnswer: raw.modelAnswer.slice(0, 20000),
     recommendedTopics: raw.recommendedTopics.filter((t) => catalog.topicSlugs.has(t.topicSlug)).slice(0, 6),
     coveredTopics: raw.coveredTopics
-      .filter((t) => catalog.topicSlugs.has(t.topicSlug) && !seenCovered.has(t.topicSlug) && seenCovered.add(t.topicSlug))
+      .filter(
+        (t) =>
+          catalog.topicSlugs.has(t.topicSlug) &&
+          !seenCovered.has(t.topicSlug) &&
+          seenCovered.add(t.topicSlug),
+      )
       .map((t) => ({ topicSlug: t.topicSlug, score: Math.min(1, Math.max(0, t.score)) }))
       .slice(0, 10),
     followUpExercises: raw.followUpExercises
-      .map((f) => ({ ...f, problemSlug: f.problemSlug && catalog.problemSlugs.has(f.problemSlug) ? f.problemSlug : null }))
+      .map((f) => ({
+        ...f,
+        problemSlug: f.problemSlug && catalog.problemSlugs.has(f.problemSlug) ? f.problemSlug : null,
+      }))
       .slice(0, 6),
     spacedRepetition: raw.spacedRepetition
       .filter((c) => c.prompt.trim().length > 4 && c.answer.trim().length > 1)
-      .map((c) => ({ ...c, topicSlug: c.topicSlug && catalog.topicSlugs.has(c.topicSlug) ? c.topicSlug : null }))
+      .map((c) => ({
+        ...c,
+        topicSlug: c.topicSlug && catalog.topicSlugs.has(c.topicSlug) ? c.topicSlug : null,
+      }))
       .slice(0, 6),
   };
 }
@@ -123,6 +155,10 @@ export interface TranscriptMessage {
 export function buildTranscript(messages: TranscriptMessage[]): string {
   return messages
     .filter((m) => m.kind !== "opening")
-    .map((m) => (m.role === "assistant" ? `Interviewer: ${m.content}` : `Candidate${m.kind === "hint_request" ? " (requested a hint)" : ""}: ${m.content}`))
+    .map((m) =>
+      m.role === "assistant"
+        ? `Interviewer: ${m.content}`
+        : `Candidate${m.kind === "hint_request" ? " (requested a hint)" : ""}: ${m.content}`,
+    )
     .join("\n\n");
 }

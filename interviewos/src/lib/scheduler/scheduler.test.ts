@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { addDays } from "@/lib/dates";
-import { dayCapacity, UNIVERSITY_DAY_MINUTES, type CalendarEventLite, type CapacitySettings } from "./capacity";
+import {
+  dayCapacity,
+  UNIVERSITY_DAY_MINUTES,
+  type CalendarEventLite,
+  type CapacitySettings,
+} from "./capacity";
 import { placeTasks } from "./placement";
 
 const settings: CapacitySettings = { dailyBudgetMinutes: 90, restWeekdays: [], prioritizeUniversity: true };
@@ -8,9 +13,18 @@ const zwa: CalendarEventLite = { kind: "university", date: "2026-11-11", lightDa
 
 describe("dayCapacity", () => {
   it("keeps days before a university test light and the test day minimal", () => {
-    expect(dayCapacity("2026-11-08", settings, [zwa])).toMatchObject({ reason: "university_prep", minutes: 36 });
-    expect(dayCapacity("2026-11-10", settings, [zwa])).toMatchObject({ reason: "university_prep", minutes: 36 });
-    expect(dayCapacity("2026-11-11", settings, [zwa])).toMatchObject({ reason: "university_day", minutes: UNIVERSITY_DAY_MINUTES });
+    expect(dayCapacity("2026-11-08", settings, [zwa])).toMatchObject({
+      reason: "university_prep",
+      minutes: 36,
+    });
+    expect(dayCapacity("2026-11-10", settings, [zwa])).toMatchObject({
+      reason: "university_prep",
+      minutes: 36,
+    });
+    expect(dayCapacity("2026-11-11", settings, [zwa])).toMatchObject({
+      reason: "university_day",
+      minutes: UNIVERSITY_DAY_MINUTES,
+    });
     expect(dayCapacity("2026-11-12", settings, [zwa])).toMatchObject({ reason: "normal", minutes: 90 });
     expect(dayCapacity("2026-11-07", settings, [zwa]).reason).toBe("normal");
   });
@@ -21,7 +35,10 @@ describe("dayCapacity", () => {
 
   it("returns zero on rest weekdays and unavailable days", () => {
     expect(dayCapacity("2026-11-15", { ...settings, restWeekdays: [0] }, []).reason).toBe("rest"); // Sunday
-    expect(dayCapacity("2026-11-13", settings, [{ kind: "unavailable", date: "2026-11-13", lightDaysBefore: 0 }]).minutes).toBe(0);
+    expect(
+      dayCapacity("2026-11-13", settings, [{ kind: "unavailable", date: "2026-11-13", lightDaysBefore: 0 }])
+        .minutes,
+    ).toBe(0);
   });
 
   it("lightens interview days and the day before", () => {
@@ -31,7 +48,10 @@ describe("dayCapacity", () => {
   });
 
   it("picks the most restrictive rule", () => {
-    const events: CalendarEventLite[] = [zwa, { kind: "unavailable", date: "2026-11-10", lightDaysBefore: 0 }];
+    const events: CalendarEventLite[] = [
+      zwa,
+      { kind: "unavailable", date: "2026-11-10", lightDaysBefore: 0 },
+    ];
     expect(dayCapacity("2026-11-10", settings, events)).toMatchObject({ minutes: 0, reason: "unavailable" });
   });
 });
@@ -52,20 +72,29 @@ describe("placeTasks", () => {
   });
 
   it("flags a task larger than any day's capacity and places it alone", () => {
-    const placed = placeTasks([{ id: "big", minutes: 120 }], { from: "2026-11-12", capacityOf: () => 90, horizonDays: 10 });
+    const placed = placeTasks([{ id: "big", minutes: 120 }], {
+      from: "2026-11-12",
+      capacityOf: () => 90,
+      horizonDays: 10,
+    });
     expect(placed[0]).toMatchObject({ overCapacity: true, date: "2026-11-12" });
   });
 
   it("moves tasks off a day that became unavailable", () => {
     const unavailable = (d: string) => (d === "2026-11-13" ? 0 : 90);
-    const placed = placeTasks([{ id: 1, minutes: 30, date: "2026-11-13" }], { from: "2026-11-12", capacityOf: unavailable });
+    const placed = placeTasks([{ id: 1, minutes: 30, date: "2026-11-13" }], {
+      from: "2026-11-12",
+      capacityOf: unavailable,
+    });
     expect(placed[0]).toMatchObject({ date: "2026-11-14", moved: true });
   });
 
   it("does not pull future tasks earlier unless asked", () => {
     const tasks = [{ id: 1, minutes: 30, date: "2026-11-20" }];
     expect(placeTasks(tasks, { from: "2026-11-12", capacityOf: () => 90 })[0]!.date).toBe("2026-11-20");
-    expect(placeTasks(tasks, { from: "2026-11-12", capacityOf: () => 90, allowPullForward: true })[0]!.date).toBe("2026-11-12");
+    expect(
+      placeTasks(tasks, { from: "2026-11-12", capacityOf: () => 90, allowPullForward: true })[0]!.date,
+    ).toBe("2026-11-12");
   });
 
   it("keeps valid pinned tasks and their capacity", () => {
@@ -81,7 +110,11 @@ describe("placeTasks", () => {
   });
 
   it("carries overdue tasks to today (callers pass undefined dates for past tasks)", () => {
-    const placed = placeTasks([{ id: 1, minutes: 20 }], { from: "2026-11-12", capacityOf: () => 90, used: { "2026-11-12": 80 } });
+    const placed = placeTasks([{ id: 1, minutes: 20 }], {
+      from: "2026-11-12",
+      capacityOf: () => 90,
+      used: { "2026-11-12": 80 },
+    });
     expect(placed[0]!.date).toBe(addDays("2026-11-12", 1));
   });
 });

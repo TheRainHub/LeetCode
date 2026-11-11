@@ -24,7 +24,11 @@ export const getSettings = cache(async (): Promise<Settings> => {
   const rows = await db.select().from(userSettings).where(eq(userSettings.userId, userId));
   if (rows[0]) return rows[0];
   // First run without seed: create the user and default settings.
-  await db.insert(users).overridingSystemValue().values({ id: userId, name: "Local user" }).onConflictDoNothing();
+  await db
+    .insert(users)
+    .overridingSystemValue()
+    .values({ id: userId, name: "Local user" })
+    .onConflictDoNothing();
   const [created] = await db
     .insert(userSettings)
     .values({ userId, timezone: env().APP_TIMEZONE })

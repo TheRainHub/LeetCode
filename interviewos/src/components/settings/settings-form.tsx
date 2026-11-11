@@ -11,7 +11,13 @@ import { useI18n } from "@/lib/i18n/client";
 export function SettingsForm({
   initial,
 }: {
-  initial: { locale: "en" | "ru"; theme: "dark" | "light"; preferredLanguage: Language; timezone: string; interviewerProfile: string };
+  initial: {
+    locale: "en" | "ru";
+    theme: "dark" | "light";
+    preferredLanguage: Language;
+    timezone: string;
+    interviewerProfile: string;
+  };
 }) {
   const { m } = useI18n();
   const S = m.settings;
@@ -31,19 +37,32 @@ export function SettingsForm({
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label={S.locale} htmlFor="s-locale">
-          <Select id="s-locale" value={v.locale} onChange={(e) => setV({ ...v, locale: e.target.value as "en" | "ru" })} data-testid="locale-select">
+          <Select
+            id="s-locale"
+            value={v.locale}
+            onChange={(e) => setV({ ...v, locale: e.target.value as "en" | "ru" })}
+            data-testid="locale-select"
+          >
             <option value="en">English</option>
             <option value="ru">Русский</option>
           </Select>
         </Field>
         <Field label={S.theme} htmlFor="s-theme">
-          <Select id="s-theme" value={v.theme} onChange={(e) => setV({ ...v, theme: e.target.value as "dark" | "light" })}>
+          <Select
+            id="s-theme"
+            value={v.theme}
+            onChange={(e) => setV({ ...v, theme: e.target.value as "dark" | "light" })}
+          >
             <option value="dark">{S.themes.dark}</option>
             <option value="light">{S.themes.light}</option>
           </Select>
         </Field>
         <Field label={S.preferredLanguage} htmlFor="s-lang">
-          <Select id="s-lang" value={v.preferredLanguage} onChange={(e) => setV({ ...v, preferredLanguage: e.target.value as Language })}>
+          <Select
+            id="s-lang"
+            value={v.preferredLanguage}
+            onChange={(e) => setV({ ...v, preferredLanguage: e.target.value as Language })}
+          >
             {(["java", "typescript", "python"] as const).map((l) => (
               <option key={l} value={l}>
                 {m.common.languages[l]}
@@ -56,9 +75,20 @@ export function SettingsForm({
         </Field>
       </div>
       <Field label={S.profile} htmlFor="s-profile" hint={S.profileHelp}>
-        <Textarea id="s-profile" rows={8} value={v.interviewerProfile} onChange={(e) => setV({ ...v, interviewerProfile: e.target.value })} />
+        <Textarea
+          id="s-profile"
+          rows={8}
+          value={v.interviewerProfile}
+          onChange={(e) => setV({ ...v, interviewerProfile: e.target.value })}
+        />
       </Field>
-      <Button type="submit" variant="primary" className="self-start" disabled={pending} data-testid="save-settings">
+      <Button
+        type="submit"
+        variant="primary"
+        className="self-start"
+        disabled={pending}
+        data-testid="save-settings"
+      >
         {S.save}
       </Button>
     </form>

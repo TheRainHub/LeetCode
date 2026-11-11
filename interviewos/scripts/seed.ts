@@ -47,7 +47,11 @@ async function seedUser(tx: Tx) {
   }
   await tx
     .insert(s.userSettings)
-    .values({ userId: LOCAL_USER_ID, interviewerProfile: DEFAULT_INTERVIEWER_PROFILE, timezone: process.env.APP_TIMEZONE ?? "Europe/Prague" })
+    .values({
+      userId: LOCAL_USER_ID,
+      interviewerProfile: DEFAULT_INTERVIEWER_PROFILE,
+      timezone: process.env.APP_TIMEZONE ?? "Europe/Prague",
+    })
     .onConflictDoNothing();
 }
 
@@ -57,7 +61,13 @@ async function seedCurriculum(tx: Tx, lessons: ParsedLesson[]) {
   for (const [pi, path] of CURRICULUM.entries()) {
     const [p] = await tx
       .insert(s.learningPaths)
-      .values({ slug: path.slug, title: path.title, area: path.area, description: path.description, order: pi })
+      .values({
+        slug: path.slug,
+        title: path.title,
+        area: path.area,
+        description: path.description,
+        order: pi,
+      })
       .onConflictDoUpdate({
         target: s.learningPaths.slug,
         set: { title: path.title, area: path.area, description: path.description, order: pi },
@@ -88,7 +98,10 @@ async function seedCurriculum(tx: Tx, lessons: ParsedLesson[]) {
     const [topic] = await tx
       .insert(s.topics)
       .values({ slug: l.slug, title: l.title, area, summary: l.summary, practiceKind: l.practice })
-      .onConflictDoUpdate({ target: s.topics.slug, set: { title: l.title, area, summary: l.summary, practiceKind: l.practice } })
+      .onConflictDoUpdate({
+        target: s.topics.slug,
+        set: { title: l.title, area, summary: l.summary, practiceKind: l.practice },
+      })
       .returning({ id: s.topics.id });
     topicIds.set(l.slug, topic!.id);
 
@@ -162,7 +175,14 @@ async function seedCurriculum(tx: Tx, lessons: ParsedLesson[]) {
     for (const [i, card] of l.cards.entries()) {
       await tx
         .insert(s.reviewCards)
-        .values({ userId: LOCAL_USER_ID, topicId: topic!.id, prompt: card.q, answer: card.a, source: "lesson", sourceRef: `lesson:${l.slug}:${i}` })
+        .values({
+          userId: LOCAL_USER_ID,
+          topicId: topic!.id,
+          prompt: card.q,
+          answer: card.a,
+          source: "lesson",
+          sourceRef: `lesson:${l.slug}:${i}`,
+        })
         .onConflictDoUpdate({
           target: [s.reviewCards.userId, s.reviewCards.sourceRef],
           set: { prompt: card.q, answer: card.a, topicId: topic!.id },
@@ -179,13 +199,20 @@ async function seedCurriculum(tx: Tx, lessons: ParsedLesson[]) {
         warnings.push(`lesson ${l.slug}: prerequisite "${pre}" not found`);
         continue;
       }
-      await tx.insert(s.lessonPrerequisites).values({ lessonId: lessonIds.get(l.slug)!, prerequisiteId: preId });
+      await tx
+        .insert(s.lessonPrerequisites)
+        .values({ lessonId: lessonIds.get(l.slug)!, prerequisiteId: preId });
     }
   }
   return { lessonIds, topicIds };
 }
 
-async function seedProblems(tx: Tx, topicIds: Map<string, number>, lessons: ParsedLesson[], lessonIds: Map<string, number>) {
+async function seedProblems(
+  tx: Tx,
+  topicIds: Map<string, number>,
+  lessons: ParsedLesson[],
+  lessonIds: Map<string, number>,
+) {
   const problemIds = new Map<string, number>();
   for (const p of PROBLEMS) {
     const starter = Object.fromEntries(
@@ -222,7 +249,8 @@ async function seedProblems(tx: Tx, topicIds: Map<string, number>, lessons: Pars
       .returning({ id: s.codingProblems.id });
     problemIds.set(p.slug, row!.id);
     await tx.delete(s.problemTags).where(eq(s.problemTags.problemId, row!.id));
-    if (p.tags.length) await tx.insert(s.problemTags).values(p.tags.map((tag) => ({ problemId: row!.id, tag })));
+    if (p.tags.length)
+      await tx.insert(s.problemTags).values(p.tags.map((tag) => ({ problemId: row!.id, tag })));
     await tx.delete(s.problemTopics).where(eq(s.problemTopics.problemId, row!.id));
     for (const t of p.topics) {
       const topicId = topicIds.get(t);
@@ -285,7 +313,10 @@ async function seedCompanies(tx: Tx, topicIds: Map<string, number>, problemIds: 
       prepNotes: c.prepNotes,
       sourceNote: c.sourceNote,
     };
-    const existing = await tx.select({ id: s.companies.id }).from(s.companies).where(eq(s.companies.slug, c.slug));
+    const existing = await tx
+      .select({ id: s.companies.id })
+      .from(s.companies)
+      .where(eq(s.companies.slug, c.slug));
     let companyId: number;
     if (existing[0]) {
       companyId = existing[0].id;
@@ -318,7 +349,12 @@ async function seedCompanies(tx: Tx, topicIds: Map<string, number>, problemIds: 
     const items = await tx
       .select({ id: s.companyChecklistItems.id })
       .from(s.companyChecklistItems)
-      .where(and(eq(s.companyChecklistItems.companyId, companyId), eq(s.companyChecklistItems.userId, LOCAL_USER_ID)));
+      .where(
+        and(
+          eq(s.companyChecklistItems.companyId, companyId),
+          eq(s.companyChecklistItems.userId, LOCAL_USER_ID),
+        ),
+      );
     if (items.length === 0) {
       await tx
         .insert(s.companyChecklistItems)
@@ -376,9 +412,17 @@ async function main() {
     // Remove content that no longer exists in the source files.
     const slugs = lessons.map((l) => l.slug);
     if (slugs.length) {
-      const stale = await tx.select({ id: s.lessons.id, slug: s.lessons.slug }).from(s.lessons).where(notInArray(s.lessons.slug, slugs));
+      const stale = await tx
+        .select({ id: s.lessons.id, slug: s.lessons.slug })
+        .from(s.lessons)
+        .where(notInArray(s.lessons.slug, slugs));
       if (stale.length) {
-        await tx.delete(s.lessons).where(inArray(s.lessons.id, stale.map((x) => x.id)));
+        await tx.delete(s.lessons).where(
+          inArray(
+            s.lessons.id,
+            stale.map((x) => x.id),
+          ),
+        );
         console.log(`[seed] removed ${stale.length} stale lesson(s): ${stale.map((x) => x.slug).join(", ")}`);
       }
     }

@@ -2,7 +2,9 @@ import { expect, test } from "./fixtures";
 import { today } from "./env";
 
 // Runs first, on a freshly seeded database: nothing has been practised yet.
-test("fresh dashboard shows honest empty states, then a plan can be created and today marked unavailable", async ({ page }) => {
+test("fresh dashboard shows honest empty states, then a plan can be created and today marked unavailable", async ({
+  page,
+}) => {
   await page.goto("/");
   await expect(page.getByText("Not assessed yet")).toBeVisible();
   await expect(page.getByText("No study plan yet")).toBeVisible();

@@ -1,17 +1,27 @@
 import { expect, test } from "./fixtures";
 import { E2E_API_KEY, MOCK_URL } from "./env";
 
-type Recorded = { path: string; body: { stream?: boolean; system?: unknown; messages: { role: string; content: unknown }[] } };
+type Recorded = {
+  path: string;
+  body: { stream?: boolean; system?: unknown; messages: { role: string; content: unknown }[] };
+};
 
-test("mock interview streams replies, replays thinking blocks unchanged and stores a sanitised evaluation", async ({ page, request }) => {
+test("mock interview streams replies, replays thinking blocks unchanged and stores a sanitised evaluation", async ({
+  page,
+  request,
+}) => {
   await page.goto("/interviews");
   await page.getByTestId("start-interview").click();
   await page.waitForURL(/\/interviews\/\d+$/);
 
   // Opening question is requested automatically and streamed in.
-  await expect(page.getByText("Mock interviewer question 1: how does a hash map handle collisions?")).toBeVisible();
+  await expect(
+    page.getByText("Mock interviewer question 1: how does a hash map handle collisions?"),
+  ).toBeVisible();
 
-  await page.getByTestId("interview-input").fill("Keys are hashed into buckets; collisions are chained in a list per bucket.");
+  await page
+    .getByTestId("interview-input")
+    .fill("Keys are hashed into buckets; collisions are chained in a list per bucket.");
   await page.getByTestId("interview-send").click();
   await expect(page.getByText(/Mock interviewer question 2/)).toBeVisible();
 
@@ -30,7 +40,11 @@ test("mock interview streams replies, replays thinking blocks unchanged and stor
   expect(second[1]).toMatchObject({
     role: "assistant",
     content: [
-      { type: "thinking", thinking: "Mock reasoning 1: pick the next question.", signature: "mock-signature-1" },
+      {
+        type: "thinking",
+        thinking: "Mock reasoning 1: pick the next question.",
+        signature: "mock-signature-1",
+      },
       { type: "text", text: "Mock interviewer question 1: how does a hash map handle collisions?" },
     ],
   });

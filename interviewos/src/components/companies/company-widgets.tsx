@@ -22,7 +22,15 @@ import { cn } from "@/lib/utils";
 
 const STAGES = ["applied", "screening", "technical", "final", "offer", "rejected"] as const;
 
-export function WeightSelect({ companyId, topicId, weight }: { companyId: number; topicId: number; weight: number }) {
+export function WeightSelect({
+  companyId,
+  topicId,
+  weight,
+}: {
+  companyId: number;
+  topicId: number;
+  weight: number;
+}) {
   const { m } = useI18n();
   const [pending, run] = useTransition();
   return (
@@ -46,13 +54,24 @@ export function WeightSelect({ companyId, topicId, weight }: { companyId: number
   );
 }
 
-export function AddFocusTopic({ companyId, options }: { companyId: number; options: { id: number; title: string }[] }) {
+export function AddFocusTopic({
+  companyId,
+  options,
+}: {
+  companyId: number;
+  options: { id: number; title: string }[];
+}) {
   const { m } = useI18n();
   const [topic, setTopic] = useState("");
   const [pending, run] = useTransition();
   return (
     <div className="flex gap-2">
-      <Select value={topic} onChange={(e) => setTopic(e.target.value)} aria-label={m.companies.focus.add} className="max-w-72">
+      <Select
+        value={topic}
+        onChange={(e) => setTopic(e.target.value)}
+        aria-label={m.companies.focus.add}
+        className="max-w-72"
+      >
         <option value="">{m.companies.focus.add}…</option>
         {options.map((o) => (
           <option key={o.id} value={o.id}>
@@ -77,7 +96,13 @@ export function AddFocusTopic({ companyId, options }: { companyId: number; optio
   );
 }
 
-export function Checklist({ companyId, items }: { companyId: number; items: { id: number; text: string; done: boolean }[] }) {
+export function Checklist({
+  companyId,
+  items,
+}: {
+  companyId: number;
+  items: { id: number; text: string; done: boolean }[];
+}) {
   const { m } = useI18n();
   const [text, setText] = useState("");
   const [pending, run] = useTransition();
@@ -86,10 +111,22 @@ export function Checklist({ companyId, items }: { companyId: number; items: { id
       <ul className="flex flex-col gap-1">
         {items.map((i) => (
           <li key={i.id} className="group flex items-start gap-2 text-sm">
-            <Checkbox className="mt-0.5" checked={i.done} aria-label={i.text} onChange={(e) => run(async () => void (await toggleChecklistItemAction({ id: i.id, done: e.target.checked })))} />
+            <Checkbox
+              className="mt-0.5"
+              checked={i.done}
+              aria-label={i.text}
+              onChange={(e) =>
+                run(async () => void (await toggleChecklistItemAction({ id: i.id, done: e.target.checked })))
+              }
+            />
             <span className={cn("flex-1", i.done && "text-muted-foreground line-through")}>{i.text}</span>
-            <button type="button" className="opacity-0 group-hover:opacity-100" aria-label={m.common.actions.delete} onClick={() => run(async () => void (await deleteChecklistItemAction({ id: i.id })))}>
-              <Trash2 className="size-3.5 text-subtle-foreground hover:text-danger" />
+            <button
+              type="button"
+              className="opacity-0 group-hover:opacity-100"
+              aria-label={m.common.actions.delete}
+              onClick={() => run(async () => void (await deleteChecklistItemAction({ id: i.id })))}
+            >
+              <Trash2 className="text-subtle-foreground hover:text-danger size-3.5" />
             </button>
           </li>
         ))}
@@ -105,7 +142,12 @@ export function Checklist({ companyId, items }: { companyId: number; items: { id
           });
         }}
       >
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={m.companies.checklist.placeholder} aria-label={m.companies.checklist.add} />
+        <Input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={m.companies.checklist.placeholder}
+          aria-label={m.companies.checklist.add}
+        />
         <Button type="submit" size="sm" disabled={pending || text.trim().length < 2}>
           <Plus />
         </Button>
@@ -139,7 +181,7 @@ export function CompanyNotes({ companyId, initial }: { companyId: number; initia
           }, 700);
         }}
       />
-      <p className="mt-1 h-4 text-[11px] text-subtle-foreground">{saved ? m.common.actions.saved : ""}</p>
+      <p className="text-subtle-foreground mt-1 h-4 text-[11px]">{saved ? m.common.actions.saved : ""}</p>
     </div>
   );
 }
@@ -155,7 +197,12 @@ export function Pipeline({
   companyName: string;
   defaultRole: string;
   today: string;
-  application: { id: number; role: string; stage: (typeof STAGES)[number]; events: { stage: (typeof STAGES)[number]; occurredOn: string; note: string }[] } | null;
+  application: {
+    id: number;
+    role: string;
+    stage: (typeof STAGES)[number];
+    events: { stage: (typeof STAGES)[number]; occurredOn: string; note: string }[];
+  } | null;
 }) {
   const { m } = useI18n();
   const P = m.companies.pipeline;
@@ -170,14 +217,24 @@ export function Pipeline({
     <div className="flex flex-col gap-4">
       <ol className="flex flex-wrap items-center gap-1" aria-label={P.title}>
         {STAGES.map((s, i) => {
-          const reached = application && (STAGES.indexOf(application.stage) >= i || application.events.some((e) => e.stage === s));
+          const reached =
+            application &&
+            (STAGES.indexOf(application.stage) >= i || application.events.some((e) => e.stage === s));
           const current = application?.stage === s;
           return (
             <li key={s} className="flex items-center gap-1">
               <span
                 className={cn(
                   "rounded-md border px-2 py-1 text-[11px]",
-                  current ? (s === "rejected" ? "border-danger bg-danger-soft text-danger" : s === "offer" ? "border-success bg-success-soft text-success" : "border-primary bg-primary-soft text-primary") : reached ? "border-border text-foreground" : "border-border text-subtle-foreground",
+                  current
+                    ? s === "rejected"
+                      ? "border-danger bg-danger-soft text-danger"
+                      : s === "offer"
+                        ? "border-success bg-success-soft text-success"
+                        : "border-primary bg-primary-soft text-primary"
+                    : reached
+                      ? "border-border text-foreground"
+                      : "border-border text-subtle-foreground",
                 )}
                 aria-current={current ? "step" : undefined}
               >
@@ -188,7 +245,7 @@ export function Pipeline({
           );
         })}
       </ol>
-      <p className="text-[11px] text-subtle-foreground">{P.noFakeDates}</p>
+      <p className="text-subtle-foreground text-[11px]">{P.noFakeDates}</p>
 
       {!application ? (
         <div className="flex flex-wrap items-end gap-2">
@@ -216,7 +273,11 @@ export function Pipeline({
         <>
           <div className="flex flex-wrap items-end gap-2">
             <Field label={m.companies.stage} htmlFor="app-stage">
-              <Select id="app-stage" value={stage} onChange={(e) => setStage(e.target.value as (typeof STAGES)[number])}>
+              <Select
+                id="app-stage"
+                value={stage}
+                onChange={(e) => setStage(e.target.value as (typeof STAGES)[number])}
+              >
                 {STAGES.map((s) => (
                   <option key={s} value={s}>
                     {P.stages[s]}
@@ -236,7 +297,12 @@ export function Pipeline({
               disabled={pending}
               onClick={() =>
                 run(async () => {
-                  const res = await updateApplicationStageAction({ applicationId: application.id, stage, date, note });
+                  const res = await updateApplicationStageAction({
+                    applicationId: application.id,
+                    stage,
+                    date,
+                    note,
+                  });
                   if (res.ok) setNote("");
                   else toast.error(res.error);
                 })
@@ -247,11 +313,11 @@ export function Pipeline({
           </div>
           {application.events.length ? (
             <div>
-              <p className="mb-1 text-[11px] font-medium text-muted-foreground">{P.history}</p>
+              <p className="text-muted-foreground mb-1 text-[11px] font-medium">{P.history}</p>
               <ul className="flex flex-col gap-1 text-xs">
                 {application.events.map((e, i) => (
                   <li key={i} className="flex gap-2">
-                    <span className="w-24 shrink-0 tabular-nums text-subtle-foreground">{e.occurredOn}</span>
+                    <span className="text-subtle-foreground w-24 shrink-0 tabular-nums">{e.occurredOn}</span>
                     <span className="font-medium">{P.stages[e.stage]}</span>
                     {e.note ? <span className="text-muted-foreground">— {e.note}</span> : null}
                   </li>
@@ -261,7 +327,7 @@ export function Pipeline({
           ) : null}
         </>
       )}
-      <div className="flex flex-wrap items-end gap-2 border-t border-border pt-3">
+      <div className="border-border flex flex-wrap items-end gap-2 border-t pt-3">
         <Field label={P.addInterview} htmlFor="iv-date">
           <Input id="iv-date" type="date" value={ivDate} onChange={(e) => setIvDate(e.target.value)} />
         </Field>
@@ -270,7 +336,12 @@ export function Pipeline({
           disabled={pending || !ivDate}
           onClick={() =>
             run(async () => {
-              const res = await addInterviewDateAction({ companyId, title: P.interviewTitle(companyName), date: ivDate, notes: "" });
+              const res = await addInterviewDateAction({
+                companyId,
+                title: P.interviewTitle(companyName),
+                date: ivDate,
+                notes: "",
+              });
               if (res.ok) setIvDate("");
               else toast.error(res.error);
             })
@@ -284,7 +355,17 @@ export function Pipeline({
   );
 }
 
-export function EditCompanyDialog({ companyId, role, overview, prepNotes }: { companyId: number; role: string; overview: string; prepNotes: string }) {
+export function EditCompanyDialog({
+  companyId,
+  role,
+  overview,
+  prepNotes,
+}: {
+  companyId: number;
+  role: string;
+  overview: string;
+  prepNotes: string;
+}) {
   const { m } = useI18n();
   const E = m.companies.edit;
   const [open, setOpen] = useState(false);
@@ -306,10 +387,22 @@ export function EditCompanyDialog({ companyId, role, overview, prepNotes }: { co
             <Input id="c-role" value={r} onChange={(e) => setR(e.target.value)} />
           </Field>
           <Field label={E.overview} htmlFor="c-overview">
-            <Textarea id="c-overview" rows={10} value={o} onChange={(e) => setO(e.target.value)} className="font-mono text-xs" />
+            <Textarea
+              id="c-overview"
+              rows={10}
+              value={o}
+              onChange={(e) => setO(e.target.value)}
+              className="font-mono text-xs"
+            />
           </Field>
           <Field label={E.prepNotes} htmlFor="c-prep">
-            <Textarea id="c-prep" rows={5} value={p} onChange={(e) => setP(e.target.value)} className="font-mono text-xs" />
+            <Textarea
+              id="c-prep"
+              rows={5}
+              value={p}
+              onChange={(e) => setP(e.target.value)}
+              className="font-mono text-xs"
+            />
           </Field>
           <Button
             variant="primary"

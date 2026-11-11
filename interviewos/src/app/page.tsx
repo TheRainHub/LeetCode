@@ -43,7 +43,21 @@ export default async function DashboardPage() {
   await ensurePlanUpToDate();
   const [{ m, locale }, today] = await Promise.all([getI18n(), getToday()]);
   const d = m.dashboard;
-  const [plan, tasks, capacityFn, next, level, streak, week, coding, areas, recs, reviews, companies, events] = await Promise.all([
+  const [
+    plan,
+    tasks,
+    capacityFn,
+    next,
+    level,
+    streak,
+    week,
+    coding,
+    areas,
+    recs,
+    reviews,
+    companies,
+    events,
+  ] = await Promise.all([
     getActivePlan(),
     getTasksBetween(today, today),
     getCapacityFn(),
@@ -93,13 +107,13 @@ export default async function DashboardPage() {
 
   return (
     <PageContainer wide>
-      <section className="mb-6 flex flex-col gap-4 rounded-lg border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section className="border-border bg-surface mb-6 flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {d.greeting} · {formatDay(today, locale, { weekday: "long", day: "numeric", month: "long" })}
           </p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">{d.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             <span className="text-subtle-foreground">{d.nextUp}:</span> {nextLabel}
           </p>
         </div>
@@ -148,27 +162,44 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>{d.level.title}</CardTitle>
-              <Target className="size-4 text-subtle-foreground" />
+              <Target className="text-subtle-foreground size-4" />
             </CardHeader>
             <CardContent>
               <p className="text-lg font-semibold">{d.level[level.level]}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {level.level === "not_assessed" ? d.level.notAssessedHelp : d.level.basis(level.gradedResults)}
+              <p className="text-muted-foreground mt-1 text-xs">
+                {level.level === "not_assessed"
+                  ? d.level.notAssessedHelp
+                  : d.level.basis(level.gradedResults)}
               </p>
-              <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-surface-3" aria-hidden>
+              <div className="bg-surface-3 mt-3 flex h-1.5 overflow-hidden rounded-full" aria-hidden>
                 {(["interview_ready", "practicing", "needs_review", "learning"] as const).map((s) => (
                   <div
                     key={s}
-                    className={{ interview_ready: "bg-success", practicing: "bg-primary", needs_review: "bg-warning", learning: "bg-subtle-foreground" }[s]}
+                    className={
+                      {
+                        interview_ready: "bg-success",
+                        practicing: "bg-primary",
+                        needs_review: "bg-warning",
+                        learning: "bg-subtle-foreground",
+                      }[s]
+                    }
                     style={{ width: `${level.total ? (level.counts[s] / level.total) * 100 : 0}%` }}
                   />
                 ))}
               </div>
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                <span>{m.common.status.interview_ready}: {level.counts.interview_ready}</span>
-                <span>{m.common.status.practicing}: {level.counts.practicing}</span>
-                <span>{m.common.status.needs_review}: {level.counts.needs_review}</span>
-                <span>{m.common.status.learning}: {level.counts.learning}</span>
+              <div className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                <span>
+                  {m.common.status.interview_ready}: {level.counts.interview_ready}
+                </span>
+                <span>
+                  {m.common.status.practicing}: {level.counts.practicing}
+                </span>
+                <span>
+                  {m.common.status.needs_review}: {level.counts.needs_review}
+                </span>
+                <span>
+                  {m.common.status.learning}: {level.counts.learning}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -181,7 +212,11 @@ export default async function DashboardPage() {
                       label={d.streak.title}
                       value={
                         <span className="flex items-center gap-1.5">
-                          <Flame className={streak.current > 0 ? "size-4 text-warning" : "size-4 text-subtle-foreground"} />
+                          <Flame
+                            className={
+                              streak.current > 0 ? "text-warning size-4" : "text-subtle-foreground size-4"
+                            }
+                          />
                           {d.streak.days(streak.current)}
                         </span>
                       }
@@ -193,7 +228,11 @@ export default async function DashboardPage() {
             </Card>
             <Card>
               <CardContent className="pt-4">
-                <Stat label={d.week.title} value={formatDuration(weekSeconds)} hint={weekSeconds === 0 ? d.week.empty : undefined} />
+                <Stat
+                  label={d.week.title}
+                  value={formatDuration(weekSeconds)}
+                  hint={weekSeconds === 0 ? d.week.empty : undefined}
+                />
               </CardContent>
             </Card>
           </div>
@@ -207,7 +246,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{d.upcoming.title}</CardTitle>
-            <CalendarClock className="size-4 text-subtle-foreground" />
+            <CalendarClock className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             {events.length === 0 ? (
@@ -218,12 +257,16 @@ export default async function DashboardPage() {
                   <li key={e.id} className="flex items-center justify-between gap-2 text-sm">
                     <div className="min-w-0">
                       <p className="truncate">{e.title}</p>
-                      <p className="text-[11px] text-subtle-foreground">
+                      <p className="text-subtle-foreground text-[11px]">
                         {d.eventKinds[e.kind]}
                         {e.companyName ? ` · ${e.companyName}` : ""} · {formatDay(e.date, locale)}
                       </p>
                     </div>
-                    <Badge tone={e.kind === "interview" ? "primary" : e.kind === "university" ? "warning" : "neutral"}>
+                    <Badge
+                      tone={
+                        e.kind === "interview" ? "primary" : e.kind === "university" ? "warning" : "neutral"
+                      }
+                    >
                       {m.common.inDays(e.inDays)}
                     </Badge>
                   </li>
@@ -236,7 +279,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{d.reviews.title}</CardTitle>
-            <Layers className="size-4 text-subtle-foreground" />
+            <Layers className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             {reviews.every((r) => r.count === 0) ? (
@@ -251,15 +294,26 @@ export default async function DashboardPage() {
                     </Button>
                   ) : null}
                 </div>
-                <p className="mt-3 mb-1 text-[11px] text-muted-foreground">{d.reviews.next7}</p>
+                <p className="text-muted-foreground mt-3 mb-1 text-[11px]">{d.reviews.next7}</p>
                 <div className="flex items-end gap-1" aria-label={d.reviews.next7}>
                   {reviews.map((r, i) => {
                     const max = Math.max(1, ...reviews.map((x) => x.count));
                     return (
                       <Tooltip key={r.date} content={`${formatDay(r.date, locale)}: ${r.count}`}>
                         <div className="flex flex-1 flex-col items-center gap-1">
-                          <div className="w-full rounded-sm bg-primary/70" style={{ height: `${4 + (r.count / max) * 36}px`, opacity: r.count ? 1 : 0.2 }} />
-                          <span className="text-[10px] text-subtle-foreground">{i === 0 ? "•" : formatDay(r.date, locale, { weekday: "narrow", day: undefined, month: undefined })}</span>
+                          <div
+                            className="bg-primary/70 w-full rounded-sm"
+                            style={{ height: `${4 + (r.count / max) * 36}px`, opacity: r.count ? 1 : 0.2 }}
+                          />
+                          <span className="text-subtle-foreground text-[10px]">
+                            {i === 0
+                              ? "•"
+                              : formatDay(r.date, locale, {
+                                  weekday: "narrow",
+                                  day: undefined,
+                                  month: undefined,
+                                })}
+                          </span>
                         </div>
                       </Tooltip>
                     );
@@ -273,7 +327,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{d.problems.title}</CardTitle>
-            <BookOpen className="size-4 text-subtle-foreground" />
+            <BookOpen className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             {coding.attempts === 0 ? (
@@ -306,11 +360,19 @@ export default async function DashboardPage() {
               <ul className="-mx-2 flex flex-col">
                 {recs.map((r) => (
                   <li key={r.topicId}>
-                    <Link href={`/learn/lesson/${r.slug}`} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-surface-2">
+                    <Link
+                      href={`/learn/lesson/${r.slug}`}
+                      className="hover:bg-surface-2 flex items-center justify-between gap-3 rounded-md px-2 py-1.5"
+                    >
                       <span className="truncate text-sm">{r.title}</span>
                       <span className="flex shrink-0 flex-wrap justify-end gap-1">
                         {r.reasons.slice(0, 3).map((x, i) => (
-                          <Badge key={i} tone={x.kind === "interview_soon" || x.kind === "review_due" ? "primary" : "neutral"}>
+                          <Badge
+                            key={i}
+                            tone={
+                              x.kind === "interview_soon" || x.kind === "review_due" ? "primary" : "neutral"
+                            }
+                          >
                             {reason(x)}
                           </Badge>
                         ))}
@@ -326,7 +388,9 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>{d.areas.strongest} / {d.areas.weakest}</CardTitle>
+              <CardTitle>
+                {d.areas.strongest} / {d.areas.weakest}
+              </CardTitle>
               <CardDescription>{d.areas.help}</CardDescription>
             </div>
           </CardHeader>
@@ -336,12 +400,14 @@ export default async function DashboardPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 <div>
-                  <p className="mb-1 text-[11px] text-muted-foreground">{d.areas.strongest}</p>
+                  <p className="text-muted-foreground mb-1 text-[11px]">{d.areas.strongest}</p>
                   {strongest.map((a) => (
                     <div key={a.area} className="mb-1.5">
                       <div className="flex justify-between text-xs">
                         <span>{AREA_LABEL[a.area] ?? a.area}</span>
-                        <span className="tabular-nums text-muted-foreground">{Math.round(a.accuracy! * 100)}%</span>
+                        <span className="text-muted-foreground tabular-nums">
+                          {Math.round(a.accuracy! * 100)}%
+                        </span>
                       </div>
                       <Progress value={a.accuracy! * 100} tone="success" />
                     </div>
@@ -349,12 +415,14 @@ export default async function DashboardPage() {
                 </div>
                 {weakest.length > 0 ? (
                   <div>
-                    <p className="mb-1 text-[11px] text-muted-foreground">{d.areas.weakest}</p>
+                    <p className="text-muted-foreground mb-1 text-[11px]">{d.areas.weakest}</p>
                     {weakest.map((a) => (
                       <div key={a.area} className="mb-1.5">
                         <div className="flex justify-between text-xs">
                           <span>{AREA_LABEL[a.area] ?? a.area}</span>
-                          <span className="tabular-nums text-muted-foreground">{Math.round(a.accuracy! * 100)}%</span>
+                          <span className="text-muted-foreground tabular-nums">
+                            {Math.round(a.accuracy! * 100)}%
+                          </span>
                         </div>
                         <Progress value={a.accuracy! * 100} tone="warning" />
                       </div>
@@ -372,18 +440,24 @@ export default async function DashboardPage() {
               <CardTitle>{d.companies.title}</CardTitle>
               <CardDescription>{d.companies.estimatedNote}</CardDescription>
             </div>
-            <Building2 className="size-4 text-subtle-foreground" />
+            <Building2 className="text-subtle-foreground size-4" />
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
               {companies.map((c) => (
-                <Link key={c.id} href={`/companies/${c.slug}`} className="group rounded-md p-1 hover:bg-surface-2">
+                <Link
+                  key={c.id}
+                  href={`/companies/${c.slug}`}
+                  className="group hover:bg-surface-2 rounded-md p-1"
+                >
                   <div className="flex items-center justify-between gap-2 text-sm">
-                    <span className="truncate font-medium group-hover:text-primary">{c.name}</span>
+                    <span className="group-hover:text-primary truncate font-medium">{c.name}</span>
                     {c.readiness.estimate === null ? (
                       <NotEnoughData label={m.common.labels.notEnoughData} />
                     ) : (
-                      <span className="text-xs tabular-nums text-muted-foreground">{c.readiness.estimate}%</span>
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {c.readiness.estimate}%
+                      </span>
                     )}
                   </div>
                   <Progress
@@ -392,7 +466,7 @@ export default async function DashboardPage() {
                     tone={c.readiness.estimate === null ? "muted" : "primary"}
                     label={c.name}
                   />
-                  <p className="mt-1 text-[11px] text-subtle-foreground">
+                  <p className="text-subtle-foreground mt-1 text-[11px]">
                     {d.companies.coverage(c.readiness.startedTopics, c.readiness.totalTopics)}
                     {c.nextInterview ? ` · ${formatDay(c.nextInterview, locale)}` : ""}
                   </p>

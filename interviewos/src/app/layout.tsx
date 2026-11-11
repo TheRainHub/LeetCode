@@ -25,11 +25,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [settings, { locale, m }] = await Promise.all([getSettings(), getI18n()]);
   const [lessonRows, problemRows] = await Promise.all([
     db.select({ slug: lessons.slug, title: lessons.title }).from(lessons).orderBy(asc(lessons.title)),
-    db.select({ slug: codingProblems.slug, title: codingProblems.title }).from(codingProblems).orderBy(asc(codingProblems.order)),
+    db
+      .select({ slug: codingProblems.slug, title: codingProblems.title })
+      .from(codingProblems)
+      .orderBy(asc(codingProblems.order)),
   ]);
   const palette: PaletteEntry[] = [
-    ...problemRows.map((p) => ({ label: p.title, href: `/practice/problems/${p.slug}`, group: m.common.nav.practice })),
-    ...lessonRows.map((l) => ({ label: l.title, href: `/learn/lesson/${l.slug}`, group: m.common.nav.learn })),
+    ...problemRows.map((p) => ({
+      label: p.title,
+      href: `/practice/problems/${p.slug}`,
+      group: m.common.nav.practice,
+    })),
+    ...lessonRows.map((l) => ({
+      label: l.title,
+      href: `/learn/lesson/${l.slug}`,
+      group: m.common.nav.learn,
+    })),
   ];
 
   return (
@@ -40,7 +51,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Sidebar aiEnabled={isAiConfigured()} />
             <MainContainer>{children}</MainContainer>
             <CommandPalette extra={palette} />
-            <Toaster theme={settings.theme} position="bottom-right" toastOptions={{ className: "!bg-surface !border-border !text-foreground" }} />
+            <Toaster
+              theme={settings.theme}
+              position="bottom-right"
+              toastOptions={{ className: "!bg-surface !border-border !text-foreground" }}
+            />
           </TooltipProvider>
         </I18nProvider>
       </body>

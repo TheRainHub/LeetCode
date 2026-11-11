@@ -18,7 +18,11 @@ const signature: ProblemSignature = {
 };
 const tests = [{ name: "basic", args: [[2, 7, 11, 15], 9], expected: [0, 1] }];
 
-function renderPanel(execution: Execution, code = "const a = 1;", language: "typescript" | "java" = "typescript") {
+function renderPanel(
+  execution: Execution,
+  code = "const a = 1;",
+  language: "typescript" | "java" = "typescript",
+) {
   return renderWithI18n(
     <TestsPanel
       problemId={1}
@@ -69,7 +73,13 @@ describe("TestsPanel results", () => {
 
   it("flags results as stale once the code changes", () => {
     renderPanel(
-      { mode: "browser", code: "const a = 1;", language: "typescript", logs: [], results: [{ name: "basic", passed: true }] },
+      {
+        mode: "browser",
+        code: "const a = 1;",
+        language: "typescript",
+        logs: [],
+        results: [{ name: "basic", passed: true }],
+      },
       "const a = 2;",
     );
     expect(screen.getByText(/Code changed since this run/)).toBeInTheDocument();

@@ -33,7 +33,13 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <SettingsForm
-              initial={{ locale: s.locale, theme: s.theme, preferredLanguage: s.preferredLanguage, timezone: s.timezone, interviewerProfile: s.interviewerProfile }}
+              initial={{
+                locale: s.locale,
+                theme: s.theme,
+                preferredLanguage: s.preferredLanguage,
+                timezone: s.timezone,
+                interviewerProfile: s.interviewerProfile,
+              }}
             />
           </CardContent>
         </Card>
@@ -49,7 +55,9 @@ export default async function SettingsPage() {
               <div className="flex justify-between gap-2">
                 <dt className="text-muted-foreground">{S.ai.status}</dt>
                 <dd>
-                  <Badge tone={ai ? "success" : "neutral"}>{ai ? m.common.ai.configured : m.common.ai.notConfigured}</Badge>
+                  <Badge tone={ai ? "success" : "neutral"}>
+                    {ai ? m.common.ai.configured : m.common.ai.notConfigured}
+                  </Badge>
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
@@ -73,7 +81,9 @@ export default async function SettingsPage() {
                 <dd className="font-mono text-xs">{e.ANTHROPIC_FALLBACKS}</dd>
               </div>
             </dl>
-            {!ai ? <p className="mt-3 text-xs text-muted-foreground">{m.common.ai.notConfiguredHelp}</p> : null}
+            {!ai ? (
+              <p className="text-muted-foreground mt-3 text-xs">{m.common.ai.notConfiguredHelp}</p>
+            ) : null}
           </CardContent>
         </Card>
         <Card>

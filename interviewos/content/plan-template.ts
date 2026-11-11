@@ -18,7 +18,12 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
       focus: "DSA fundamentals",
       tasks: [
         { kind: "lesson", title: "Read: Time and space complexity", refSlug: "complexity", minutes: 25 },
-        { kind: "lesson", title: "Read: HashMap and HashSet (quiz only)", refSlug: "hashmap-hashset", minutes: 30 },
+        {
+          kind: "lesson",
+          title: "Read: HashMap and HashSet (quiz only)",
+          refSlug: "hashmap-hashset",
+          minutes: 30,
+        },
       ],
     },
     {
@@ -41,8 +46,18 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
         { kind: "lesson", title: "Lesson: Arrays and strings", refSlug: "arrays-strings", minutes: 30 },
         { kind: "lesson", title: "Lesson: Two pointers", refSlug: "two-pointers", minutes: 30 },
         { kind: "lesson", title: "Lesson: Sliding window", refSlug: "sliding-window", minutes: 35 },
-        { kind: "problem", title: "Solve: Best Time to Buy and Sell Stock", refSlug: "best-time-to-buy-and-sell-stock", minutes: 15 },
-        { kind: "problem", title: "Solve: Longest Substring Without Repeating Characters", refSlug: "longest-substring-without-repeating-characters", minutes: 30 },
+        {
+          kind: "problem",
+          title: "Solve: Best Time to Buy and Sell Stock",
+          refSlug: "best-time-to-buy-and-sell-stock",
+          minutes: 15,
+        },
+        {
+          kind: "problem",
+          title: "Solve: Longest Substring Without Repeating Characters",
+          refSlug: "longest-substring-without-repeating-characters",
+          minutes: 30,
+        },
       ],
     },
     {
@@ -78,8 +93,18 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
       title: "Session 8 · Java concurrency",
       focus: "Java concurrency",
       tasks: [
-        { kind: "lesson", title: "Lesson: Threads and the Java Memory Model", refSlug: "java-concurrency", minutes: 40 },
-        { kind: "lesson", title: "Lesson: Synchronization and locks", refSlug: "synchronization", minutes: 35 },
+        {
+          kind: "lesson",
+          title: "Lesson: Threads and the Java Memory Model",
+          refSlug: "java-concurrency",
+          minutes: 40,
+        },
+        {
+          kind: "lesson",
+          title: "Lesson: Synchronization and locks",
+          refSlug: "synchronization",
+          minutes: 35,
+        },
         { kind: "lab", title: "Lab: Java concurrency", refSlug: "java-concurrency-lab", minutes: 60 },
       ],
     },
@@ -90,7 +115,12 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
         { kind: "lesson", title: "Lesson: BFS and DFS", refSlug: "bfs-dfs", minutes: 35 },
         { kind: "problem", title: "Solve: Number of Islands", refSlug: "number-of-islands", minutes: 30 },
         { kind: "lesson", title: "Lesson: Heaps", refSlug: "heaps", minutes: 30 },
-        { kind: "problem", title: "Solve: Top K Frequent Elements", refSlug: "top-k-frequent-elements", minutes: 25 },
+        {
+          kind: "problem",
+          title: "Solve: Top K Frequent Elements",
+          refSlug: "top-k-frequent-elements",
+          minutes: 25,
+        },
         { kind: "problem", title: "Solve: Merge Intervals", refSlug: "merge-intervals", minutes: 25 },
       ],
     },
@@ -99,7 +129,12 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
       focus: "Backend engineering",
       tasks: [
         { kind: "lesson", title: "Lesson: PostgreSQL indexes", refSlug: "postgres-indexes", minutes: 35 },
-        { kind: "lesson", title: "Lesson: Transactions and isolation", refSlug: "transactions-isolation", minutes: 40 },
+        {
+          kind: "lesson",
+          title: "Lesson: Transactions and isolation",
+          refSlug: "transactions-isolation",
+          minutes: 40,
+        },
         { kind: "lesson", title: "Lesson: Idempotency", refSlug: "idempotency", minutes: 30 },
         { kind: "lab", title: "Lab: PostgreSQL", refSlug: "postgresql-lab", minutes: 60 },
       ],
@@ -111,16 +146,31 @@ export const INTERVIEW_SPRINT: PlanTemplateDef = {
         { kind: "lesson", title: "Lesson: The event loop", refSlug: "event-loop", minutes: 30 },
         { kind: "lesson", title: "Lesson: Promises and async/await", refSlug: "promises-async", minutes: 30 },
         { kind: "lesson", title: "Lesson: How React renders", refSlug: "react-rendering", minutes: 35 },
-        { kind: "problem", title: "Solve: Group Anagrams (TypeScript)", refSlug: "group-anagrams", minutes: 20 },
+        {
+          kind: "problem",
+          title: "Solve: Group Anagrams (TypeScript)",
+          refSlug: "group-anagrams",
+          minutes: 20,
+        },
       ],
     },
     {
       title: "Session 12 · System design",
       focus: "System design",
       tasks: [
-        { kind: "lesson", title: "Lesson: Requirements clarification", refSlug: "sd-requirements", minutes: 25 },
+        {
+          kind: "lesson",
+          title: "Lesson: Requirements clarification",
+          refSlug: "sd-requirements",
+          minutes: 25,
+        },
         { kind: "lesson", title: "Case study: Rate limiter", refSlug: "cs-rate-limiter", minutes: 40 },
-        { kind: "lab", title: "Lab: Design a booking system", refSlug: "booking-system-design-lab", minutes: 60 },
+        {
+          kind: "lab",
+          title: "Lab: Design a booking system",
+          refSlug: "booking-system-design-lab",
+          minutes: 60,
+        },
       ],
     },
     {

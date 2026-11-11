@@ -12,7 +12,13 @@ export async function nextInterviewDate(): Promise<string | null> {
   const [row] = await db
     .select({ date: calendarEvents.date })
     .from(calendarEvents)
-    .where(and(eq(calendarEvents.userId, getCurrentUserId()), eq(calendarEvents.kind, "interview"), gte(calendarEvents.date, today)))
+    .where(
+      and(
+        eq(calendarEvents.userId, getCurrentUserId()),
+        eq(calendarEvents.kind, "interview"),
+        gte(calendarEvents.date, today),
+      ),
+    )
     .orderBy(asc(calendarEvents.date))
     .limit(1);
   return row?.date ?? null;
@@ -25,7 +31,9 @@ export async function activateTopicCards(topicId: number) {
   const cards = await db
     .select({ id: reviewCards.id })
     .from(reviewCards)
-    .where(and(eq(reviewCards.userId, userId), eq(reviewCards.topicId, topicId), eq(reviewCards.source, "lesson")));
+    .where(
+      and(eq(reviewCards.userId, userId), eq(reviewCards.topicId, topicId), eq(reviewCards.source, "lesson")),
+    );
   if (cards.length === 0) return;
   await db
     .insert(reviewSchedules)
@@ -33,16 +41,33 @@ export async function activateTopicCards(topicId: number) {
     .onConflictDoNothing();
 }
 
-export async function createCard(input: { topicId: number | null; prompt: string; answer: string; source: "manual" | "interview"; sourceRef?: string; dueInDays?: number }) {
+export async function createCard(input: {
+  topicId: number | null;
+  prompt: string;
+  answer: string;
+  source: "manual" | "interview";
+  sourceRef?: string;
+  dueInDays?: number;
+}) {
   const userId = getCurrentUserId();
   const today = await getToday();
   const [card] = await db
     .insert(reviewCards)
-    .values({ userId, topicId: input.topicId, prompt: input.prompt, answer: input.answer, source: input.source, sourceRef: input.sourceRef })
+    .values({
+      userId,
+      topicId: input.topicId,
+      prompt: input.prompt,
+      answer: input.answer,
+      source: input.source,
+      sourceRef: input.sourceRef,
+    })
     .onConflictDoNothing()
     .returning({ id: reviewCards.id });
   if (!card) return null;
-  await db.insert(reviewSchedules).values({ userId, cardId: card.id, dueOn: addDays(today, input.dueInDays ?? 1) }).onConflictDoNothing();
+  await db
+    .insert(reviewSchedules)
+    .values({ userId, cardId: card.id, dueOn: addDays(today, input.dueInDays ?? 1) })
+    .onConflictDoNothing();
   return card.id;
 }
 
@@ -91,15 +116,38 @@ export async function scheduleProblem(problemId: number, grade: Grade) {
   if (existing) {
     await db
       .update(reviewSchedules)
-      .set({ ease: next.ease, intervalDays: next.intervalDays, repetitions: next.repetitions, lapses: next.lapses, dueOn: next.dueOn, lastReviewedAt: new Date() })
+      .set({
+        ease: next.ease,
+        intervalDays: next.intervalDays,
+        repetitions: next.repetitions,
+        lapses: next.lapses,
+        dueOn: next.dueOn,
+        lastReviewedAt: new Date(),
+      })
       .where(eq(reviewSchedules.id, existing.id));
-    await db.insert(reviewLogs).values({ scheduleId: existing.id, grade, intervalBefore: existing.intervalDays, intervalAfter: next.intervalDays });
+    await db.insert(reviewLogs).values({
+      scheduleId: existing.id,
+      grade,
+      intervalBefore: existing.intervalDays,
+      intervalAfter: next.intervalDays,
+    });
   } else {
     const [row] = await db
       .insert(reviewSchedules)
-      .values({ userId, problemId, ease: next.ease, intervalDays: next.intervalDays, repetitions: next.repetitions, lapses: next.lapses, dueOn: next.dueOn, lastReviewedAt: new Date() })
+      .values({
+        userId,
+        problemId,
+        ease: next.ease,
+        intervalDays: next.intervalDays,
+        repetitions: next.repetitions,
+        lapses: next.lapses,
+        dueOn: next.dueOn,
+        lastReviewedAt: new Date(),
+      })
       .returning({ id: reviewSchedules.id });
-    await db.insert(reviewLogs).values({ scheduleId: row!.id, grade, intervalBefore: 0, intervalAfter: next.intervalDays });
+    await db
+      .insert(reviewLogs)
+      .values({ scheduleId: row!.id, grade, intervalBefore: 0, intervalAfter: next.intervalDays });
   }
   return next;
 }
@@ -121,7 +169,13 @@ export async function getDueCards(limit = 50) {
     })
     .from(reviewSchedules)
     .innerJoin(reviewCards, eq(reviewCards.id, reviewSchedules.cardId))
-    .where(and(eq(reviewSchedules.userId, userId), eq(reviewCards.suspended, false), lte(reviewSchedules.dueOn, today)))
+    .where(
+      and(
+        eq(reviewSchedules.userId, userId),
+        eq(reviewCards.suspended, false),
+        lte(reviewSchedules.dueOn, today),
+      ),
+    )
     .orderBy(asc(reviewSchedules.dueOn), asc(reviewSchedules.id))
     .limit(limit);
 }
@@ -140,7 +194,13 @@ export async function getDueProblems() {
     })
     .from(reviewSchedules)
     .innerJoin(codingProblems, eq(codingProblems.id, reviewSchedules.problemId))
-    .where(and(eq(reviewSchedules.userId, userId), isNotNull(reviewSchedules.problemId), lte(reviewSchedules.dueOn, today)))
+    .where(
+      and(
+        eq(reviewSchedules.userId, userId),
+        isNotNull(reviewSchedules.problemId),
+        lte(reviewSchedules.dueOn, today),
+      ),
+    )
     .orderBy(asc(reviewSchedules.dueOn));
 }
 

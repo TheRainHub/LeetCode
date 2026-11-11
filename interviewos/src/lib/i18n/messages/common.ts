@@ -90,7 +90,8 @@ export const common = defineMessages(
       learning: "You have read about it, but haven't demonstrated it yet.",
       practicing: "Some evidence of recognition, implementation or explanation.",
       needs_review: "Previously practiced, but a review is overdue or recent results dropped.",
-      interview_ready: "Recognized, implemented (where applicable) and explained under interview conditions, with recent accuracy ≥ 70%.",
+      interview_ready:
+        "Recognized, implemented (where applicable) and explained under interview conditions, with recent accuracy ≥ 70%.",
     },
     missing: {
       read: "Read the lesson",
@@ -188,7 +189,11 @@ export const common = defineMessages(
     minutes: (n: number) => `${n} мин`,
     days: (n: number) => `${n} ${plural("ru", n, { one: "день", few: "дня", many: "дней" })}`,
     inDays: (n: number) =>
-      n === 0 ? "сегодня" : n === 1 ? "завтра" : `через ${n} ${plural("ru", n, { one: "день", few: "дня", many: "дней" })}`,
+      n === 0
+        ? "сегодня"
+        : n === 1
+          ? "завтра"
+          : `через ${n} ${plural("ru", n, { one: "день", few: "дня", many: "дней" })}`,
     status: {
       not_started: "Не начато",
       learning: "Изучение",
@@ -201,7 +206,8 @@ export const common = defineMessages(
       learning: "Материал прочитан, но знание ещё не подтверждено.",
       practicing: "Есть подтверждения узнавания, реализации или объяснения.",
       needs_review: "Тема практиковалась, но повторение просрочено или результаты упали.",
-      interview_ready: "Тема узнаётся, реализована (где применимо) и объяснена в режиме собеседования, точность ≥ 70%.",
+      interview_ready:
+        "Тема узнаётся, реализована (где применимо) и объяснена в режиме собеседования, точность ≥ 70%.",
     },
     missing: {
       read: "Прочитать урок",
@@ -213,13 +219,17 @@ export const common = defineMessages(
       more_results: "Набрать минимум 3 оценённых результата",
       overdue_reviews: "Закрыть просроченные повторения",
     },
-    priorityLabels: { "-1": "Низкий", "0": "Обычный", "1": "Высокий", "2": "Критичный" } as Record<string, string>,
+    priorityLabels: { "-1": "Низкий", "0": "Обычный", "1": "Высокий", "2": "Критичный" } as Record<
+      string,
+      string
+    >,
     difficulty: { easy: "Лёгкая", medium: "Средняя", hard: "Сложная" },
     languages: { java: "Java", typescript: "TypeScript", python: "Python" },
     ai: {
       configured: "ИИ включён",
       notConfigured: "ИИ отключён",
-      notConfiguredHelp: "Укажите ANTHROPIC_API_KEY в .env и перезапустите сервер, чтобы включить функции ИИ.",
+      notConfiguredHelp:
+        "Укажите ANTHROPIC_API_KEY в .env и перезапустите сервер, чтобы включить функции ИИ.",
     },
   },
 );
