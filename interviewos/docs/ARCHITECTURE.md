@@ -24,7 +24,7 @@ Browser ──► Next.js (RSC pages + Server Actions + Route Handlers) ──�
 | Editor         | Monaco via `@monaco-editor/react`, assets copied to `public/monaco` at install                                                                                                                                                                                          | Works offline, no CDN                                                                                   |
 | Code execution | **Never on the server.** TypeScript runs in a sandboxed Web Worker in the browser (timeout + terminate). Java/Python: the app generates a self-contained test harness to run locally; pasted output is parsed into results. Everything else is labelled "not executed". | Satisfies the security constraint; a remote sandbox can implement the same `CodeRunner` interface later |
 | AI             | `@anthropic-ai/sdk` on the server only; model/effort/token limits from env; disabled cleanly without a key                                                                                                                                                              | Optional feature; keys never reach the browser                                                          |
-| i18n           | Typed dictionaries (`en`, `ru`) + `t()` helper; locale stored in user settings                                                                                                                                                                                          | No routing changes, compile-time key parity                                                             |
+| i18n           | Typed message bundles (`en`, `ru`) via `defineMessages`; locale stored in user settings                                                                                                                                                                                 | No routing changes, compile-time key parity                                                             |
 
 ## Learning model (understanding over memorization)
 
@@ -92,32 +92,44 @@ interviewos/
 
 Phase 1 — Foundation
 
-- [ ] Scaffold Next.js/TS strict/Tailwind/ESLint/Prettier/Vitest/Playwright
-- [ ] Drizzle schema, migrations, DB client, env validation
-- [ ] Design system + app shell (sidebar nav, i18n, dark theme)
-- [ ] Content pipeline (lesson parser) + seed script; first content batch
-- [ ] Learning paths, lesson reader, quiz/explain exercises, persistent progress
-- [ ] Mastery derivation + dashboard with honest empty states
+- [x] Scaffold Next.js/TS strict/Tailwind/ESLint/Prettier/Vitest/Playwright
+- [x] Drizzle schema, migrations, DB client, env validation
+- [x] Design system + app shell (sidebar nav, i18n, dark theme)
+- [x] Content pipeline (lesson parser) + seed script; first content batch
+- [x] Learning paths, lesson reader, quiz/explain exercises, persistent progress
+- [x] Mastery derivation + dashboard with honest empty states
 
 Phase 2 — Coding practice
 
-- [ ] Problem catalog (10 problems, 3 languages, tests, hints, solutions)
-- [ ] Workspace: Monaco, resizable panels, stopwatch, focus mode, shortcuts
-- [ ] In-browser TS runner; Java/Python harness generator + output parser
-- [ ] Attempt recording, complexity review, attempt history, notes, drafts
+- [x] Problem catalog (10 problems, 3 languages, tests, hints, solutions)
+- [x] Workspace: Monaco, resizable panels, stopwatch, focus mode, shortcuts
+- [x] In-browser TS runner; Java/Python harness generator + output parser
+- [x] Attempt recording, complexity review, attempt history, notes, drafts
 
 Phase 3 — Mock interviews
 
-- [ ] Anthropic client (server-only), config, error handling, disabled state
-- [ ] Interview setup, streaming chat, hints, timer, code sharing
-- [ ] Structured evaluation, history/report, SRS cards from evaluation
+- [x] Anthropic client (server-only), config, error handling, disabled state
+- [x] Interview setup, streaming chat, hints, timer, code sharing
+- [x] Structured evaluation, history/report, SRS cards from evaluation
 
 Phase 4 — Advanced learning
 
-- [ ] Spaced repetition review sessions
-- [ ] Practical labs with evidence-based verification
-- [ ] Company tracks, readiness, checklist, application pipeline
-- [ ] My Engineering Experience + STAR stories + generated questions
-- [ ] Scheduler (plan from template, capacity, unavailable days, carry-over)
-- [ ] Analytics with "Not enough data" handling; recommendations
-- [ ] Remaining curriculum content, link check, README, tests, e2e
+- [x] Spaced repetition review sessions
+- [x] Practical labs with evidence-based verification
+- [x] Company tracks, readiness, checklist, application pipeline
+- [x] My Engineering Experience + STAR stories + generated questions
+- [x] Scheduler (plan from template, capacity, unavailable days, carry-over)
+- [x] Analytics with "Not enough data" handling; recommendations
+- [x] Remaining curriculum content, link check, README, tests, e2e
+
+## Verification status
+
+| Check                                                       | Result                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `npm run typecheck`, `npm run lint`, `npm run format:check` | pass                                                                                       |
+| `npm test` (Vitest)                                         | 77 tests pass: domain logic, code runner, i18n parity, content integrity, component tests  |
+| `npm run test:e2e` (Playwright, production build)           | 5 flows pass against a fresh test database and a mock Anthropic API                        |
+| `npm run content:verify-harnesses`                          | all 10 reference solutions pass in Java, Python and TypeScript                             |
+| `npm run db:setup` twice                                    | idempotent: 8 paths, 104 lessons, 10 problems, 5 labs, 7 companies                         |
+| `npm run content:check-links`                               | 0 broken; most links unverifiable from the build environment (network policy) — see README |
+| AI interviewer against the real Anthropic API               | not exercised in automated tests (mock only)                                               |
