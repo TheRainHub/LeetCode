@@ -23,6 +23,7 @@ export const practice = defineMessages(
     executionNote:
       "Code never runs on the InterviewOS server. TypeScript runs in a sandboxed Web Worker in your browser; Java and Python run on your machine via a generated test harness.",
     ws: {
+      loadingEditor: "Loading editor…",
       back: "Problems",
       description: "Description",
       hints: "Hints",
@@ -59,6 +60,7 @@ export const practice = defineMessages(
       running: "Running…",
       runInBrowserNote: "Executed in your browser (sandboxed Web Worker, 4 s limit).",
       notExecutedYet: "Not executed yet.",
+      staleRun: "Code changed since this run — run again before submitting.",
       onlyTsInBrowser: "In-browser execution supports TypeScript only. Use “Run locally” for Java and Python.",
       compileError: "Could not run",
       passedOf: (p: number, t: number) => `${p} / ${t} passed`,
@@ -147,6 +149,7 @@ export const practice = defineMessages(
     executionNote:
       "Код никогда не выполняется на сервере InterviewOS. TypeScript выполняется в изолированном Web Worker в вашем браузере; Java и Python — на вашем компьютере через сгенерированный тестовый файл.",
     ws: {
+      loadingEditor: "Загрузка редактора…",
       back: "Задачи",
       description: "Условие",
       hints: "Подсказки",
@@ -183,6 +186,7 @@ export const practice = defineMessages(
       running: "Выполняется…",
       runInBrowserNote: "Выполнено в вашем браузере (изолированный Web Worker, лимит 4 с).",
       notExecutedYet: "Ещё не выполнялось.",
+      staleRun: "Код изменился после этого запуска — запустите тесты снова перед отправкой.",
       onlyTsInBrowser: "В браузере выполняется только TypeScript. Для Java и Python используйте «Запустить локально».",
       compileError: "Не удалось запустить",
       passedOf: (p: number, t: number) => `Пройдено ${p} из ${t}`,

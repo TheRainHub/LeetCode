@@ -119,7 +119,7 @@ export function TestsPanel({
         {stale ? (
           <p className="mb-2 flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1.5 text-xs text-warning">
             <TriangleAlert className="size-3.5" />
-            Code changed since this run — run again before submitting.
+            {w.staleRun}
           </p>
         ) : null}
         {execution.mode === "none" ? (

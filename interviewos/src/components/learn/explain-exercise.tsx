@@ -180,7 +180,7 @@ export function ExplainExercise({
             <p className="mb-1 text-xs font-medium text-muted-foreground">{e.modelAnswer}</p>
             <p className="text-sm leading-relaxed">{rubric.modelAnswer}</p>
             <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-muted-foreground">Your answer</summary>
+              <summary className="cursor-pointer text-xs text-muted-foreground">{e.yourAnswer}</summary>
               <p className="mt-2 text-sm whitespace-pre-wrap text-muted-foreground">{response}</p>
             </details>
           </div>
