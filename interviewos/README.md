@@ -66,7 +66,28 @@ sudo -u postgres psql -c "CREATE ROLE interviewos LOGIN PASSWORD 'interviewos';"
 sudo -u postgres psql -c "CREATE DATABASE interviewos OWNER interviewos;"
 ```
 
-macOS with Homebrew PostgreSQL:
+macOS with Homebrew — install and start the server first (`psql` alone is only the client):
+
+```bash
+brew install postgresql@16
+```
+
+```bash
+brew services start postgresql@16
+```
+
+`postgresql@16` is not linked into your `PATH`; add it (Apple Silicon path shown; on Intel Macs use
+`/usr/local/opt/postgresql@16/bin`), open a new terminal, and check that the server answers:
+
+```bash
+echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc
+```
+
+```bash
+pg_isready
+```
+
+Then create the role and the database (Homebrew's superuser is your macOS user):
 
 ```bash
 psql postgres -c "CREATE ROLE interviewos LOGIN PASSWORD 'interviewos';"
