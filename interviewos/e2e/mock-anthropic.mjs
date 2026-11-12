@@ -109,6 +109,16 @@ function chatReply(body) {
 const server = createServer((req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${port}`);
   if (req.method === "GET" && url.pathname === "/__health") return res.end("ok");
+  if (req.method === "GET" && url.pathname === "/__image.png") {
+    // 1×1 transparent PNG for guide fixtures.
+    res.writeHead(200, { "content-type": "image/png" });
+    return res.end(
+      Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+        "base64",
+      ),
+    );
+  }
   if (req.method === "GET" && url.pathname === "/__requests") {
     res.writeHead(200, { "content-type": "application/json" });
     return res.end(JSON.stringify(requests));

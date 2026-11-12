@@ -1,7 +1,9 @@
 import { BookOpen, ChevronLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GUIDES_FOR_QUESTION } from "@content/guides";
 import { SD_SOURCES } from "@content/system-design";
+import { GuideList } from "@/components/guides/guide-list";
 import { StatusBadge } from "@/components/learn/status-badge";
 import { ActiveTimer } from "@/components/learn/active-timer";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
@@ -12,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isAiConfigured } from "@/lib/ai/config";
 import { fullRubric } from "@/lib/system-design/status";
+import { getGuidesBySlugs } from "@/server/guides";
 import { getTopicStates } from "@/server/insights";
 import { getSdQuestion, getSdWorkspace, listSdProgress } from "@/server/system-design";
 import { getI18n } from "@/server/user";
@@ -30,11 +33,12 @@ export default async function SdQuestionPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const q = getSdQuestion(slug);
   if (!q) notFound();
-  const [{ m, locale }, ws, progress, topicStates] = await Promise.all([
+  const [{ m, locale }, ws, progress, topicStates, relatedGuides] = await Promise.all([
     getI18n(),
     getSdWorkspace(slug),
     listSdProgress(),
     getTopicStates(),
+    getGuidesBySlugs(GUIDES_FOR_QUESTION[slug] ?? []),
   ]);
   const S = m.sd;
   const status = progress.get(slug)?.status ?? "not_started";
@@ -152,6 +156,18 @@ export default async function SdQuestionPage({ params }: { params: Promise<{ slu
               ) : null}
             </CardContent>
           </Card>
+
+          {relatedGuides.length ? (
+            <Card data-testid="sd-guides">
+              <CardHeader>
+                <CardTitle>{S.guides.card}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
+                <GuideList guides={relatedGuides} readLabel={S.guides.markedRead} />
+                <p className="text-subtle-foreground text-[11px]">{S.guides.cardHelp}</p>
+              </CardContent>
+            </Card>
+          ) : null}
 
           {q.listedIn.length ? (
             <Card>

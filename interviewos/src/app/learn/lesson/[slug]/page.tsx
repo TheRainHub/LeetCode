@@ -31,7 +31,10 @@ import type { TopicStatus } from "@/lib/mastery/status";
 import { cn } from "@/lib/utils";
 import { gradeExplanationAction } from "@/app/learn/ai-actions";
 import { LessonBankPractice } from "@/components/bank/lesson-practice";
+import { GUIDES_FOR_LESSON } from "@content/guides";
+import { GuideList } from "@/components/guides/guide-list";
 import { getLessonBankPractice } from "@/server/bank";
+import { getGuidesBySlugs } from "@/server/guides";
 import { getLessonPage } from "@/server/learn";
 import { getI18n } from "@/server/user";
 
@@ -79,10 +82,11 @@ export const maxDuration = 300;
 
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [{ m }, data, bankPractice] = await Promise.all([
+  const [{ m }, data, bankPractice, lessonGuides] = await Promise.all([
     getI18n(),
     getLessonPage(slug),
     getLessonBankPractice(slug, 6),
+    getGuidesBySlugs(GUIDES_FOR_LESSON[slug] ?? []),
   ]);
   if (!data) notFound();
   const L = m.learn.lesson;
@@ -195,6 +199,13 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
                       </div>
                     ) : null}
                     <LessonBankPractice lesson={lesson.slug} practice={bankPractice} m={m} />
+                    {lessonGuides.length ? (
+                      <Card className="mt-4 p-4" data-testid="lesson-guides">
+                        <p className="text-sm font-medium">{m.sd.guides.card}</p>
+                        <p className="text-muted-foreground mb-3 text-xs">{m.sd.guides.cardHelp}</p>
+                        <GuideList guides={lessonGuides} readLabel={m.sd.guides.markedRead} />
+                      </Card>
+                    ) : null}
                   </Section>
                   <Section id="reading" title={L.readings}>
                     <ul className="flex flex-col gap-2">

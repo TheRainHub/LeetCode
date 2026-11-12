@@ -11,8 +11,6 @@
  * membership — never problem statements. User progress is never modified.
  */
 import "dotenv/config";
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { inArray, isNotNull, notInArray, sql as dsql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -20,6 +18,7 @@ import postgres from "postgres";
 import { directDatabaseUrl, usesTransactionPooler } from "../src/lib/db/url";
 import { BANK_SOURCES, COMPANY_DATASET_NAMES, PATTERN_TO_LESSON } from "../content/problem-bank";
 import * as s from "../src/lib/db/schema";
+import { prepareGitSource } from "./lib/git-source";
 import {
   emptyModel,
   readCompanyLists,
@@ -39,35 +38,6 @@ const fetch = !flag("--no-fetch");
 const url = directDatabaseUrl();
 const sql = postgres(url, { max: 1, prepare: !usesTransactionPooler(url), onnotice: () => {} });
 const db = drizzle(sql, { schema: s });
-
-const git = (cwd: string, ...a: string[]) =>
-  execFileSync("git", a, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-
-function prepareSource(
-  repoUrl: string,
-  dir: string,
-): { ok: boolean; commit: string | null; commitDate: Date | null } {
-  if (!existsSync(dir)) {
-    if (!fetch) {
-      console.warn(`[bank] ${dir} not found and --no-fetch given; skipping this source.`);
-      return { ok: false, commit: null, commitDate: null };
-    }
-    mkdirSync(sourcesDir, { recursive: true });
-    console.log(`[bank] cloning ${repoUrl} …`);
-    execFileSync("git", ["clone", "--depth", "1", repoUrl, dir], { stdio: "inherit" });
-  } else if (fetch && existsSync(join(dir, ".git"))) {
-    try {
-      git(dir, "pull", "--ff-only", "--quiet");
-    } catch (err) {
-      console.warn(
-        `[bank] could not update ${dir} (${(err as Error).message.split("\n")[0]}); using the existing copy.`,
-      );
-    }
-  }
-  if (!existsSync(join(dir, ".git"))) return { ok: true, commit: null, commitDate: null };
-  const [commit, date] = git(dir, "log", "-1", "--format=%H%n%cI").split("\n");
-  return { ok: true, commit: commit ?? null, commitDate: date ? new Date(date) : null };
-}
 
 const chunk = <T>(xs: T[], n: number) =>
   Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
@@ -228,7 +198,7 @@ async function main() {
   const meta = new Map<string, { commit: string | null; commitDate: Date | null }>();
   for (const src of BANK_SOURCES) {
     const dir = join(sourcesDir, src.dir);
-    const prepared = prepareSource(src.repoUrl, dir);
+    const prepared = prepareGitSource(src.repoUrl, dir, { fetch, label: "bank" });
     if (!prepared.ok) continue;
     if (src.key === "company-lists") {
       readCompanyLists(dir, model);

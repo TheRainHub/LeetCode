@@ -149,3 +149,14 @@ describe("system design catalogue", () => {
       for (const l of g.lessons) expect(lessonSlugs.has(l), `fundamental ${l}`).toBe(true);
   });
 });
+
+describe("guide mappings", () => {
+  it("point at lessons and system design questions that exist", async () => {
+    const { GUIDES_FOR_LESSON, GUIDES_FOR_QUESTION } = await import("./guides");
+    const { SD_QUESTIONS } = await import("./system-design");
+    for (const lesson of Object.keys(GUIDES_FOR_LESSON))
+      expect(lessonSlugs.has(lesson), `lesson ${lesson}`).toBe(true);
+    const questions = new Set(SD_QUESTIONS.map((q) => q.slug));
+    for (const q of Object.keys(GUIDES_FOR_QUESTION)) expect(questions.has(q), `question ${q}`).toBe(true);
+  });
+});

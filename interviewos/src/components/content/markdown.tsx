@@ -26,6 +26,18 @@ export function Markdown({
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeHighlight, { detect: false, ignoreMissing: true }]]}
         components={{
+          img: ({ src, alt }) =>
+            typeof src === "string" ? (
+              // External diagrams (e.g. visual guides) are plain images; next/image would need a domain allowlist.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={src}
+                alt={alt ?? ""}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="rounded-md"
+              />
+            ) : null,
           a: ({ href, children: c }) => (
             <a href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel="noreferrer noopener">
               {c}

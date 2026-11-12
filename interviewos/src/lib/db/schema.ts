@@ -1087,3 +1087,53 @@ export const sdAttempts = pgTable(
   },
   (t) => [index("sd_attempts_user_question_idx").on(t.userId, t.questionSlug)],
 );
+
+/* ------------------------------------------------------------------ */
+/* Visual guides (ByteByteGo System Design 101, imported at runtime)   */
+/* ------------------------------------------------------------------ */
+
+export const guideCategories = pgTable("guide_categories", {
+  slug: text("slug").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").default("").notNull(),
+  sort: integer("sort").default(1000).notNull(),
+});
+
+/** Guides stored verbatim from the source repository (CC BY-NC-ND 4.0) for local reading. */
+export const guides = pgTable(
+  "guides",
+  {
+    id: id(),
+    slug: text("slug").notNull().unique(),
+    /** File path in the source repository, used for the link to the original. */
+    path: text("path").notNull(),
+    title: text("title").notNull(),
+    description: text("description").default("").notNull(),
+    imageUrl: text("image_url"),
+    publishedOn: date("published_on", { mode: "string" }),
+    categories: text("categories")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    tags: text("tags")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
+    content: text("content").notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("guides_categories_idx").using("gin", t.categories)],
+);
+
+/** Guides the user marked as read (self-reported; never counts as practice evidence). */
+export const guideReads = pgTable(
+  "guide_reads",
+  {
+    userId: userRef(),
+    guideId: integer("guide_id")
+      .notNull()
+      .references(() => guides.id, { onDelete: "cascade" }),
+    readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.guideId] })],
+);
