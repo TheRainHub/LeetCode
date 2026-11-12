@@ -47,7 +47,7 @@ export const sd = defineMessages(
     },
     guides: {
       title: "Visual guides",
-      nav: { questions: "Questions", guides: "Visual guides" },
+      nav: { questions: "Questions", whiteboard: "Whiteboard", guides: "Visual guides" },
       description:
         "Illustrated explanations from ByteByteGo's System Design 101, linked to InterviewOS lessons and design questions.",
       attribution: (author: string, license: string) =>
@@ -198,7 +198,7 @@ export const sd = defineMessages(
     },
     guides: {
       title: "Визуальные гайды",
-      nav: { questions: "Вопросы", guides: "Визуальные гайды" },
+      nav: { questions: "Вопросы", whiteboard: "Доска", guides: "Визуальные гайды" },
       description:
         "Иллюстрированные объяснения из ByteByteGo System Design 101, связанные с уроками и вопросами по системному дизайну в InterviewOS.",
       attribution: (author: string, license: string) =>

@@ -25,6 +25,7 @@ import type {
   ProblemTest,
   Reading,
 } from "@/lib/content/types";
+import type { Board } from "@/lib/whiteboard/board";
 
 /* ------------------------------------------------------------------ */
 /* Enums                                                               */
@@ -1086,6 +1087,22 @@ export const sdAttempts = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("sd_attempts_user_question_idx").on(t.userId, t.questionSlug)],
+);
+
+/**
+ * A whiteboard diagram: one per question (board_key = question slug) plus a free "sandbox" board.
+ * `data` is a validated Board (see src/lib/whiteboard/board.ts).
+ */
+export const sdBoards = pgTable(
+  "sd_boards",
+  {
+    userId: userRef(),
+    boardKey: text("board_key").notNull(),
+    data: jsonb("data").$type<Board>().notNull(),
+    components: integer("components").default(0).notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.boardKey] })],
 );
 
 /* ------------------------------------------------------------------ */

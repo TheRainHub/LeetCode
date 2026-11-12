@@ -43,6 +43,13 @@
       "when": 1794472635131,
       "tag": "0005_guides",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794493796813,
+      "tag": "0006_whiteboard",
+      "breakpoints": true
     }
   ]
 }

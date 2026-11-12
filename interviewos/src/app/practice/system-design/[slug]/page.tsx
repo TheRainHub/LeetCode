@@ -1,4 +1,4 @@
-import { BookOpen, ChevronLeft, ExternalLink } from "lucide-react";
+import { BookOpen, ChevronLeft, ExternalLink, PenTool } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GUIDES_FOR_QUESTION } from "@content/guides";
@@ -18,6 +18,9 @@ import { getGuidesBySlugs } from "@/server/guides";
 import { getTopicStates } from "@/server/insights";
 import { getSdQuestion, getSdWorkspace, listSdProgress } from "@/server/system-design";
 import { getI18n } from "@/server/user";
+import { getBoard } from "@/server/whiteboard";
+import { countComponents } from "@/lib/whiteboard/board";
+import { Button } from "@/components/ui/button";
 
 // Server actions on this page include the AI design review.
 export const maxDuration = 300;
@@ -33,13 +36,16 @@ export default async function SdQuestionPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const q = getSdQuestion(slug);
   if (!q) notFound();
-  const [{ m, locale }, ws, progress, topicStates, relatedGuides] = await Promise.all([
+  const [{ m, locale }, ws, progress, topicStates, relatedGuides, board] = await Promise.all([
     getI18n(),
     getSdWorkspace(slug),
     listSdProgress(),
     getTopicStates(),
     getGuidesBySlugs(GUIDES_FOR_QUESTION[slug] ?? []),
+    getBoard(slug),
   ]);
+  const boardComponents = countComponents(board?.board);
+  const WB = m.whiteboard.card;
   const S = m.sd;
   const status = progress.get(slug)?.status ?? "not_started";
   const topic = new Map(topicStates.map((t) => [t.slug, t]));
@@ -99,6 +105,23 @@ export default async function SdQuestionPage({ params }: { params: Promise<{ slu
             <p className="text-base leading-relaxed" data-testid="sd-prompt">
               {q.prompt}
             </p>
+          </Card>
+          <Card className="flex flex-wrap items-center gap-3 p-4" data-testid="sd-board-card">
+            <span className="bg-primary-soft text-primary grid size-9 shrink-0 place-items-center rounded-md">
+              <PenTool className="size-4" aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">{WB.title}</p>
+              <p className="text-muted-foreground text-xs">
+                {boardComponents ? WB.count(boardComponents) : WB.empty}
+                {boardComponents >= 2 && isAiConfigured() ? ` ${WB.inReview}` : ""}
+              </p>
+            </div>
+            <Button asChild size="sm" variant={boardComponents ? "secondary" : "primary"}>
+              <Link href={`/practice/system-design/${slug}/whiteboard`} data-testid="sd-open-board">
+                {WB.open}
+              </Link>
+            </Button>
           </Card>
           <SdWorkspace
             slug={slug}

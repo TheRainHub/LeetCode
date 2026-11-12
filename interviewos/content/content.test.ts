@@ -132,6 +132,7 @@ describe("system design catalogue", () => {
   it("has unique, well-formed questions that reference existing lessons", async () => {
     const { SD_QUESTIONS, SD_FUNDAMENTALS, SD_SOURCES } = await import("./system-design");
     const { SD_CATEGORIES } = await import("@/lib/content/defs");
+    const { isComponentKind } = await import("@/lib/whiteboard/catalog");
     expect(new Set(SD_QUESTIONS.map((q) => q.slug)).size).toBe(SD_QUESTIONS.length);
     for (const q of SD_QUESTIONS) {
       expect(SD_CATEGORIES, q.slug).toContain(q.category);
@@ -144,6 +145,10 @@ describe("system design catalogue", () => {
       expect(q.components.length, q.slug).toBeGreaterThanOrEqual(4);
       expect(q.deepDives.length, q.slug).toBeGreaterThanOrEqual(3);
       expect(q.rubric.length, q.slug).toBeGreaterThanOrEqual(5);
+      expect(q.boardBlocks.length, `${q.slug} board blocks`).toBeGreaterThanOrEqual(2);
+      const kinds = q.boardBlocks.flat();
+      for (const k of kinds) expect(isComponentKind(k), `${q.slug} block ${k}`).toBe(true);
+      expect(new Set(kinds).size, `${q.slug} duplicate block`).toBe(kinds.length);
     }
     for (const g of SD_FUNDAMENTALS)
       for (const l of g.lessons) expect(lessonSlugs.has(l), `fundamental ${l}`).toBe(true);

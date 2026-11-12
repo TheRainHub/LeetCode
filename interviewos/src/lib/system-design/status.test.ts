@@ -9,6 +9,8 @@ describe("deriveSdStatus", () => {
     expect(deriveSdStatus(base)).toBe("not_started");
     expect(deriveSdStatus({ ...base, draftChars: 39 })).toBe("not_started");
     expect(deriveSdStatus({ ...base, draftChars: 40 })).toBe("drafted");
+    expect(deriveSdStatus({ ...base, boardComponents: 2 })).toBe("not_started");
+    expect(deriveSdStatus({ ...base, boardComponents: 3 })).toBe("drafted");
     expect(deriveSdStatus({ ...base, draftChars: 500, bestScore: 0.5 })).toBe("practiced");
     expect(deriveSdStatus({ ...base, completedInterviews: 1, bestInterviewScore: 55 })).toBe("practiced");
     expect(deriveSdStatus({ ...base, bestScore: 0.8 })).toBe("strong");

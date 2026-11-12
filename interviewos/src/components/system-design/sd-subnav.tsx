@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Switch between the question catalogue and the visual guides library. */
+type SubnavKey = "questions" | "whiteboard" | "guides";
+
+/** Switch between the question catalogue, the whiteboard sandbox and the visual guides library. */
 export function SdSubnav({
   current,
   labels,
   guideCount,
 }: {
-  current: "questions" | "guides";
-  labels: { questions: string; guides: string };
+  current: SubnavKey;
+  labels: Record<SubnavKey, string>;
   guideCount?: number;
 }) {
-  const item = (key: "questions" | "guides", href: string, label: string) => (
+  const item = (key: SubnavKey, href: string, label: string) => (
     <Link
       href={href}
       aria-current={current === key ? "page" : undefined}
@@ -28,6 +30,7 @@ export function SdSubnav({
   return (
     <nav className="border-border mb-4 flex gap-4 border-b" data-testid="sd-subnav">
       {item("questions", "/practice/system-design", labels.questions)}
+      {item("whiteboard", "/practice/system-design/whiteboard", labels.whiteboard)}
       {item(
         "guides",
         "/practice/system-design/guides",

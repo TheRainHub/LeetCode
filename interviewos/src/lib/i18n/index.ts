@@ -14,6 +14,7 @@ import { roadmap } from "./messages/roadmap";
 import { schedule } from "./messages/schedule";
 import { sd } from "./messages/sd";
 import { settings } from "./messages/settings";
+import { whiteboard } from "./messages/whiteboard";
 import type { Locale } from "./define";
 
 /**
@@ -28,6 +29,7 @@ const bundles = {
   practice,
   bank,
   sd,
+  whiteboard,
   labs,
   review,
   interviews,
