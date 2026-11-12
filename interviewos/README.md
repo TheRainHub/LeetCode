@@ -212,6 +212,17 @@ independent implementation. Results become stale as soon as the code changes.
 `npm run content:verify-harnesses` checks that every reference solution passes its tests in all three
 languages through the same generated harnesses (requires `java` and `python3` on `PATH`).
 
+## Roadmap
+
+**Roadmap** (`g r`) draws the curriculum as a tree built from the lessons' prerequisites. "All paths"
+shows which paths build on which (for example Linux & Networking → Backend → System Design); each path
+tab shows its lessons. Cards are coloured by your topic status, arrows turn blue once a prerequisite is
+practised, and "Next up" marks topics that are not started yet but whose prerequisites are all at least
+practised. Only direct dependencies are drawn (an arrow implied by a longer chain is omitted), and
+prerequisites from other paths are listed under the tree. The layout is computed on the server
+(`src/lib/roadmap/layout.ts`: longest-path layering, crossing reduction, long arrows routed between
+cards), so the page needs no client-side JavaScript.
+
 ## How progress is measured
 
 Evidence is recorded per topic at four levels: **read** (lesson marked read), **recognize** (quiz ≥
@@ -356,7 +367,7 @@ Covered flows: honest empty dashboard → generate plan → mark today unavailab
 the server + interview-mode explanation (and the topic does not become interview-ready from that
 alone); TypeScript solution run in the browser and recorded with a complexity review; mock interview
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
-interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
+interface to Russian and back; the roadmap tree; problem bank filters (company, period, tag, pattern), a self-reported
 status, and the matching problems on company and lesson pages; system design filters, an autosaved
 answer, self-assessment, AI review and a mock interview on the chosen question; visual guides
 (filters, verbatim reading with attribution, read marks, related guides on questions and lessons). The problem bank is imported from small

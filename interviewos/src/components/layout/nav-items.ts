@@ -5,6 +5,7 @@ import {
   Building2,
   CalendarDays,
   ListFilter,
+  GitFork,
   Network,
   Code2,
   LayoutDashboard,
@@ -25,6 +26,7 @@ export interface NavItem {
 export const MAIN_NAV: NavItem[] = [
   { href: "/", key: "dashboard", icon: LayoutDashboard, shortcut: "G D" },
   { href: "/learn", key: "learn", icon: BookOpen, shortcut: "G L" },
+  { href: "/roadmap", key: "roadmap", icon: GitFork, shortcut: "G R" },
   { href: "/practice", key: "practice", icon: Code2, shortcut: "G P" },
   { href: "/practice/bank", key: "bank", icon: ListFilter, shortcut: "G B" },
   { href: "/practice/system-design", key: "systemDesign", icon: Network, shortcut: "G Y" },
