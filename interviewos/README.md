@@ -302,6 +302,26 @@ the public list a question appears in.
   never counts as practised. The fundamentals panel links the lessons most questions rely on, with
   your topic status. Seven questions link to a full worked case study lesson.
 
+### Visual guides (optional)
+
+**System design → Visual guides** shows the 400 illustrated guides from ByteByteGo's
+[System Design 101](https://github.com/ByteByteGoHq/system-design-101), searchable and filterable by
+category, with a "read" mark. Related guides also appear on 31 design questions and on the matching
+lessons (caching, Kafka, DNS, TLS, load balancing, consistency, payments …), mapped in `content/guides.ts`.
+
+```bash
+npm run guides:import
+```
+
+- The repository is licensed **CC BY-NC-ND 4.0** (attribution, non-commercial, no derivatives). It is
+  therefore not committed here: the import clones it into `.data-sources/`, and InterviewOS shows each
+  guide unchanged, with the author, the license and a link to the original. The only conversion is
+  rendering an HTML `<img>` tag as a Markdown image. Keep it to personal, non-commercial study.
+- Diagrams are loaded from ByteByteGo's servers when you open a guide (they were not visible from the
+  build environment, whose network blocks that host).
+- "Read" marks are self-reported and never count as practice evidence. `--no-fetch` and `--sources`
+  work as for the problem bank; `GUIDES_IMPORT_ON_BUILD=false` skips it in the Vercel build.
+
 ## Tests and checks
 
 | Command                              | What it checks                                                                                                                |
@@ -338,7 +358,8 @@ alone); TypeScript solution run in the browser and recorded with a complexity re
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
 interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
 status, and the matching problems on company and lesson pages; system design filters, an autosaved
-answer, self-assessment, AI review and a mock interview on the chosen question. The problem bank is imported from small
+answer, self-assessment, AI review and a mock interview on the chosen question; visual guides
+(filters, verbatim reading with attribution, read marks, related guides on questions and lessons). The problem bank is imported from small
 synthetic fixtures in `e2e/fixtures/problem-bank/` — their frequencies are made up.
 
 ## Content

@@ -49,6 +49,11 @@ export async function GET() {
     calendarEvents: await db.select().from(s.calendarEvents).where(eq(s.calendarEvents.userId, userId)),
     systemDesignDrafts: await db.select().from(s.sdDrafts).where(eq(s.sdDrafts.userId, userId)),
     systemDesignAttempts: await db.select().from(s.sdAttempts).where(eq(s.sdAttempts.userId, userId)),
+    guideReads: await db
+      .select({ slug: s.guides.slug, title: s.guides.title, readAt: s.guideReads.readAt })
+      .from(s.guideReads)
+      .innerJoin(s.guides, eq(s.guides.id, s.guideReads.guideId))
+      .where(eq(s.guideReads.userId, userId)),
     problemBankProgress: await db
       .select({
         slug: s.bankProblems.slug,

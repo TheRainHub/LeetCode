@@ -24,6 +24,7 @@
     "db:studio": "drizzle-kit studio",
     "bank:import": "tsx scripts/import-problem-bank.ts",
     "bank:verify-visualizations": "tsx scripts/verify-visualizations.ts",
+    "guides:import": "tsx scripts/import-guides.ts",
     "content:check-links": "tsx scripts/check-links.ts",
     "content:verify-harnesses": "tsx scripts/verify-harnesses.ts",
     "postinstall": "node scripts/copy-monaco.mjs"

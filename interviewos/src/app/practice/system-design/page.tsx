@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/learn/status-badge";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { PracticeTabs } from "@/components/practice/practice-tabs";
 import { SdStatusIcon } from "@/components/system-design/status-icon";
+import { SdSubnav } from "@/components/system-design/sd-subnav";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/misc";
@@ -12,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { SD_CATEGORIES, type SdSourceKey } from "@/lib/content/defs";
 import type { SdStatus } from "@/lib/system-design/status";
 import { cn } from "@/lib/utils";
+import { getGuidesOverview } from "@/server/guides";
 import { getTopicStates } from "@/server/insights";
 import { getDueCards, getDueProblems } from "@/server/srs";
 import { listSdProgress } from "@/server/system-design";
@@ -36,12 +38,13 @@ export default async function SystemDesignPage({ searchParams }: { searchParams:
     status: oneOf(first(sp.status), STATUSES),
     source: oneOf(first(sp.source), SOURCES),
   };
-  const [{ m }, progress, topicStates, dueCards, dueProblems] = await Promise.all([
+  const [{ m }, progress, topicStates, dueCards, dueProblems, guidesOverview] = await Promise.all([
     getI18n(),
     listSdProgress(),
     getTopicStates(),
     getDueCards(500),
     getDueProblems(),
+    getGuidesOverview(),
   ]);
   const S = m.sd;
   const topic = new Map(topicStates.map((t) => [t.slug, t]));
@@ -73,6 +76,7 @@ export default async function SystemDesignPage({ searchParams }: { searchParams:
     <PageContainer wide>
       <PageHeader title={S.title} description={S.description} />
       <PracticeTabs current="systemDesign" reviewDue={dueCards.length + dueProblems.length} />
+      <SdSubnav current="questions" labels={S.guides.nav} guideCount={guidesOverview.total || undefined} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-4">
