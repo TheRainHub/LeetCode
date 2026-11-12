@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { sdAttempts, sdDrafts } from "@/lib/db/schema";
 import { deriveSdStatus, draftChars, type SdStatus } from "@/lib/system-design/status";
 import { getCurrentUserId } from "./user";
+import { listBoardSizes } from "./whiteboard";
 
 export function getSdQuestion(slug: string) {
   return SD_QUESTIONS.find((q) => q.slug === slug) ?? null;
@@ -21,7 +22,7 @@ export interface SdProgress {
 /** Progress for every question, derived from drafts, graded attempts and mock interviews. */
 export async function listSdProgress(): Promise<Map<string, SdProgress>> {
   const userId = getCurrentUserId();
-  const [drafts, attempts, interviews] = await Promise.all([
+  const [drafts, attempts, interviews, boards] = await Promise.all([
     db
       .select({ slug: sdDrafts.questionSlug, sections: sdDrafts.sections })
       .from(sdDrafts)
@@ -47,6 +48,7 @@ export async function listSdProgress(): Promise<Map<string, SdProgress>> {
       group by m.sd_question_slug`) as unknown as Promise<
       { slug: string; completed: number; best: number | null; last: Date | null }[]
     >,
+    listBoardSizes(),
   ]);
   const draftBy = new Map(drafts.map((d) => [d.slug, draftChars(d.sections)]));
   const attemptBy = new Map(attempts.map((a) => [a.slug, a]));
@@ -62,6 +64,7 @@ export async function listSdProgress(): Promise<Map<string, SdProgress>> {
         bestScore: a ? Number(a.best) : null,
         completedInterviews: i?.completed ?? 0,
         bestInterviewScore: i?.best ?? null,
+        boardComponents: boards.get(q.slug) ?? 0,
       }),
       bestScore: a ? Number(a.best) : null,
       attempts: a?.count ?? 0,

@@ -233,3 +233,56 @@
 [data-separator="active"] {
   background: var(--primary);
 }
+
+/* Whiteboard (React Flow) themed with the app tokens. */
+.wb-canvas .react-flow {
+  --xy-background-color: var(--background);
+  --xy-background-pattern-color: var(--border-strong);
+  --xy-edge-stroke: var(--muted-foreground);
+  --xy-edge-stroke-selected: var(--primary);
+  --xy-connectionline-stroke: var(--primary);
+  --xy-connectionline-stroke-width: 1.5;
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-2);
+  --xy-controls-button-color: var(--foreground);
+  --xy-controls-button-color-hover: var(--foreground);
+  --xy-controls-button-border-color: var(--border);
+  --xy-controls-box-shadow: 0 0 0 1px var(--border);
+  --xy-minimap-background-color: var(--surface);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--background) 65%, transparent);
+  --xy-minimap-node-background-color: var(--surface-3);
+  --xy-minimap-node-stroke-color: transparent;
+  --xy-handle-background-color: var(--primary);
+  --xy-handle-border-color: var(--surface);
+  --xy-selection-background-color: var(--primary-soft);
+  --xy-selection-border: 1px dotted var(--primary);
+  --xy-attribution-background-color: transparent;
+}
+.wb-canvas .react-flow__attribution a {
+  color: var(--subtle-foreground);
+}
+.wb-canvas .react-flow__handle.wb-handle {
+  width: 10px;
+  height: 10px;
+  opacity: 0.3;
+  transition: opacity 120ms;
+}
+.wb-canvas .react-flow__node:hover .wb-handle,
+.wb-canvas .react-flow__node.selected .wb-handle,
+.wb-canvas .react-flow__handle.connectingto,
+.wb-canvas .react-flow__handle.connectingfrom {
+  opacity: 1;
+}
+.wb-edge-async {
+  animation: wb-dash 1.2s linear infinite;
+}
+@keyframes wb-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wb-edge-async {
+    animation: none;
+  }
+}

@@ -109,6 +109,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Redis cache and CDN for hot redirects",
       "Click events to a queue, aggregated asynchronously",
     ],
+    boardBlocks: [["loadBalancer", "apiGateway"], ["service"], ["nosql", "sql"], ["cache"], ["queue"]],
     deepDives: [
       {
         title: "Key generation",
@@ -180,6 +181,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "CDN or cache for popular pastes",
       "Background cleanup of expired pastes",
     ],
+    boardBlocks: [["service"], ["sql", "nosql"], ["objectStorage"], ["cdn", "cache"], ["worker"]],
     deepDives: [
       {
         title: "Metadata vs content",
@@ -252,6 +254,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Local fallback limiter",
       "Metrics on rejections",
     ],
+    boardBlocks: [["apiGateway", "service"], ["cache"], ["sql", "nosql"]],
     deepDives: [
       {
         title: "Algorithm",
@@ -319,6 +322,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Storage engine: commit log, memtable, SSTables, compaction",
       "Gossip membership and failure detection",
     ],
+    boardBlocks: [["service"], ["nosql"]],
     deepDives: [
       {
         title: "Partitioning and rebalancing",
@@ -392,6 +396,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Consumer offset storage",
       "Client libraries",
     ],
+    boardBlocks: [["service"], ["queue"], ["worker"]],
     deepDives: [
       {
         title: "Partitioning and ordering",
@@ -457,6 +462,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Optional replicas and failover",
       "Membership and hit-ratio monitoring",
     ],
+    boardBlocks: [["service"], ["cache"], ["sql", "nosql"]],
     deepDives: [
       {
         title: "Partitioning and hot keys",
@@ -526,6 +532,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Workers with leases and heartbeats",
       "Run history",
     ],
+    boardBlocks: [["sql"], ["queue"], ["worker"]],
     deepDives: [
       {
         title: "Claiming due jobs safely",
@@ -600,6 +607,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Object storage for pages",
       "Recrawl scheduler",
     ],
+    boardBlocks: [["queue"], ["worker"], ["objectStorage"], ["cache", "nosql"], ["external"]],
     deepDives: [
       {
         title: "Frontier",
@@ -667,6 +675,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Query service",
       "Alert evaluator and notifier",
     ],
+    boardBlocks: [["queue"], ["worker"], ["nosql"], ["service"]],
     deepDives: [
       {
         title: "Time-series storage",
@@ -740,6 +749,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Retry scheduler",
       "Delivery log",
     ],
+    boardBlocks: [["service"], ["sql"], ["queue"], ["worker"], ["external"]],
     deepDives: [
       {
         title: "Isolation",
@@ -812,6 +822,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Status store",
       "In-app store and real-time gateway",
     ],
+    boardBlocks: [["service"], ["queue"], ["worker"], ["external"], ["sql", "nosql"], ["realtime"]],
     deepDives: [
       {
         title: "Priority isolation",
@@ -880,6 +891,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "SDKs with local evaluation",
       "Exposure event pipeline",
     ],
+    boardBlocks: [["service"], ["sql"], ["cdn"], ["realtime"], ["queue"]],
     deepDives: [
       {
         title: "Deterministic bucketing",
@@ -952,6 +964,16 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Timeline cache (a list per user in Redis)",
       "Media storage and CDN",
     ],
+    boardBlocks: [
+      ["loadBalancer", "apiGateway"],
+      ["service"],
+      ["sql", "nosql"],
+      ["cache"],
+      ["queue"],
+      ["worker"],
+      ["objectStorage"],
+      ["cdn"],
+    ],
     deepDives: [
       {
         title: "Fan-out on write vs read",
@@ -1012,6 +1034,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "WebSocket/SSE push",
       "Moderation pipeline",
     ],
+    boardBlocks: [["service"], ["sql", "nosql"], ["cache"], ["realtime"], ["queue"]],
     deepDives: [
       {
         title: "Threaded data model",
@@ -1074,6 +1097,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Batch jobs for exact daily counts",
       "Top-K store (Redis sorted sets) behind an API",
     ],
+    boardBlocks: [["queue"], ["worker"], ["cache"], ["service"]],
     deepDives: [
       {
         title: "Windows",
@@ -1141,6 +1165,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Ranking service",
       "Re-ranking for diversity and rules; A/B testing",
     ],
+    boardBlocks: [["queue"], ["worker"], ["nosql", "sql"], ["service"], ["search"]],
     deepDives: [
       {
         title: "Two-stage architecture",
@@ -1203,6 +1228,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "CDN and browser caching",
       "Client-side debouncing",
     ],
+    boardBlocks: [["cdn"], ["service"], ["cache"], ["queue"], ["worker"]],
     deepDives: [
       {
         title: "Data structure",
@@ -1274,6 +1300,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Push notification service",
       "Presence service; media service with object storage",
     ],
+    boardBlocks: [["realtime"], ["service"], ["nosql"], ["cache"], ["external"], ["objectStorage"]],
     deepDives: [
       {
         title: "Routing to the recipient",
@@ -1346,6 +1373,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "WebSocket gateway",
       "Presence and permissions services",
     ],
+    boardBlocks: [["loadBalancer"], ["realtime"], ["service"], ["sql", "nosql"]],
     deepDives: [
       {
         title: "Conflict resolution",
@@ -1416,6 +1444,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Change notifications (long polling or WebSockets)",
       "CDN for downloads",
     ],
+    boardBlocks: [["service"], ["sql"], ["objectStorage"], ["cdn"], ["realtime"]],
     deepDives: [
       {
         title: "Chunking and deduplication",
@@ -1490,6 +1519,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Metadata database",
       "View-count pipeline",
     ],
+    boardBlocks: [["service"], ["objectStorage"], ["queue"], ["worker"], ["cdn"], ["sql", "nosql"]],
     deepDives: [
       {
         title: "Transcoding pipeline",
@@ -1560,6 +1590,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Playback-state store",
       "Recommendation service",
     ],
+    boardBlocks: [["service"], ["cdn"], ["sql", "nosql"], ["objectStorage"], ["worker"]],
     deepDives: [
       {
         title: "Pre-positioning content",
@@ -1625,6 +1656,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Review service",
       "Cache for popular areas",
     ],
+    boardBlocks: [["loadBalancer", "apiGateway"], ["service"], ["search"], ["sql", "nosql"], ["cache"]],
     deepDives: [
       {
         title: "Geospatial indexing",
@@ -1685,6 +1717,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Notifications",
       "Pricing, payments and ETA services",
     ],
+    boardBlocks: [["realtime"], ["service"], ["cache"], ["sql"], ["queue"], ["external"]],
     deepDives: [
       {
         title: "Location index",
@@ -1756,6 +1789,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Traffic ingestion from phones via stream processing",
       "ETA service",
     ],
+    boardBlocks: [["cdn"], ["objectStorage"], ["service"], ["search"], ["queue"], ["worker"]],
     deepDives: [
       {
         title: "Routing at scale",
@@ -1829,6 +1863,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Payment service with idempotency keys",
       "Virtual waiting room",
     ],
+    boardBlocks: [["service"], ["sql"], ["cache"], ["queue"], ["external"]],
     deepDives: [
       {
         title: "No double booking",
@@ -1906,6 +1941,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Fulfilment and notifications via events",
       "CDN for images",
     ],
+    boardBlocks: [["cdn"], ["service"], ["search"], ["sql"], ["queue"], ["worker"], ["external"]],
     deepDives: [
       {
         title: "Checkout saga",
@@ -1976,6 +2012,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Reconciliation jobs",
       "Outbox for payment events",
     ],
+    boardBlocks: [["apiGateway", "loadBalancer"], ["service"], ["sql"], ["queue"], ["worker"], ["external"]],
     deepDives: [
       {
         title: "Exactly-once effects",
@@ -2049,6 +2086,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Leaderboard (Redis sorted sets)",
       "Autoscaling",
     ],
+    boardBlocks: [["service"], ["queue"], ["worker"], ["objectStorage"], ["sql", "nosql"], ["cache"]],
     deepDives: [
       {
         title: "Sandboxing",
@@ -2122,6 +2160,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Scaffolder for templates",
       "SSO",
     ],
+    boardBlocks: [["service"], ["sql"], ["search"], ["cache"], ["external"], ["worker"]],
     deepDives: [
       {
         title: "Catalogue ingestion",
@@ -2194,6 +2233,7 @@ export const SD_QUESTIONS: SdQuestionDef[] = [
       "Results store and review UI",
       "Evaluation pipeline",
     ],
+    boardBlocks: [["queue"], ["worker"], ["external"], ["sql", "nosql"], ["service"], ["objectStorage"]],
     deepDives: [
       {
         title: "Agent design",

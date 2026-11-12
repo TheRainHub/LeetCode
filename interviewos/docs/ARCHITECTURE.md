@@ -83,6 +83,7 @@ interviewos/
     lib/srs, lib/mastery, lib/scheduler, lib/readiness, lib/recommend   pure domain logic (tested)
     lib/code-runner   CodeRunner interface, browser worker, harness generators
     lib/ai            Anthropic client, interviewer prompt, evaluator
+    lib/whiteboard    system design board model, load simulation, resilience analysis, design checks
     lib/content       lesson parser used by the seed
     lib/i18n          dictionaries
     server/           data access (queries) and domain services used by pages/actions
@@ -124,14 +125,14 @@ Phase 4 — Advanced learning
 
 ## Verification status
 
-| Check                                                       | Result                                                                                                                                           |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run typecheck`, `npm run lint`, `npm run format:check` | pass                                                                                                                                             |
-| `npm test` (Vitest)                                         | 104 tests pass: domain logic, code runner, problem-bank and guide parsers, system design status, i18n parity, content integrity, component tests |
-| `npm run test:e2e` (Playwright, production build)           | 11 tests pass against a fresh test database, a mock Anthropic API and synthetic problem-bank fixtures                                            |
-| `npm run content:verify-harnesses`                          | all 10 reference solutions pass in Java, Python and TypeScript                                                                                   |
-| `npm run db:setup` twice                                    | idempotent: 8 paths, 104 lessons, 10 problems, 5 labs, 8 companies                                                                               |
-| `npm run content:check-links`                               | 0 broken; most links unverifiable from the build environment (network policy) — see README                                                       |
-| AI interviewer against the real Anthropic API               | not exercised in automated tests (mock only)                                                                                                     |
-| `npm run bank:import` against the real sources              | 3,397 problems, 423 companies with data, 36,347 company/period entries, 16 patterns; re-run is idempotent                                        |
-| `npm run bank:verify-visualizations`                        | 39/39 visualizer entries exist in the algorithms repository                                                                                      |
+| Check                                                       | Result                                                                                                                                                                                                    |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run typecheck`, `npm run lint`, `npm run format:check` | pass                                                                                                                                                                                                      |
+| `npm test` (Vitest)                                         | 131 tests pass: domain logic, roadmap layout, whiteboard load model and design checks, code runner, problem-bank and guide parsers, system design status, i18n parity, content integrity, component tests |
+| `npm run test:e2e` (Playwright, production build)           | 14 tests pass against a fresh test database, a mock Anthropic API and synthetic problem-bank fixtures                                                                                                     |
+| `npm run content:verify-harnesses`                          | all 10 reference solutions pass in Java, Python and TypeScript                                                                                                                                            |
+| `npm run db:setup` twice                                    | idempotent: 8 paths, 104 lessons, 10 problems, 5 labs, 8 companies                                                                                                                                        |
+| `npm run content:check-links`                               | 0 broken; most links unverifiable from the build environment (network policy) — see README                                                                                                                |
+| AI interviewer against the real Anthropic API               | not exercised in automated tests (mock only)                                                                                                                                                              |
+| `npm run bank:import` against the real sources              | 3,397 problems, 423 companies with data, 36,347 company/period entries, 16 patterns; re-run is idempotent                                                                                                 |
+| `npm run bank:verify-visualizations`                        | 39/39 visualizer entries exist in the algorithms repository                                                                                                                                               |

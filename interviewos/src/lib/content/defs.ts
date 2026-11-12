@@ -1,3 +1,4 @@
+import type { ComponentKind } from "@/lib/whiteboard/catalog";
 import type {
   Comparator,
   LabFailureScenario,
@@ -153,6 +154,11 @@ export interface SdQuestionDef {
   nonFunctional: string[];
   estimates: string[];
   components: string[];
+  /**
+   * Building blocks a whiteboard diagram for this question is expected to contain; each group
+   * lists acceptable alternatives (e.g. SQL or NoSQL). Derived from `components`.
+   */
+  boardBlocks: ComponentKind[][];
   deepDives: { title: string; notes: string }[];
   pitfalls: string[];
   followUps: string[];

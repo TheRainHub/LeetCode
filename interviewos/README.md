@@ -212,6 +212,17 @@ independent implementation. Results become stale as soon as the code changes.
 `npm run content:verify-harnesses` checks that every reference solution passes its tests in all three
 languages through the same generated harnesses (requires `java` and `python3` on `PATH`).
 
+## Roadmap
+
+**Roadmap** (`g r`) draws the curriculum as a tree built from the lessons' prerequisites. "All paths"
+shows which paths build on which (for example Linux & Networking → Backend → System Design); each path
+tab shows its lessons. Cards are coloured by your topic status, arrows turn blue once a prerequisite is
+practised, and "Next up" marks topics that are not started yet but whose prerequisites are all at least
+practised. Only direct dependencies are drawn (an arrow implied by a longer chain is omitted), and
+prerequisites from other paths are listed under the tree. The layout is computed on the server
+(`src/lib/roadmap/layout.ts`: longest-path layering, crossing reduction, long arrows routed between
+cards), so the page needs no client-side JavaScript.
+
 ## How progress is measured
 
 Evidence is recorded per topic at four levels: **read** (lesson marked read), **recognize** (quiz ≥
@@ -297,10 +308,42 @@ the public list a question appears in.
 - **Grading.** Self-assess against the question's rubric plus three process items, or — with an
   Anthropic API key — ask for a strict AI review against the same rubric. **Start mock interview**
   opens a 45-minute AI system design interview on that exact question.
-- **Status.** Practised = a graded attempt or a completed mock interview; Strong = a graded attempt
+- **Status.** Drafted = a written answer or a whiteboard diagram with at least three components;
+  Practised = a graded attempt or a completed mock interview; Strong = a graded attempt
   covering at least 80% of the rubric, or a mock interview scoring at least 70. A long draft alone
   never counts as practised. The fundamentals panel links the lessons most questions rely on, with
   your topic status. Seven questions link to a full worked case study lesson.
+
+### Whiteboard
+
+**System design → Whiteboard** is a free board, and every question has its own board (**Open
+whiteboard** on the question page). It is built on [React Flow](https://reactflow.dev) (`@xyflow/react`,
+MIT).
+
+- **Draw.** Drag components from the palette (client, DNS, CDN, load balancer, API gateway, service,
+  WebSocket gateway, worker, cache, SQL, NoSQL, search index, object storage, message queue, external
+  API) or click to add one; connect them by dragging from a dot onto another component. Arrows point
+  in the direction requests travel; an arrow can carry all requests, reads only or writes only.
+  Sticky notes, undo/redo (Ctrl+Z / Ctrl+Shift+Z), three starter templates, autosave with a local
+  backup.
+- **Test.** A live load test sends the peak traffic you set (requests per second, share of reads)
+  through the graph and shows per-component utilisation, requests served, mean latency, the traffic
+  at which the busiest component saturates, and queue backlogs. **What if one fails?** fails each
+  self-run component in turn — one instance if it has several, all of it otherwise — and labels it a
+  single point of failure, short of headroom, backlog-only or safe. You can inject a failure yourself
+  (lose one instance, or down) from the inspector. **Design checks** flag common mistakes: a client
+  talking to a database, a queue without a consumer, a cache with no source of truth, loops,
+  unreachable components, synchronous third-party calls, stale reads from replicas.
+- **The model is deliberately simple and nothing is executed.** Balancers split requests evenly over
+  healthy targets; services call every dependency they point to; a cache next to a database absorbs
+  its hit rate of reads (cache-aside), and a dead cache sends every read to the database; SQL has one
+  primary per shard for writes and spreads reads over replicas; queues and change-data-capture arrows
+  are asynchronous. Utilisation is demand ÷ capacity and latency grows as 1 ÷ (1 − utilisation).
+  Default capacities are rough rules of thumb (for example 1,000 req/s per service instance, 5,000
+  queries/s per SQL instance) — edit them to match your own estimates. The full rules are under
+  **How the test works** on the board and in `src/lib/whiteboard/simulate.ts`.
+- **On a question board**, a hidden checklist compares your components with the building blocks a
+  typical answer contains, and the diagram is included as text in the AI design review.
 
 ### Visual guides (optional)
 
@@ -356,7 +399,7 @@ Covered flows: honest empty dashboard → generate plan → mark today unavailab
 the server + interview-mode explanation (and the topic does not become interview-ready from that
 alone); TypeScript solution run in the browser and recorded with a complexity review; mock interview
 with streaming, history replay (thinking blocks included) and a sanitised evaluation; switching the
-interface to Russian and back; problem bank filters (company, period, tag, pattern), a self-reported
+interface to Russian and back; the roadmap tree; problem bank filters (company, period, tag, pattern), a self-reported
 status, and the matching problems on company and lesson pages; system design filters, an autosaved
 answer, self-assessment, AI review and a mock interview on the chosen question; visual guides
 (filters, verbatim reading with attribution, read marks, related guides on questions and lessons). The problem bank is imported from small
@@ -454,6 +497,7 @@ Notes:
 - In-browser TypeScript execution is a convenience sandbox (Web Worker with a time limit), not a
   security boundary against hostile code — it runs code you wrote, in your own browser.
 - AI features were tested against a mock API only (see above).
+- The whiteboard load test is an analytical model of the diagram, not a benchmark of real software.
 - The interface is translated into Russian; lesson content is English.
 - External links in lessons were not verifiable from the build environment (see Content).
 

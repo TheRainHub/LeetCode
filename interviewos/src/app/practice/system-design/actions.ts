@@ -11,6 +11,9 @@ import { fullRubric, SD_SECTION_KEYS } from "@/lib/system-design/status";
 import { createInterview } from "@/server/interviews";
 import { log } from "@/server/log";
 import { getSdQuestion, saveSdAttempt, saveSdDraft } from "@/server/system-design";
+import { getBoard, isBoardKey, saveBoard } from "@/server/whiteboard";
+import { boardSchema, countComponents, type Board } from "@/lib/whiteboard/board";
+import { describeBoard } from "@/lib/whiteboard/describe";
 import { getSettings } from "@/server/user";
 
 type Result<T = undefined> = { ok: true; data?: T } | { ok: false; error: string };
@@ -39,6 +42,20 @@ export async function saveSdDraftAction(input: {
     const data = z.object({ slug, sections }).parse(input);
     questionOrThrow(data.slug);
     await saveSdDraft(data.slug, data.sections);
+    return { ok: true };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+/** Autosaves a whiteboard diagram (a question's board or the sandbox). */
+export async function saveBoardAction(input: { key: string; board: Board }): Promise<Result> {
+  try {
+    const data = z.object({ key: slug, board: boardSchema }).parse(input);
+    if (!isBoardKey(data.key)) throw new Error("Unknown board");
+    await saveBoard(data.key, data.board as Board);
+    // The catalogue shows a question as drafted once its board has a few components.
+    if (data.key !== "sandbox") revalidatePath("/practice/system-design");
     return { ok: true };
   } catch (err) {
     return fail(err);
@@ -121,6 +138,8 @@ export async function reviewSdDesignAction(input: {
       .filter(Boolean)
       .join("\n\n");
     if (written.length < 200) throw new Error("Write more of your design before asking for a review.");
+    const saved = await getBoard(data.slug);
+    const diagram = saved && countComponents(saved.board) >= 2 ? describeBoard(saved.board) : "";
     const rubric = fullRubric(q);
     const reference = q.deepDives.map((d) => `- ${d.title}: ${d.notes}`).join("\n");
     const response = await getAnthropic().beta.messages.parse({
@@ -135,7 +154,7 @@ export async function reviewSdDesignAction(input: {
       messages: [
         {
           role: "user",
-          content: `Question:\n${q.prompt}\n\nRubric:\n${rubric.map((r, i) => `${i}. ${r}`).join("\n")}\n\nKey deep dives a strong answer usually covers (for your judgement only):\n${reference}\n\n<candidate_design>\n${written}\n</candidate_design>`,
+          content: `Question:\n${q.prompt}\n\nRubric:\n${rubric.map((r, i) => `${i}. ${r}`).join("\n")}\n\nKey deep dives a strong answer usually covers (for your judgement only):\n${reference}\n\n<candidate_design>\n${written}\n</candidate_design>${diagram ? `\n\nThe candidate also drew this whiteboard diagram (part of the design under review):\n<candidate_diagram>\n${diagram}\n</candidate_diagram>` : ""}`,
         },
       ],
     });

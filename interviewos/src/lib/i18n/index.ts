@@ -10,9 +10,11 @@ import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
 import { practice } from "./messages/practice";
 import { review } from "./messages/review";
+import { roadmap } from "./messages/roadmap";
 import { schedule } from "./messages/schedule";
 import { sd } from "./messages/sd";
 import { settings } from "./messages/settings";
+import { whiteboard } from "./messages/whiteboard";
 import type { Locale } from "./define";
 
 /**
@@ -23,9 +25,11 @@ const bundles = {
   common,
   dashboard,
   learn,
+  roadmap,
   practice,
   bank,
   sd,
+  whiteboard,
   labs,
   review,
   interviews,

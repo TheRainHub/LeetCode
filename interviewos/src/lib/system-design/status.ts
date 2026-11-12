@@ -9,6 +9,8 @@ export const SD_STRONG_SCORE = 0.8;
 export const SD_STRONG_INTERVIEW = 70;
 /** Characters of written answer before a draft counts as started. */
 export const SD_DRAFT_MIN_CHARS = 40;
+/** Whiteboard components before a diagram counts as started. */
+export const SD_BOARD_MIN_COMPONENTS = 3;
 
 export const SD_SECTION_KEYS: SdSectionKey[] = SD_PHASES.map((p) => p.key);
 
@@ -26,13 +28,15 @@ export function draftChars(sections: Record<string, string> | null | undefined):
  * Practice status for a design question, from evidence only:
  * strong   — a graded attempt ≥ 80 % of the rubric, or a completed mock interview scoring ≥ 70;
  * practiced — any graded attempt or completed mock interview;
- * drafted  — a written answer exists but was never graded.
+ * drafted  — a written answer or a whiteboard diagram exists but was never graded.
  */
 export function deriveSdStatus(input: {
   draftChars: number;
   bestScore: number | null;
   completedInterviews: number;
   bestInterviewScore: number | null;
+  /** Components on the question's whiteboard. */
+  boardComponents?: number;
 }): SdStatus {
   const strongAttempt = input.bestScore !== null && input.bestScore >= SD_STRONG_SCORE;
   const strongInterview =
@@ -40,5 +44,6 @@ export function deriveSdStatus(input: {
   if (strongAttempt || strongInterview) return "strong";
   if (input.bestScore !== null || input.completedInterviews > 0) return "practiced";
   if (input.draftChars >= SD_DRAFT_MIN_CHARS) return "drafted";
+  if ((input.boardComponents ?? 0) >= SD_BOARD_MIN_COMPONENTS) return "drafted";
   return "not_started";
 }
