@@ -19,6 +19,7 @@ import {
   companyFocusTopics,
   interviewEvaluations,
   interviewMessages,
+  jobPostings,
   interviewTopics,
   mockInterviews,
   topics,
@@ -41,12 +42,25 @@ export async function createInterview(input: {
   language: "java" | "typescript" | "python";
   /** System design question slug (content/system-design.ts) to run, if any. */
   sdQuestionSlug?: string | null;
+  /** Saved job posting (job search) this interview prepares for, if any. */
+  jobPostingId?: number | null;
 }) {
   const userId = getCurrentUserId();
   const designQuestion = input.sdQuestionSlug
     ? (SD_QUESTIONS.find((q) => q.slug === input.sdQuestionSlug) ?? null)
     : null;
   const settings = await getSettings();
+  const [jobPosting] = input.jobPostingId
+    ? await db
+        .select({
+          id: jobPostings.id,
+          title: jobPostings.title,
+          company: jobPostings.company,
+          description: jobPostings.description,
+        })
+        .from(jobPostings)
+        .where(and(eq(jobPostings.id, input.jobPostingId), eq(jobPostings.userId, userId)))
+    : [];
   let company: { id: number; name: string; role: string; focusTopics: string[] } | null = null;
   if (input.companySlug) {
     const [c] = await db.select().from(companies).where(eq(companies.slug, input.companySlug));
@@ -75,6 +89,7 @@ export async function createInterview(input: {
     candidateProfile: settings.interviewerProfile,
     practisedProblems: practised.map((p) => p.title),
     designQuestion: designQuestion ? { title: designQuestion.title, prompt: designQuestion.prompt } : null,
+    jobPosting: jobPosting ?? null,
   });
 
   const [row] = await db
@@ -89,6 +104,7 @@ export async function createInterview(input: {
       model: env().ANTHROPIC_MODEL,
       systemPrompt,
       sdQuestionSlug: designQuestion?.slug ?? null,
+      jobPostingId: jobPosting?.id ?? null,
     })
     .returning({ id: mockInterviews.id });
   log.info("interview", "created", { id: row!.id, type: input.type, company: company?.name ?? null });
