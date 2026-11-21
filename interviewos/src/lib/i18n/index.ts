@@ -5,6 +5,7 @@ import { companiesMsg } from "./messages/companies";
 import { dashboard } from "./messages/dashboard";
 import { experience } from "./messages/experience";
 import { interviews } from "./messages/interviews";
+import { jobs } from "./messages/jobs";
 import { knowledge } from "./messages/knowledge";
 import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
@@ -36,6 +37,7 @@ const bundles = {
   schedule,
   companies: companiesMsg,
   experience,
+  jobs,
   analytics,
   settings,
   knowledge,

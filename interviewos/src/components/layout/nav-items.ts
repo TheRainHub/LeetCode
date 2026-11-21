@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpen,
   Briefcase,
+  BriefcaseBusiness,
   Building2,
   CalendarDays,
   ListFilter,
@@ -38,6 +39,7 @@ export const MAIN_NAV: NavItem[] = [
 ];
 
 export const PERSONAL_NAV: NavItem[] = [
+  { href: "/jobs", key: "jobs", icon: BriefcaseBusiness, shortcut: "G J" },
   { href: "/schedule", key: "schedule", icon: CalendarDays, shortcut: "G T" },
   { href: "/experience", key: "experience", icon: Briefcase, shortcut: "G E" },
 ];
