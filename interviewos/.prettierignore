@@ -6,3 +6,5 @@ content/**/*.md
 playwright-report
 test-results
 e2e/fixtures
+.open-next
+.wrangler

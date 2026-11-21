@@ -1,6 +1,8 @@
 import matter from "gray-matter";
 import { z } from "zod";
 
+export { toRenderableMarkdown } from "./render";
+
 /** App slug from a guide file name: lower-case letters, digits and dashes only. */
 export function guideSlug(fileName: string): string {
   return fileName
@@ -65,12 +67,4 @@ export function parseGuideCategory(fileName: string, text: string) {
   const { data } = matter(text);
   const fm = categoryFrontmatter.parse(data);
   return { slug: guideSlug(fileName), title: fm.title, description: fm.description, sort: fm.sort };
-}
-
-/**
- * Format-only conversion for rendering without raw HTML: an <img src="…"> tag
- * becomes a Markdown image. The text itself is never changed.
- */
-export function toRenderableMarkdown(content: string): string {
-  return content.replace(/<img\s+[^>]*src="([^"]+)"[^>]*\/?>/gi, (_, src: string) => `![](${src})`);
 }

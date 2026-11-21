@@ -17,6 +17,8 @@ export default defineConfig([
     "build/**",
     "next-env.d.ts",
     "public/monaco/**",
+    ".open-next/**",
+    ".wrangler/**",
     "playwright-report/**",
     "test-results/**",
     "drizzle/meta/**",

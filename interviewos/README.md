@@ -25,6 +25,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [System design practice](#system-design-practice)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
+- [Deploying to Cloudflare (free, private)](#deploying-to-cloudflare-free-private)
 - [Deploying to Vercel](#deploying-to-vercel)
 - [Data, privacy and backups](#data-privacy-and-backups)
 - [Known limitations](#known-limitations)
@@ -425,6 +426,111 @@ environment this was built in — its network policy refused connections to docu
 the script reports as `UNVERIFIED` rather than broken. GitHub-hosted readings were confirmed to exist
 via GitHub search. Run the command once on a normal connection; it exits non-zero only for links that
 are genuinely broken.
+
+## Deploying to Cloudflare (free, private)
+
+InterviewOS runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) through the
+[OpenNext adapter](https://opennext.js.org/cloudflare) (`@opennextjs/cloudflare`), with the database on
+a free hosted PostgreSQL (e.g. [Neon](https://neon.tech)) and **Cloudflare Access** in front so that
+only you can open it. Everything below fits the free plans.
+
+**1. Database.** Create a free Neon project (region near you, e.g. Frankfurt) and copy its _direct_
+connection string (the host without `-pooler`). From your computer, in `interviewos/`, prepare it once:
+
+```bash
+export DATABASE_URL="postgres://USER:PASSWORD@HOST/neondb?sslmode=require"
+```
+
+```bash
+npm run db:setup && npm run bank:import && npm run guides:import
+```
+
+To bring your local progress along instead, copy the whole local database over (this overwrites the
+hosted one):
+
+```bash
+pg_dump --clean --if-exists --no-owner --no-privileges postgres://interviewos:interviewos@localhost:5432/interviewos | psql "$DATABASE_URL"
+```
+
+**2. Cloudflare login and connection pooling.** Log in with Wrangler, then create a
+[Hyperdrive](https://developers.cloudflare.com/hyperdrive/) configuration (free; it pools database
+connections near the Worker):
+
+```bash
+npx wrangler login
+```
+
+```bash
+npx wrangler hyperdrive create interviewos-db --connection-string="$DATABASE_URL"
+```
+
+Uncomment the `hyperdrive` block in `wrangler.jsonc` and paste the printed id. (Without Hyperdrive,
+set `DATABASE_URL` as a secret in step 4 and the Worker connects directly.)
+
+**3. Deploy.**
+
+```bash
+npm run cf:deploy
+```
+
+Wrangler prints the address, `https://interviewos.<your-subdomain>.workers.dev`. Until step 4 is done
+it answers _503 not configured_ on purpose: the app has no accounts of its own and never runs
+unprotected on a hosted URL.
+
+**4. Make it private with Cloudflare Access.**
+
+1. In the Cloudflare dashboard open **Zero Trust** and finish the one-time setup (team name, Free
+   plan for up to 50 users). Your team domain is `<team>.cloudflareaccess.com`.
+2. **Workers & Pages → interviewos → Settings → Domains & Routes**: enable **Cloudflare Access** for
+   the `workers.dev` route (this also covers preview URLs).
+3. **Zero Trust → Access → Applications**: open the application that was created, make its policy
+   **Allow** with **Include → Emails →** your e-mail address only, and copy the **Application
+   Audience (AUD) tag**. The default login method, a one-time code sent to your e-mail, is enough.
+4. Give the Worker the settings (each command asks for the value):
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_TEAM_DOMAIN
+   ```
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_AUD
+   ```
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_ALLOWED_EMAILS
+   ```
+
+   ```bash
+   npx wrangler secret put ANTHROPIC_API_KEY
+   ```
+
+   Also set `APP_TIMEZONE` (e.g. `Europe/Prague`) and, without Hyperdrive, `DATABASE_URL` the same way.
+
+Open the address: Cloudflare asks for your e-mail and a code, then shows InterviewOS. Access blocks
+everyone else at Cloudflare's edge, and the app additionally verifies the signed Access token on
+every request (`src/lib/access.ts`), including the optional e-mail allow-list, so a route Access does
+not cover still cannot reach your data. `APP_PASSWORD` (Basic Auth) remains an alternative if you do
+not want Access.
+
+**Updating:** run `npm run cf:deploy` again; secrets are kept. `npm run cf:preview` runs the built
+Worker locally in the real Workers runtime (put local values in `.dev.vars`, see `.dev.vars.example`).
+
+Free-plan limits and what was verified:
+
+- **Worker size**: the compressed Worker is about 2.4 MiB; OpenNext documents 3 MiB as the Workers Free
+  limit. The build uses webpack (`open-next.config.ts`) because the Turbopack output duplicated
+  server chunks and came to 3.6 MiB; charts and the whiteboard render only in the browser and code
+  highlighting covers the languages the lessons use, which keeps the server bundle small.
+- **CPU time**: the Free plan allows 10 ms of CPU per request (waiting for the database or the
+  Anthropic API does not count). Rendering a large page can exceed it, which shows Cloudflare error
+  1102; this could not be measured outside Cloudflare. If it happens often, the Workers Paid plan
+  raises the limit.
+- **Requests**: 100,000 Worker requests and 100,000 Hyperdrive queries per day; far more than one
+  person uses.
+- Verified locally with Wrangler's Workers runtime (`wrangler dev` on the production build): pages,
+  server actions, the per-request database connection, concurrent requests, the 503 for an
+  unprotected deployment and the Access token check. An actual deployment to a Cloudflare account,
+  Access login and Hyperdrive could not be run from the environment this was built in.
 
 ## Deploying to Vercel
 

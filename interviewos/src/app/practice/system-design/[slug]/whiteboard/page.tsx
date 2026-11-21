@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ActiveTimer } from "@/components/learn/active-timer";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
-import { Whiteboard } from "@/components/whiteboard/whiteboard";
+import { Whiteboard } from "@/components/whiteboard/whiteboard-lazy";
 import { getSdQuestion } from "@/server/system-design";
 import { getI18n } from "@/server/user";
 import { getBoard } from "@/server/whiteboard";

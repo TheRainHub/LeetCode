@@ -1,7 +1,7 @@
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { PracticeTabs } from "@/components/practice/practice-tabs";
 import { SdSubnav } from "@/components/system-design/sd-subnav";
-import { Whiteboard } from "@/components/whiteboard/whiteboard";
+import { Whiteboard } from "@/components/whiteboard/whiteboard-lazy";
 import { getGuidesOverview } from "@/server/guides";
 import { getDueCards, getDueProblems } from "@/server/srs";
 import { getI18n } from "@/server/user";

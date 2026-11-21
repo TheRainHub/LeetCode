@@ -9,7 +9,7 @@ import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDay } from "@/lib/dates";
-import { toRenderableMarkdown } from "@/lib/guides/parse";
+import { toRenderableMarkdown } from "@/lib/guides/render";
 import { getGuide } from "@/server/guides";
 import { getTopicStates } from "@/server/insights";
 import { getI18n } from "@/server/user";

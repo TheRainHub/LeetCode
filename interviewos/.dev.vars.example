@@ -1,0 +1,8 @@
+# Local values for `npm run cf:preview` (copy to .dev.vars, which is git-ignored).
+# In production set these in the Cloudflare dashboard (Worker → Settings → Variables and Secrets).
+NEXTJS_ENV=production
+DATABASE_URL=postgres://interviewos:interviewos@localhost:5432/interviewos
+# ANTHROPIC_API_KEY=
+# CF_ACCESS_TEAM_DOMAIN=yourteam.cloudflareaccess.com
+# CF_ACCESS_AUD=
+# CF_ACCESS_ALLOWED_EMAILS=you@example.com
