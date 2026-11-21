@@ -26,6 +26,7 @@ import type {
   Reading,
 } from "@/lib/content/types";
 import type { Board } from "@/lib/whiteboard/board";
+import type { FoundJob, JobAnalysis, JobLevel, SearchCriteria, WebSource, WorkMode } from "@/lib/jobs/model";
 
 /* ------------------------------------------------------------------ */
 /* Enums                                                               */
@@ -653,6 +654,8 @@ export const mockInterviews = pgTable(
     lastError: text("last_error"),
     /** System design question (content/system-design.ts slug) this interview practises, if any. */
     sdQuestionSlug: text("sd_question_slug"),
+    /** Job posting this interview prepares for, if any. */
+    jobPostingId: integer("job_posting_id").references(() => jobPostings.id, { onDelete: "set null" }),
     startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
   },
@@ -1153,4 +1156,117 @@ export const guideReads = pgTable(
     readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.guideId] })],
+);
+
+/* ------------------------------------------------------------------ */
+/* Job search                                                          */
+/* ------------------------------------------------------------------ */
+
+export const jobStatusEnum = pgEnum("job_status", [
+  "saved",
+  "preparing",
+  "applied",
+  "interviewing",
+  "offer",
+  "rejected",
+  "archived",
+]);
+export const jobSourceEnum = pgEnum("job_source", ["manual", "url", "search"]);
+
+/** Résumé and job preferences, entered by the user. */
+export const careerProfiles = pgTable(
+  "career_profiles",
+  {
+    userId: userRef(),
+    resume: text("resume").default("").notNull(),
+    targetRoles: text("target_roles").default("").notNull(),
+    locations: text("locations").default("").notNull(),
+    workModes: jsonb("work_modes").$type<WorkMode[]>().default([]).notNull(),
+    levels: jsonb("levels").$type<JobLevel[]>().default([]).notNull(),
+    availability: text("availability").default("").notNull(),
+    workAuthorization: text("work_authorization").default("").notNull(),
+    languages: text("languages").default("").notNull(),
+    salary: text("salary").default("").notNull(),
+    preferences: text("preferences").default("").notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId] })],
+);
+
+/** One run of the AI job finder: what was asked, what it found (validated) and what it read. */
+export const jobSearches = pgTable(
+  "job_searches",
+  {
+    id: id(),
+    userId: userRef(),
+    criteria: jsonb("criteria").$type<SearchCriteria>().notNull(),
+    results: jsonb("results").$type<FoundJob[]>().default([]).notNull(),
+    sources: jsonb("sources").$type<WebSource[]>().default([]).notNull(),
+    notes: text("notes").default("").notNull(),
+    searches: integer("searches").default(0).notNull(),
+    /** Suggestions removed because their link was not among the pages the model read. */
+    dropped: integer("dropped").default(0).notNull(),
+    error: text("error"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("job_searches_user_idx").on(t.userId, t.createdAt)],
+);
+
+export const jobPostings = pgTable(
+  "job_postings",
+  {
+    id: id(),
+    userId: userRef(),
+    title: text("title").notNull(),
+    company: text("company").notNull(),
+    location: text("location").default("").notNull(),
+    workMode: text("work_mode").$type<WorkMode>(),
+    url: text("url"),
+    description: text("description").default("").notNull(),
+    source: jobSourceEnum("source").notNull(),
+    status: jobStatusEnum("status").default("saved").notNull(),
+    notes: text("notes").default("").notNull(),
+    /** InterviewOS company track for this employer, when one exists. */
+    companySlug: text("company_slug"),
+    searchId: integer("search_id").references(() => jobSearches.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("job_postings_user_status_idx").on(t.userId, t.status),
+    uniqueIndex("job_postings_user_url_idx").on(t.userId, t.url),
+  ],
+);
+
+/** Status changes, recorded when they happen (never back-dated). */
+export const jobPostingEvents = pgTable(
+  "job_posting_events",
+  {
+    id: id(),
+    postingId: integer("posting_id")
+      .notNull()
+      .references(() => jobPostings.id, { onDelete: "cascade" }),
+    status: jobStatusEnum("status").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("job_posting_events_posting_idx").on(t.postingId)],
+);
+
+/** AI analysis of the résumé against one posting (after server-side grounding checks). */
+export const jobAnalyses = pgTable(
+  "job_analyses",
+  {
+    id: id(),
+    postingId: integer("posting_id")
+      .notNull()
+      .references(() => jobPostings.id, { onDelete: "cascade" }),
+    data: jsonb("data").$type<JobAnalysis>().notNull(),
+    sources: jsonb("sources").$type<WebSource[]>().default([]).notNull(),
+    researched: boolean("researched").default(false).notNull(),
+    /** Fingerprint of the résumé the analysis used, to flag analyses made before an edit. */
+    resumeHash: text("resume_hash").notNull(),
+    droppedRewrites: integer("dropped_rewrites").default(0).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("job_analyses_posting_idx").on(t.postingId, t.createdAt)],
 );
