@@ -106,6 +106,253 @@ function chatReply(body) {
   ];
 }
 
+/* ---------------------------------------------------------------- */
+/* Job search: research turns with server-side web tools, then JSON. */
+/* ---------------------------------------------------------------- */
+
+const SEARCH_RESULTS = [
+  { url: "https://careers.example.com/jobs/101", title: "Graduate Software Engineer — Example Bank" },
+  { url: "https://jobs.example.org/listing/202", title: "Junior Backend Developer — Sample Logistics" },
+  { url: "https://news.example.net/article", title: "Tech hiring in Prague" },
+];
+const FETCHED_POSTING =
+  "Backend Engineer (Graduate) at Example Payments, Prague (hybrid). You will build Java and TypeScript services for card payments, " +
+  "write tests, and take part in on-call. Requirements: degree in computer science (or final year), Java or TypeScript, SQL, REST APIs. " +
+  "Nice to have: Kafka, Docker, cloud experience. Apply by 31 January 2027.";
+
+/** Turns finished content blocks into the SSE events of a streamed message. */
+function blocksToSse(body, blocks) {
+  const events = [
+    {
+      type: "message_start",
+      message: {
+        id: "msg_mock_research",
+        type: "message",
+        role: "assistant",
+        model: body.model,
+        content: [],
+        stop_reason: null,
+        stop_sequence: null,
+        usage: {
+          input_tokens: 300,
+          output_tokens: 1,
+          cache_creation_input_tokens: 0,
+          cache_read_input_tokens: 0,
+        },
+      },
+    },
+  ];
+  blocks.forEach((block, index) => {
+    if (block.type === "text") {
+      events.push({ type: "content_block_start", index, content_block: { type: "text", text: "" } });
+      events.push({ type: "content_block_delta", index, delta: { type: "text_delta", text: block.text } });
+    } else if (block.type === "server_tool_use") {
+      events.push({ type: "content_block_start", index, content_block: { ...block, input: {} } });
+      events.push({
+        type: "content_block_delta",
+        index,
+        delta: { type: "input_json_delta", partial_json: JSON.stringify(block.input) },
+      });
+    } else {
+      events.push({ type: "content_block_start", index, content_block: block });
+    }
+    events.push({ type: "content_block_stop", index });
+  });
+  events.push({
+    type: "message_delta",
+    delta: { stop_reason: "end_turn", stop_sequence: null },
+    usage: { output_tokens: 200, server_tool_use: { web_search_requests: 1 } },
+  });
+  events.push({ type: "message_stop" });
+  return events;
+}
+
+const searchBlocks = (id, query) => [
+  { type: "server_tool_use", id, name: "web_search", input: { query } },
+  {
+    type: "web_search_tool_result",
+    tool_use_id: id,
+    content: SEARCH_RESULTS.map((r) => ({
+      type: "web_search_result",
+      url: r.url,
+      title: r.title,
+      encrypted_content: "x",
+      page_age: null,
+    })),
+  },
+];
+
+function researchReply(body) {
+  const system = String(body.system ?? "");
+  const prompt = String(body.messages?.[0]?.content ?? "");
+  if (system.includes("job-search researcher")) {
+    return blocksToSse(body, [
+      ...searchBlocks("srvtoolu_1", "graduate software engineer Prague"),
+      {
+        type: "text",
+        text:
+          "1. Graduate Software Engineer, Example Bank, Prague, hybrid — https://careers.example.com/jobs/101\n" +
+          "2. Junior Backend Developer, Sample Logistics, remote — https://jobs.example.org/listing/202\n" +
+          "3. Platform Intern, Ghost Corp — https://invented.example.com/job/999",
+      },
+    ]);
+  }
+  if (system.includes("Read the job posting at the URL")) {
+    const url = prompt.replace(/^Job posting URL:\s*/, "").trim();
+    const fetchUse = { type: "server_tool_use", id: "srvtoolu_f", name: "web_fetch", input: { url } };
+    if (url.includes("blocked")) {
+      return blocksToSse(body, [
+        fetchUse,
+        {
+          type: "web_fetch_tool_result",
+          tool_use_id: "srvtoolu_f",
+          content: { type: "web_fetch_tool_result_error", error_code: "url_not_accessible" },
+        },
+        { type: "text", text: "The page could not be read." },
+      ]);
+    }
+    return blocksToSse(body, [
+      fetchUse,
+      {
+        type: "web_fetch_tool_result",
+        tool_use_id: "srvtoolu_f",
+        content: {
+          type: "web_fetch_result",
+          url,
+          retrieved_at: null,
+          content: {
+            type: "document",
+            title: "Backend Engineer (Graduate)",
+            source: { type: "text", media_type: "text/plain", data: FETCHED_POSTING },
+            citations: null,
+          },
+        },
+      },
+      { type: "text", text: `Posting details: ${FETCHED_POSTING}` },
+    ]);
+  }
+  // Company hiring-process research.
+  return blocksToSse(body, [
+    ...searchBlocks("srvtoolu_r", "interview process"),
+    {
+      type: "text",
+      text: "Sources describe an online test, a technical interview and a final behavioural round.",
+    },
+  ]);
+}
+
+const MOCK_RESUME_LINE = "Built an internal integration service in TypeScript used by 3 teams";
+
+function jobsPayload(system) {
+  if (system.includes("Convert job-search research notes"))
+    return {
+      jobs: [
+        {
+          title: "Graduate Software Engineer",
+          company: "Example Bank",
+          location: "Prague",
+          workMode: "hybrid",
+          level: "graduate",
+          url: "https://careers.example.com/jobs/101",
+          summary: "Rotational graduate programme in backend teams.",
+          whyFit: "Matches the TypeScript integration work in the résumé.",
+          concerns: "",
+          deadline: "",
+        },
+        {
+          title: "Junior Backend Developer",
+          company: "Sample Logistics",
+          location: "Remote (EU)",
+          workMode: "remote",
+          level: "junior",
+          url: "https://jobs.example.org/listing/202?utm_source=search",
+          summary: "Node.js services for shipment tracking.",
+          whyFit: "Backend focus.",
+          concerns: "Asks for one year of experience.",
+          deadline: "15 December 2026",
+        },
+        {
+          title: "Platform Intern",
+          company: "Ghost Corp",
+          location: "Prague",
+          workMode: "unknown",
+          level: "internship",
+          url: "https://invented.example.com/job/999",
+          summary: "Not a page the model read.",
+          whyFit: "",
+          concerns: "",
+          deadline: "",
+        },
+      ],
+      notes: "Searched graduate and junior backend roles in Prague and remote EU.",
+    };
+  if (system.includes("Convert notes about one job posting"))
+    return {
+      isJobPosting: true,
+      title: "Backend Engineer (Graduate)",
+      company: "Example Payments",
+      location: "Prague",
+      workMode: "hybrid",
+      description: FETCHED_POSTING,
+    };
+  // Résumé-vs-posting analysis.
+  return {
+    summary: "Good match on backend fundamentals; Kafka and on-call experience are not shown.",
+    fit: {
+      score: 72,
+      verdict: "good",
+      reasoning: "Java/TypeScript and REST are shown; payments domain is new.",
+    },
+    requirements: [
+      { requirement: "Java or TypeScript", importance: "must", status: "met", evidence: MOCK_RESUME_LINE },
+      { requirement: "Kafka", importance: "nice", status: "missing", evidence: "Not shown in the résumé" },
+    ],
+    resume: {
+      headline: "Final-year CS student who builds TypeScript backend services.",
+      emphasize: ["The integration service: move it to the top."],
+      deemphasize: ["Unrelated coursework list."],
+      keywordsPresent: ["TypeScript", "REST"],
+      keywordsMissing: ["Kafka", "Docker"],
+      rewrites: [
+        {
+          original: MOCK_RESUME_LINE,
+          suggested: "Designed and built a TypeScript integration service adopted by three internal teams",
+          why: "Leads with ownership and reach.",
+        },
+        {
+          original: "Led a team of 12 engineers on payments",
+          suggested: "Led 12 engineers",
+          why: "Invented — must be dropped.",
+        },
+      ],
+      gaps: [
+        {
+          gap: "Kafka",
+          honestFraming: "Say you have used queues conceptually and are learning Kafka.",
+          howToClose: "Build a small producer/consumer project this week.",
+        },
+      ],
+    },
+    preparation: {
+      focusAreas: [
+        {
+          area: "Messaging",
+          why: "Kafka is listed.",
+          priority: "high",
+          lessons: ["caching", "made-up-lesson"],
+          sdQuestions: ["payment-system", "not-a-question"],
+        },
+      ],
+      stories: [{ story: "Make internship", useFor: "Tell me about a project you owned." }],
+      process: "Online test, technical interview, behavioural final round.",
+      processBasis: "sources",
+      questionsToAsk: ["How do teams handle on-call for payment services?"],
+    },
+    pitch: "Lead with the integration service and testing discipline.",
+    redFlags: [],
+  };
+}
+
 const server = createServer((req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${port}`);
   if (req.method === "GET" && url.pathname === "/__health") return res.end("ok");
@@ -136,7 +383,15 @@ const server = createServer((req, res) => {
         },
         body,
       });
+      const usesWebTools =
+        Array.isArray(body.tools) && body.tools.some((t) => /^web_(search|fetch)_/.test(t.type));
+      if (body.stream && usesWebTools) return sse(res, researchReply(body));
       if (body.stream) return sse(res, chatReply(body));
+      const system = typeof body.system === "string" ? body.system : "";
+      const isJobs =
+        system.includes("Convert job-search research notes") ||
+        system.includes("Convert notes about one job posting") ||
+        system.includes("honest career coach");
       const isDesignReview = typeof body.system === "string" && body.system.includes("written system design");
       const rubricSize = isDesignReview
         ? (String(body.messages?.[0]?.content ?? "").match(/^\d+\. /gm) ?? []).length
@@ -151,7 +406,9 @@ const server = createServer((req, res) => {
             })),
             feedback: "- Mock review: clear requirements.\n- Missing: estimates that drive decisions.",
           }
-        : EVALUATION;
+        : isJobs
+          ? jobsPayload(system)
+          : EVALUATION;
       res.writeHead(200, { "content-type": "application/json" });
       res.end(
         JSON.stringify({

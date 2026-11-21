@@ -23,6 +23,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [How progress is measured](#how-progress-is-measured)
 - [Problem bank (optional)](#problem-bank-optional)
 - [System design practice](#system-design-practice)
+- [Job search](#job-search)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
 - [Deploying to Cloudflare (free, private)](#deploying-to-cloudflare-free-private)
@@ -366,6 +367,40 @@ npm run guides:import
 - "Read" marks are self-reported and never count as practice evidence. `--no-fetch` and `--sources`
   work as for the problem bank; `GUIDES_IMPORT_ON_BUILD=false` skips it in the Vercel build.
 
+## Job search
+
+**Personal → Job search** keeps your applications and helps with each one. It works from your
+**Profile & résumé** (paste the text of your CV, plus target roles, locations, work modes, levels,
+availability, work authorisation and languages — all entered by you).
+
+- **Find jobs (AI).** The model searches the web (Anthropic's server-side web search and web fetch
+  tools) for current openings that fit your profile and this run's criteria, and explains why each
+  fits and what might not. Progress (the queries it runs, the pages it opens) streams into the page.
+  **Every suggested link must be one of the pages the model actually read** in that session; the
+  server drops any other suggestion and says how many it dropped. Postings change quickly, so each
+  result says to open it and confirm it is still open. Save the ones you like.
+- **Add a posting** by link (the model reads the page; some sites such as LinkedIn block automated
+  reading — then paste it) or by pasting the text. Postings for an employer with an InterviewOS
+  company track (e.g. Barclays) link to it.
+- **Analysis (AI)** compares your résumé with the posting: a fit score for the résumé _as written_,
+  each requirement as shown / partly / not shown with evidence, a tailored summary line, what to move
+  up or cut, keywords you have and lack ("add only where true"), bullet rewrites, gaps with an honest
+  way to talk about them and a concrete way to close them, a preparation plan linked to InterviewOS
+  lessons and design questions, which of your projects and STAR stories to use, questions to ask and
+  what to lead with. Optionally it first researches the company's interview process on the web; the
+  process note says whether it comes from those sources (listed) or is only what is typical for such
+  roles. Guard rails enforced on the server: a rewrite is kept only if its "before" line is quoted
+  from your résumé (so no new claims can slip in), links to lessons or questions that don't exist are
+  removed, and an analysis made before you edited your résumé is marked as outdated.
+- **Practise for this job:** a 45-minute AI mock interview (coding, backend, fullstack, system design
+  or behavioural) whose interviewer sees the posting and asks from its requirements.
+- **Pipeline:** saved → preparing → applied → interviewing → offer / rejected / archived. Status
+  changes are recorded when you make them; no dates are inferred.
+
+Without an Anthropic API key you can still track postings, keep your résumé and paste postings; the
+AI buttons explain why they are off. Job search was tested end to end against the local mock API
+(`e2e/11-jobs.spec.ts`), not against the real web.
+
 ## Tests and checks
 
 | Command                              | What it checks                                                                                                                |
@@ -517,7 +552,7 @@ Worker locally in the real Workers runtime (put local values in `.dev.vars`, see
 
 Free-plan limits and what was verified:
 
-- **Worker size**: the compressed Worker is about 2.4 MiB; OpenNext documents 3 MiB as the Workers Free
+- **Worker size**: the compressed Worker is about 2.5 MiB; OpenNext documents 3 MiB as the Workers Free
   limit. The build uses webpack (`open-next.config.ts`) because the Turbopack output duplicated
   server chunks and came to 3.6 MiB; charts and the whiteboard render only in the browser and code
   highlighting covers the languages the lessons use, which keeps the server bundle small.
@@ -529,7 +564,7 @@ Free-plan limits and what was verified:
   person uses.
 - Verified locally with Wrangler's Workers runtime (`wrangler dev` on the production build): pages,
   server actions, the per-request database connection, concurrent requests, the 503 for an
-  unprotected deployment and the Access token check. An actual deployment to a Cloudflare account,
+  unprotected deployment, the Access token check and the streamed AI job search (against the mock API). An actual deployment to a Cloudflare account,
   Access login and Hyperdrive could not be run from the environment this was built in.
 
 ## Deploying to Vercel
@@ -591,7 +626,8 @@ Notes:
 
 - Everything is stored in your local PostgreSQL database. The only external service is the Anthropic
   API, and only when you configure a key and use an AI feature (interview transcripts and explanations
-  you submit for grading are sent to it).
+  you submit for grading are sent to it; for job-search features, your résumé, profile and the
+  posting are sent too).
 - Code drafts are also cached in the browser's `localStorage` so an accidental reload loses nothing.
 - **Export:** `GET /api/export` (also in Settings) downloads all your data as JSON.
 - Backups: `pg_dump interviewos > backup.sql`.
