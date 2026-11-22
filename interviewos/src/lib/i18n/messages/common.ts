@@ -46,6 +46,16 @@ export const common = defineMessages(
       undo: "Undo",
       viewAll: "View all",
     },
+    database: {
+      behind: (n: number) =>
+        `The database is behind this version of the app: ${n} migration${n === 1 ? " has" : "s have"} not been applied. Pages that use the new data will fail until you run:`,
+      after: "Then reload the page.",
+    },
+    errorPage: {
+      title: "This page could not be loaded",
+      help: "If a database message mentions a missing column or table, the database needs the latest migrations (npm run db:migrate).",
+      retry: "Try again",
+    },
     labels: {
       loading: "Loading…",
       error: "Something went wrong",
@@ -160,6 +170,16 @@ export const common = defineMessages(
       markDone: "Отметить выполненным",
       undo: "Отменить",
       viewAll: "Показать все",
+    },
+    database: {
+      behind: (n: number) =>
+        `База данных отстаёт от этой версии приложения: не применено миграций — ${n}. Страницы, которым нужны новые данные, будут падать, пока вы не выполните:`,
+      after: "Затем обновите страницу.",
+    },
+    errorPage: {
+      title: "Не удалось загрузить страницу",
+      help: "Если в сообщении базы данных говорится о недостающей колонке или таблице, базе нужны свежие миграции (npm run db:migrate).",
+      retry: "Попробовать снова",
     },
     labels: {
       loading: "Загрузка…",

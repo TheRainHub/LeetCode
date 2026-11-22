@@ -10,6 +10,7 @@ import { isAiConfigured } from "@/lib/ai/config";
 import { db } from "@/lib/db";
 import { codingProblems, lessons } from "@/lib/db/schema";
 import { I18nProvider } from "@/lib/i18n/client";
+import { pendingMigrations } from "@/server/schema-status";
 import { getI18n, getSettings } from "@/server/user";
 import "./globals.css";
 
@@ -22,7 +23,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [settings, { locale, m }] = await Promise.all([getSettings(), getI18n()]);
+  const [settings, { locale, m }, pending] = await Promise.all([
+    getSettings(),
+    getI18n(),
+    pendingMigrations(),
+  ]);
   const [lessonRows, problemRows] = await Promise.all([
     db.select({ slug: lessons.slug, title: lessons.title }).from(lessons).orderBy(asc(lessons.title)),
     db
@@ -49,7 +54,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <I18nProvider locale={locale}>
           <TooltipProvider>
             <Sidebar aiEnabled={isAiConfigured()} />
-            <MainContainer>{children}</MainContainer>
+            <MainContainer>
+              {pending ? (
+                <div
+                  role="alert"
+                  className="border-warning/40 bg-warning-soft mx-4 mt-4 rounded-md border p-3 text-sm sm:mx-6 lg:mx-8"
+                  data-testid="db-behind"
+                >
+                  <p>{m.common.database.behind(pending)}</p>
+                  <code className="bg-surface mt-1 inline-block rounded px-1.5 py-0.5 font-mono text-xs">
+                    npm run db:migrate
+                  </code>{" "}
+                  <span className="text-muted-foreground text-xs">{m.common.database.after}</span>
+                </div>
+              ) : null}
+              {children}
+            </MainContainer>
             <CommandPalette extra={palette} />
             <Toaster
               theme={settings.theme}
