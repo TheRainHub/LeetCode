@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+import { rehypeHighlightCode } from "@/lib/markdown/highlight";
 import { cn } from "@/lib/utils";
 
 /** Renders trusted, seeded Markdown (and user notes). Raw HTML is not enabled. */
@@ -24,7 +24,7 @@ export function Markdown({
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[[rehypeHighlight, { detect: false, ignoreMissing: true }]]}
+        rehypePlugins={[rehypeHighlightCode]}
         components={{
           img: ({ src, alt }) =>
             typeof src === "string" ? (

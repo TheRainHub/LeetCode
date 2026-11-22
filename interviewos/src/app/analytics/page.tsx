@@ -4,7 +4,7 @@ import {
   InterviewScoresChart,
   RetentionChart,
   WeeklyTimeChart,
-} from "@/components/analytics/charts";
+} from "@/components/analytics/charts-lazy";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

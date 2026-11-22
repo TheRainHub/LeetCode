@@ -23,8 +23,10 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [How progress is measured](#how-progress-is-measured)
 - [Problem bank (optional)](#problem-bank-optional)
 - [System design practice](#system-design-practice)
+- [Job search](#job-search)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
+- [Deploying to Cloudflare (free, private)](#deploying-to-cloudflare-free-private)
 - [Deploying to Vercel](#deploying-to-vercel)
 - [Data, privacy and backups](#data-privacy-and-backups)
 - [Known limitations](#known-limitations)
@@ -365,6 +367,40 @@ npm run guides:import
 - "Read" marks are self-reported and never count as practice evidence. `--no-fetch` and `--sources`
   work as for the problem bank; `GUIDES_IMPORT_ON_BUILD=false` skips it in the Vercel build.
 
+## Job search
+
+**Personal → Job search** keeps your applications and helps with each one. It works from your
+**Profile & résumé** (paste the text of your CV, plus target roles, locations, work modes, levels,
+availability, work authorisation and languages — all entered by you).
+
+- **Find jobs (AI).** The model searches the web (Anthropic's server-side web search and web fetch
+  tools) for current openings that fit your profile and this run's criteria, and explains why each
+  fits and what might not. Progress (the queries it runs, the pages it opens) streams into the page.
+  **Every suggested link must be one of the pages the model actually read** in that session; the
+  server drops any other suggestion and says how many it dropped. Postings change quickly, so each
+  result says to open it and confirm it is still open. Save the ones you like.
+- **Add a posting** by link (the model reads the page; some sites such as LinkedIn block automated
+  reading — then paste it) or by pasting the text. Postings for an employer with an InterviewOS
+  company track (e.g. Barclays) link to it.
+- **Analysis (AI)** compares your résumé with the posting: a fit score for the résumé _as written_,
+  each requirement as shown / partly / not shown with evidence, a tailored summary line, what to move
+  up or cut, keywords you have and lack ("add only where true"), bullet rewrites, gaps with an honest
+  way to talk about them and a concrete way to close them, a preparation plan linked to InterviewOS
+  lessons and design questions, which of your projects and STAR stories to use, questions to ask and
+  what to lead with. Optionally it first researches the company's interview process on the web; the
+  process note says whether it comes from those sources (listed) or is only what is typical for such
+  roles. Guard rails enforced on the server: a rewrite is kept only if its "before" line is quoted
+  from your résumé (so no new claims can slip in), links to lessons or questions that don't exist are
+  removed, and an analysis made before you edited your résumé is marked as outdated.
+- **Practise for this job:** a 45-minute AI mock interview (coding, backend, fullstack, system design
+  or behavioural) whose interviewer sees the posting and asks from its requirements.
+- **Pipeline:** saved → preparing → applied → interviewing → offer / rejected / archived. Status
+  changes are recorded when you make them; no dates are inferred.
+
+Without an Anthropic API key you can still track postings, keep your résumé and paste postings; the
+AI buttons explain why they are off. Job search was tested end to end against the local mock API
+(`e2e/11-jobs.spec.ts`), not against the real web.
+
 ## Tests and checks
 
 | Command                              | What it checks                                                                                                                |
@@ -426,6 +462,111 @@ the script reports as `UNVERIFIED` rather than broken. GitHub-hosted readings we
 via GitHub search. Run the command once on a normal connection; it exits non-zero only for links that
 are genuinely broken.
 
+## Deploying to Cloudflare (free, private)
+
+InterviewOS runs on [Cloudflare Workers](https://developers.cloudflare.com/workers/) through the
+[OpenNext adapter](https://opennext.js.org/cloudflare) (`@opennextjs/cloudflare`), with the database on
+a free hosted PostgreSQL (e.g. [Neon](https://neon.tech)) and **Cloudflare Access** in front so that
+only you can open it. Everything below fits the free plans.
+
+**1. Database.** Create a free Neon project (region near you, e.g. Frankfurt) and copy its _direct_
+connection string (the host without `-pooler`). From your computer, in `interviewos/`, prepare it once:
+
+```bash
+export DATABASE_URL="postgres://USER:PASSWORD@HOST/neondb?sslmode=require"
+```
+
+```bash
+npm run db:setup && npm run bank:import && npm run guides:import
+```
+
+To bring your local progress along instead, copy the whole local database over (this overwrites the
+hosted one):
+
+```bash
+pg_dump --clean --if-exists --no-owner --no-privileges postgres://interviewos:interviewos@localhost:5432/interviewos | psql "$DATABASE_URL"
+```
+
+**2. Cloudflare login and connection pooling.** Log in with Wrangler, then create a
+[Hyperdrive](https://developers.cloudflare.com/hyperdrive/) configuration (free; it pools database
+connections near the Worker):
+
+```bash
+npx wrangler login
+```
+
+```bash
+npx wrangler hyperdrive create interviewos-db --connection-string="$DATABASE_URL"
+```
+
+Uncomment the `hyperdrive` block in `wrangler.jsonc` and paste the printed id. (Without Hyperdrive,
+set `DATABASE_URL` as a secret in step 4 and the Worker connects directly.)
+
+**3. Deploy.**
+
+```bash
+npm run cf:deploy
+```
+
+Wrangler prints the address, `https://interviewos.<your-subdomain>.workers.dev`. Until step 4 is done
+it answers _503 not configured_ on purpose: the app has no accounts of its own and never runs
+unprotected on a hosted URL.
+
+**4. Make it private with Cloudflare Access.**
+
+1. In the Cloudflare dashboard open **Zero Trust** and finish the one-time setup (team name, Free
+   plan for up to 50 users). Your team domain is `<team>.cloudflareaccess.com`.
+2. **Workers & Pages → interviewos → Settings → Domains & Routes**: enable **Cloudflare Access** for
+   the `workers.dev` route (this also covers preview URLs).
+3. **Zero Trust → Access → Applications**: open the application that was created, make its policy
+   **Allow** with **Include → Emails →** your e-mail address only, and copy the **Application
+   Audience (AUD) tag**. The default login method, a one-time code sent to your e-mail, is enough.
+4. Give the Worker the settings (each command asks for the value):
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_TEAM_DOMAIN
+   ```
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_AUD
+   ```
+
+   ```bash
+   npx wrangler secret put CF_ACCESS_ALLOWED_EMAILS
+   ```
+
+   ```bash
+   npx wrangler secret put ANTHROPIC_API_KEY
+   ```
+
+   Also set `APP_TIMEZONE` (e.g. `Europe/Prague`) and, without Hyperdrive, `DATABASE_URL` the same way.
+
+Open the address: Cloudflare asks for your e-mail and a code, then shows InterviewOS. Access blocks
+everyone else at Cloudflare's edge, and the app additionally verifies the signed Access token on
+every request (`src/lib/access.ts`), including the optional e-mail allow-list, so a route Access does
+not cover still cannot reach your data. `APP_PASSWORD` (Basic Auth) remains an alternative if you do
+not want Access.
+
+**Updating:** run `npm run cf:deploy` again; secrets are kept. `npm run cf:preview` runs the built
+Worker locally in the real Workers runtime (put local values in `.dev.vars`, see `.dev.vars.example`).
+
+Free-plan limits and what was verified:
+
+- **Worker size**: the compressed Worker is about 2.5 MiB; OpenNext documents 3 MiB as the Workers Free
+  limit. The build uses webpack (`open-next.config.ts`) because the Turbopack output duplicated
+  server chunks and came to 3.6 MiB; charts and the whiteboard render only in the browser and code
+  highlighting covers the languages the lessons use, which keeps the server bundle small.
+- **CPU time**: the Free plan allows 10 ms of CPU per request (waiting for the database or the
+  Anthropic API does not count). Rendering a large page can exceed it, which shows Cloudflare error
+  1102; this could not be measured outside Cloudflare. If it happens often, the Workers Paid plan
+  raises the limit.
+- **Requests**: 100,000 Worker requests and 100,000 Hyperdrive queries per day; far more than one
+  person uses.
+- Verified locally with Wrangler's Workers runtime (`wrangler dev` on the production build): pages,
+  server actions, the per-request database connection, concurrent requests, the 503 for an
+  unprotected deployment, the Access token check and the streamed AI job search (against the mock API). An actual deployment to a Cloudflare account,
+  Access login and Hyperdrive could not be run from the environment this was built in.
+
 ## Deploying to Vercel
 
 The repository is ready for Vercel: `vercel.json` sets the build command to `scripts/vercel-build.sh`,
@@ -485,7 +626,8 @@ Notes:
 
 - Everything is stored in your local PostgreSQL database. The only external service is the Anthropic
   API, and only when you configure a key and use an AI feature (interview transcripts and explanations
-  you submit for grading are sent to it).
+  you submit for grading are sent to it; for job-search features, your résumé, profile and the
+  posting are sent too).
 - Code drafts are also cached in the browser's `localStorage` so an accidental reload loses nothing.
 - **Export:** `GET /api/export` (also in Settings) downloads all your data as JSON.
 - Backups: `pg_dump interviewos > backup.sql`.

@@ -17,3 +17,8 @@ test-results/
 
 # Imported problem-bank sources (fetched by npm run bank:import)
 /.data-sources/
+
+# Cloudflare (OpenNext build output, wrangler state, local secrets)
+/.open-next/
+/.wrangler/
+.dev.vars

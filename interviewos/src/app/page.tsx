@@ -1,7 +1,7 @@
 import { ArrowRight, BookOpen, Building2, CalendarClock, Flame, Layers, Target } from "lucide-react";
 import Link from "next/link";
 import { MarkUnavailableButton, TaskRow, type PlanTask } from "@/components/dashboard/plan-widgets";
-import { WeekChart } from "@/components/dashboard/week-chart";
+import { WeekChart } from "@/components/dashboard/week-chart-lazy";
 import { PageContainer } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
