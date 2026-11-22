@@ -1296,3 +1296,84 @@ export const jobAnalyses = pgTable(
   },
   (t) => [index("job_analyses_posting_idx").on(t.postingId, t.createdAt)],
 );
+
+/* ------------------------------------------------------------------ */
+/* Mentor                                                              */
+/* ------------------------------------------------------------------ */
+
+/** A conversation with the AI mentor. History is append-only and capped; a new thread starts fresh. */
+export const mentorThreads = pgTable(
+  "mentor_threads",
+  {
+    id: id(),
+    userId: userRef(),
+    title: text("title").notNull(),
+    /** Frozen at creation so the cached prefix stays stable. */
+    systemPrompt: text("system_prompt").notNull(),
+    model: text("model").notNull(),
+    /** Fingerprint of the last progress snapshot sent, to send a new one only when it changes. */
+    contextHash: text("context_hash"),
+    lastError: text("last_error"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("mentor_threads_user_idx").on(t.userId, t.updatedAt)],
+);
+
+export const mentorMessages = pgTable(
+  "mentor_messages",
+  {
+    id: id(),
+    threadId: integer("thread_id")
+      .notNull()
+      .references(() => mentorThreads.id, { onDelete: "cascade" }),
+    seq: integer("seq").notNull(),
+    role: messageRoleEnum("role").notNull(),
+    /** What the UI shows (empty for tool results). */
+    content: text("content").notNull(),
+    /** Exactly what was sent to / received from the API, replayed unchanged. */
+    apiContent: jsonb("api_content").notNull(),
+    hidden: boolean("hidden").default(false).notNull(),
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("mentor_messages_thread_seq_idx").on(t.threadId, t.seq)],
+);
+
+export const mentorTaskStatusEnum = pgEnum("mentor_task_status", ["open", "done", "skipped"]);
+
+/** Assignments from the mentor. Only the user marks them done or skipped. */
+export const mentorTasks = pgTable(
+  "mentor_tasks",
+  {
+    id: id(),
+    userId: userRef(),
+    threadId: integer("thread_id").references(() => mentorThreads.id, { onDelete: "set null" }),
+    title: text("title").notNull(),
+    details: text("details").default("").notNull(),
+    kind: text("kind").notNull(),
+    /** Lesson, problem or design-question slug the task points to, checked when created. */
+    ref: text("ref"),
+    dueOn: date("due_on", { mode: "string" }),
+    estimateMinutes: integer("estimate_minutes"),
+    status: mentorTaskStatusEnum("status").default("open").notNull(),
+    /** What the user reported when finishing or skipping it. */
+    userNote: text("user_note").default("").notNull(),
+    createdAt: createdAt(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (t) => [index("mentor_tasks_user_status_idx").on(t.userId, t.status)],
+);
+
+/** What the mentor keeps in mind between conversations (goals, constraints, agreements). */
+export const mentorNotes = pgTable(
+  "mentor_notes",
+  {
+    id: id(),
+    userId: userRef(),
+    text: text("text").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("mentor_notes_user_idx").on(t.userId)],
+);
