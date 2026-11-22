@@ -1207,9 +1207,35 @@ export const jobSearches = pgTable(
     /** Suggestions removed because their link was not among the pages the model read. */
     dropped: integer("dropped").default(0).notNull(),
     error: text("error"),
+    /** Set when an automatic search produced this run. */
+    autoSearchId: integer("auto_search_id").references(() => jobAutoSearches.id, { onDelete: "set null" }),
+    /** Results already seen in earlier searches or saved, left out of an automatic run. */
+    skippedSeen: integer("skipped_seen").default(0).notNull(),
+    /** When the user opened this run's results; automatic runs are "new" until then. */
+    viewedAt: timestamp("viewed_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [index("job_searches_user_idx").on(t.userId, t.createdAt)],
+);
+
+/** A saved search the app runs on a schedule, reporting only postings not seen before. */
+export const jobAutoSearches = pgTable(
+  "job_auto_searches",
+  {
+    id: id(),
+    userId: userRef(),
+    name: text("name").notNull(),
+    criteria: jsonb("criteria").$type<SearchCriteria>().notNull(),
+    intervalDays: integer("interval_days").notNull(),
+    enabled: boolean("enabled").default(true).notNull(),
+    nextRunAt: timestamp("next_run_at", { withTimezone: true }).notNull(),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    /** Claim marker so the scheduler and a page visit never run the same search twice. */
+    runningSince: timestamp("running_since", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("job_auto_searches_due_idx").on(t.userId, t.nextRunAt)],
 );
 
 export const jobPostings = pgTable(

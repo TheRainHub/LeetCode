@@ -6,6 +6,9 @@ import { isHostedDeployment } from "@/lib/runtime";
 const text = (body: string, status: number, headers: Record<string, string> = {}) =>
   new NextResponse(body, { status, headers: { "Content-Type": "text/plain; charset=utf-8", ...headers } });
 
+/** Scheduler endpoint: authenticated by CRON_SECRET in the route itself (see the route). */
+const CRON_PATH = "/api/cron/job-search";
+
 /**
  * Access control. InterviewOS has a single user and no accounts, so every request is checked here:
  *
@@ -14,8 +17,11 @@ const text = (body: string, status: number, headers: Record<string, string> = {}
  *   those addresses).
  * - Otherwise APP_PASSWORD: HTTP Basic Auth with that password.
  * - Neither: allowed for local use only; a hosted deployment (Vercel, Cloudflare) refuses to serve.
+ *
+ * The scheduler endpoint is the one exception: it checks its own bearer secret (CRON_SECRET).
  */
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === CRON_PATH) return NextResponse.next();
   const access = accessConfig();
   if (access) {
     const result = await verifyAccess(accessToken(request.headers), access);

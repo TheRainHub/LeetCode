@@ -6,8 +6,16 @@ import { z } from "zod";
 import { describeAiError } from "@/lib/ai/client";
 import { isAiConfigured } from "@/lib/ai/config";
 import { analyzePosting, importPosting, PostingImportError, researchCompany } from "@/lib/ai/jobs";
-import { careerProfileSchema, JOB_STATUSES, MIN_RESUME_CHARS, postingInputSchema } from "@/lib/jobs/model";
+import {
+  AUTO_INTERVALS,
+  autoSearchInputSchema,
+  careerProfileSchema,
+  JOB_STATUSES,
+  MIN_RESUME_CHARS,
+  postingInputSchema,
+} from "@/lib/jobs/model";
 import { createInterview } from "@/server/interviews";
+import { createAutoSearch, deleteAutoSearch, markSearchViewed, updateAutoSearch } from "@/server/job-auto";
 import {
   createPosting,
   deletePosting,
@@ -252,4 +260,62 @@ export async function startJobInterviewAction(input: {
   });
   revalidatePath("/interviews");
   redirect(`/interviews/${interviewId}`);
+}
+
+/** Saves the current criteria as an automatic search; its first run is due immediately. */
+export async function createAutoSearchAction(input: unknown): Promise<Result> {
+  try {
+    await createAutoSearch(autoSearchInputSchema.parse(input));
+    revalidatePath("/jobs", "layout");
+    return { ok: true };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function updateAutoSearchAction(input: {
+  id: number;
+  enabled?: boolean;
+  intervalDays?: number;
+  runNow?: boolean;
+}): Promise<Result> {
+  try {
+    const data = z
+      .object({
+        id,
+        enabled: z.boolean().optional(),
+        intervalDays: z
+          .number()
+          .refine((n) => (AUTO_INTERVALS as readonly number[]).includes(n))
+          .optional(),
+        runNow: z.boolean().optional(),
+      })
+      .parse(input);
+    await updateAutoSearch(data.id, data);
+    revalidatePath("/jobs", "layout");
+    return { ok: true };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function deleteAutoSearchAction(input: { id: number }): Promise<Result> {
+  try {
+    await deleteAutoSearch(id.parse(input.id));
+    revalidatePath("/jobs", "layout");
+    return { ok: true };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+/** Automatic runs count as new until their results are opened. */
+export async function markSearchViewedAction(input: { id: number }): Promise<Result> {
+  try {
+    await markSearchViewed(id.parse(input.id));
+    revalidatePath("/jobs");
+    return { ok: true };
+  } catch (err) {
+    return fail(err);
+  }
 }

@@ -150,3 +150,21 @@ export const STATUS_ORDER: Record<JobStatus, number> = Object.fromEntries(
 
 /** Statuses that count as an active application in the overview. */
 export const ACTIVE_STATUSES: JobStatus[] = ["saved", "preparing", "applied", "interviewing", "offer"];
+
+/** How often a saved automatic search runs. */
+export const AUTO_INTERVALS = [1, 3, 7] as const;
+export type AutoInterval = (typeof AUTO_INTERVALS)[number];
+/** Automatic searches cost API calls on every run, so their number is capped. */
+export const MAX_AUTO_SEARCHES = 5;
+
+export const autoSearchInputSchema = z.object({
+  name: text(80).min(1, "Name is required"),
+  criteria: searchCriteriaSchema,
+  intervalDays: z.union([z.literal(1), z.literal(3), z.literal(7)]),
+});
+export type AutoSearchInput = z.infer<typeof autoSearchInputSchema>;
+
+/** When a search that ran (or was scheduled) at `from` runs next. */
+export function nextRunAfter(from: Date, intervalDays: number): Date {
+  return new Date(from.getTime() + intervalDays * 24 * 60 * 60 * 1000);
+}

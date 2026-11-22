@@ -177,6 +177,8 @@ export async function saveSearch(input: {
   searches: number;
   dropped: number;
   error: string | null;
+  autoSearchId?: number | null;
+  skippedSeen?: number;
 }) {
   const [row] = await db
     .insert(jobSearches)

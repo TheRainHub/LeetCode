@@ -23,3 +23,14 @@ export function isAuthorized(header: string | null, password: string): boolean {
   if (colon < 0) return false;
   return safeEqual(decoded.slice(colon + 1), password);
 }
+
+/**
+ * Scheduler requests (Cloudflare Cron Trigger via the custom worker, Vercel Cron) authenticate
+ * with `Authorization: Bearer <CRON_SECRET>`. Without a configured secret nothing is accepted.
+ */
+export function isCronAuthorized(header: string | null, secret: string | undefined): boolean {
+  const expected = secret?.trim();
+  if (!expected || expected.length < 16) return false;
+  if (!header?.startsWith("Bearer ")) return false;
+  return safeEqual(header.slice(7).trim(), expected);
+}

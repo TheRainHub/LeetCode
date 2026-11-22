@@ -2,7 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // Cloudflare Worker that serves InterviewOS (built by @opennextjs/cloudflare). See README → "Deploying to Cloudflare".
   "name": "interviewos",
-  "main": ".open-next/worker.js",
+  // worker.mjs wraps the generated .open-next/worker.js and adds the scheduled handler.
+  "main": "worker.mjs",
   "compatibility_date": "2026-10-15",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
@@ -15,6 +16,11 @@
       "service": "interviewos",
     },
   ],
+  // Automatic job search: every hour the Worker runs at most one saved search that is due
+  // (each search has its own interval in the app). Needs the CRON_SECRET secret.
+  "triggers": {
+    "crons": ["17 * * * *"],
+  },
   "observability": {
     "enabled": true,
   },
