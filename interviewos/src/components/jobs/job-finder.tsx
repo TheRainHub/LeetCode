@@ -6,7 +6,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Textarea } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n/client";
-import { JOB_LEVELS, type SearchCriteria, WORK_MODES } from "@/lib/jobs/model";
+import { JOB_LEVELS, MAX_AUTO_SEARCHES, type SearchCriteria, WORK_MODES } from "@/lib/jobs/model";
+import { SaveAutoSearch } from "./auto-search";
 
 type Line = { kind: "search" | "fetch" | "results" | "writing"; text: string };
 
@@ -14,10 +15,13 @@ export function JobFinder({
   initial,
   enabled,
   disabledReason,
+  autoCount,
 }: {
   initial: SearchCriteria;
   enabled: boolean;
   disabledReason: string | null;
+  /** Automatic searches already saved (they are capped). */
+  autoCount: number;
 }) {
   const { m } = useI18n();
   const F = m.jobs.find;
@@ -185,6 +189,12 @@ export function JobFinder({
           {F.failed(error)}
         </p>
       ) : null}
+      <SaveAutoSearch
+        criteria={c}
+        disabled={!enabled || running}
+        atLimit={autoCount >= MAX_AUTO_SEARCHES}
+        limit={MAX_AUTO_SEARCHES}
+      />
     </form>
   );
 }

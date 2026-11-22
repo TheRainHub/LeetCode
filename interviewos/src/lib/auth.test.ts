@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isAuthorized, safeEqual } from "./auth";
+import { isAuthorized, isCronAuthorized, safeEqual } from "./auth";
 import { databaseUrl, directDatabaseUrl, usesTransactionPooler } from "./db/url";
 
 const basic = (user: string, pass: string) => `Basic ${Buffer.from(`${user}:${pass}`).toString("base64")}`;
@@ -37,5 +37,20 @@ describe("database URLs", () => {
     expect(usesTransactionPooler("postgres://u:p@db.example.com:6543/postgres", {})).toBe(true);
     expect(usesTransactionPooler("postgres://u:p@localhost:5432/interviewos", {})).toBe(false);
     expect(usesTransactionPooler("postgres://u:p@localhost:5432/x", { DATABASE_POOLED: "true" })).toBe(true);
+  });
+});
+
+describe("isCronAuthorized", () => {
+  const secret = "s3cret-value-for-cron-01";
+  it("accepts only the configured bearer secret", () => {
+    expect(isCronAuthorized(`Bearer ${secret}`, secret)).toBe(true);
+    expect(isCronAuthorized(`Bearer ${secret}x`, secret)).toBe(false);
+    expect(isCronAuthorized(secret, secret)).toBe(false);
+    expect(isCronAuthorized(null, secret)).toBe(false);
+  });
+  it("is off without a sufficiently long secret", () => {
+    expect(isCronAuthorized("Bearer ", "")).toBe(false);
+    expect(isCronAuthorized("Bearer short", "short")).toBe(false);
+    expect(isCronAuthorized("Bearer x", undefined)).toBe(false);
   });
 });

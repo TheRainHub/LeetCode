@@ -1,5 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
-import { APP_PORT, E2E_API_KEY, E2E_DATABASE_URL, MOCK_PORT, MOCK_URL, TIMEZONE } from "./e2e/env";
+import {
+  APP_PORT,
+  E2E_API_KEY,
+  E2E_CRON_SECRET,
+  E2E_DATABASE_URL,
+  MOCK_PORT,
+  MOCK_URL,
+  TIMEZONE,
+} from "./e2e/env";
 
 /**
  * End-to-end tests run against a production build on a dedicated database
@@ -43,6 +51,7 @@ export default defineConfig({
         ANTHROPIC_API_KEY: E2E_API_KEY,
         ANTHROPIC_BASE_URL: MOCK_URL,
         APP_TIMEZONE: TIMEZONE,
+        CRON_SECRET: E2E_CRON_SECRET,
       },
     },
   ],

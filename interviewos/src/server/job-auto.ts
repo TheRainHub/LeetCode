@@ -78,8 +78,8 @@ export async function hasDueAutoSearch(now = new Date()): Promise<boolean> {
       and(
         eq(jobAutoSearches.userId, getCurrentUserId()),
         eq(jobAutoSearches.enabled, true),
-        sql`${jobAutoSearches.nextRunAt} <= ${now}`,
-        sql`(${jobAutoSearches.runningSince} is null or ${jobAutoSearches.runningSince} < ${now}::timestamptz - make_interval(mins => ${STALE_RUN_MINUTES}))`,
+        sql`${jobAutoSearches.nextRunAt} <= ${now.toISOString()}::timestamptz`,
+        sql`(${jobAutoSearches.runningSince} is null or ${jobAutoSearches.runningSince} < ${now.toISOString()}::timestamptz - make_interval(mins => ${STALE_RUN_MINUTES}))`,
       ),
     )
     .limit(1);
@@ -91,12 +91,14 @@ export async function hasDueAutoSearch(now = new Date()): Promise<boolean> {
  * page visit) can never claim the same one: the row is locked and marked as running in one statement.
  */
 async function claimDueAutoSearch(now = new Date()) {
+  // Raw SQL parameters are passed as ISO strings and cast; postgres.js does not take Date here.
+  const at = now.toISOString();
   const rows = (await db.execute(sql`
-    update job_auto_searches set running_since = ${now}
+    update job_auto_searches set running_since = ${at}::timestamptz
     where id = (
       select id from job_auto_searches
-      where user_id = ${getCurrentUserId()} and enabled and next_run_at <= ${now}
-        and (running_since is null or running_since < ${now}::timestamptz - make_interval(mins => ${STALE_RUN_MINUTES}))
+      where user_id = ${getCurrentUserId()} and enabled and next_run_at <= ${at}::timestamptz
+        and (running_since is null or running_since < ${at}::timestamptz - make_interval(mins => ${STALE_RUN_MINUTES}))
       order by next_run_at
       limit 1
       for update skip locked

@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { AutoSearchList, AutoSearchRunner, MarkViewed } from "@/components/jobs/auto-search";
 import { JobFinder } from "@/components/jobs/job-finder";
 import { JobsSubnav } from "@/components/jobs/jobs-subnav";
 import { SaveFoundJob } from "@/components/jobs/save-found-job";
@@ -10,6 +11,7 @@ import { isAiConfigured } from "@/lib/ai/config";
 import { normalizeUrl } from "@/lib/jobs/grounding";
 import { MIN_RESUME_CHARS } from "@/lib/jobs/model";
 import { cn } from "@/lib/utils";
+import { hasDueAutoSearch, listAutoSearches, unviewedAutoRuns } from "@/server/job-auto";
 import { getCareerProfile, getSearch, listSearches, savedPostingUrls } from "@/server/jobs";
 import { getI18n } from "@/server/user";
 
@@ -22,12 +24,18 @@ export default async function FindJobsPage({
 }) {
   const sp = await searchParams;
   const requested = Number(typeof sp.search === "string" ? sp.search : NaN);
-  const [{ m, locale }, profile, history, saved] = await Promise.all([
+  const [{ m, locale }, profile, history, saved, autos, due, unviewed] = await Promise.all([
     getI18n(),
     getCareerProfile(),
-    listSearches(10),
+    listSearches(15),
     savedPostingUrls(),
+    listAutoSearches(),
+    hasDueAutoSearch(),
+    unviewedAutoRuns(),
   ]);
+  const autoNames = new Map(autos.map((a) => [a.id, a.name]));
+  const unviewedIds = new Set(unviewed.map((u) => u.id));
+  const newCount = unviewed.reduce((n, u) => n + u.results.length, 0);
   const F = m.jobs.find;
   const current =
     Number.isInteger(requested) && requested > 0 ? await getSearch(requested) : (history[0] ?? null);
@@ -40,15 +48,23 @@ export default async function FindJobsPage({
   const aiEnabled = isAiConfigured();
   const hasProfile = profile.resume.trim().length >= MIN_RESUME_CHARS || Boolean(profile.targetRoles.trim());
   const disabledReason = !aiEnabled ? m.jobs.aiDisabled : !hasProfile ? F.needsProfile : null;
+  const A = m.jobs.auto;
+  const criteriaSummary = (c: (typeof autos)[number]["criteria"]) =>
+    [c.roles, c.locations, c.focus].filter(Boolean).join(" · ");
 
   return (
     <PageContainer wide>
       <PageHeader title={m.jobs.title} description={F.description} />
-      <JobsSubnav current="find" labels={m.jobs.nav} />
+      <JobsSubnav
+        current="find"
+        labels={{ ...m.jobs.nav, find: newCount ? `${m.jobs.nav.find} (${newCount})` : m.jobs.nav.find }}
+      />
+      <AutoSearchRunner due={due && aiEnabled && hasProfile} />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-w-0 flex-col gap-4">
           <Card className="p-4">
             <JobFinder
+              autoCount={autos.length}
               enabled={!disabledReason}
               disabledReason={disabledReason}
               initial={{
@@ -63,8 +79,16 @@ export default async function FindJobsPage({
 
           {current ? (
             <section className="flex flex-col gap-3" data-testid="job-results" data-search={current.id}>
+              {unviewedIds.has(current.id) ? <MarkViewed id={current.id} /> : null}
               <div>
-                <h2 className="text-sm font-semibold">{F.results}</h2>
+                <h2 className="flex items-center gap-2 text-sm font-semibold">
+                  {F.results}
+                  {current.autoSearchId ? (
+                    <Badge tone="primary">
+                      {A.badge}: {autoNames.get(current.autoSearchId) ?? "—"}
+                    </Badge>
+                  ) : null}
+                </h2>
                 {current.error ? (
                   <p className="text-danger text-xs">{F.failed(current.error)}</p>
                 ) : (
@@ -76,6 +100,11 @@ export default async function FindJobsPage({
                     {current.dropped ? (
                       <p className="text-subtle-foreground text-[11px]" data-testid="job-results-dropped">
                         {F.dropped(current.dropped)}
+                      </p>
+                    ) : null}
+                    {current.skippedSeen ? (
+                      <p className="text-subtle-foreground text-[11px]" data-testid="job-results-skipped">
+                        {A.skippedSeen(current.skippedSeen)}
                       </p>
                     ) : null}
                     {current.notes ? (
@@ -159,7 +188,28 @@ export default async function FindJobsPage({
             </section>
           ) : null}
         </div>
-        <aside>
+        <aside className="flex flex-col gap-4">
+          <Card data-testid="auto-card">
+            <CardHeader>
+              <CardTitle>{A.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <p className="text-subtle-foreground text-[11px]">{A.help}</p>
+              <AutoSearchList
+                items={autos.map((a) => ({
+                  id: a.id,
+                  name: a.name,
+                  summary: criteriaSummary(a.criteria),
+                  intervalDays: a.intervalDays,
+                  enabled: a.enabled,
+                  nextLabel: a.nextRunAt <= new Date() ? A.dueNow : A.next(fmt.format(a.nextRunAt)),
+                  lastLabel: a.lastRunAt ? A.last(fmt.format(a.lastRunAt)) : null,
+                  lastError: a.lastError,
+                }))}
+              />
+              <p className="text-subtle-foreground text-[11px]">{A.schedule}</p>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>{F.history}</CardTitle>
@@ -176,7 +226,19 @@ export default async function FindJobsPage({
                           current?.id === h.id && "text-primary font-medium",
                         )}
                       >
-                        <span className="truncate">{h.criteria.roles || h.criteria.focus || "—"}</span>
+                        <span className="flex min-w-0 items-center gap-1">
+                          {h.autoSearchId ? (
+                            <Badge tone={unviewedIds.has(h.id) ? "primary" : "neutral"}>
+                              {unviewedIds.has(h.id) ? A.newBadge : A.badge}
+                            </Badge>
+                          ) : null}
+                          <span className="truncate">
+                            {(h.autoSearchId && autoNames.get(h.autoSearchId)) ||
+                              h.criteria.roles ||
+                              h.criteria.focus ||
+                              "—"}
+                          </span>
+                        </span>
                         <span className="text-subtle-foreground shrink-0 tabular-nums">
                           {h.error ? "!" : h.results.length} · {fmt.format(h.createdAt)}
                         </span>

@@ -6,6 +6,8 @@ export const E2E_API_KEY = "e2e-dummy-key-not-a-secret";
 export const E2E_DATABASE_URL =
   process.env.E2E_DATABASE_URL ?? "postgres://interviewos:interviewos@localhost:5432/interviewos_test";
 export const TIMEZONE = "Europe/Prague";
+/** Scheduler secret for the test server only. */
+export const E2E_CRON_SECRET = "e2e-cron-secret-not-a-secret";
 
 /** Today's date in the app's time zone (YYYY-MM-DD). */
 export function today(): string {

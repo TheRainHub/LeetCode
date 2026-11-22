@@ -1,6 +1,7 @@
 import { ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AddPosting } from "@/components/jobs/add-posting";
+import { AutoSearchRunner } from "@/components/jobs/auto-search";
 import { JobsSubnav } from "@/components/jobs/jobs-subnav";
 import { StatusSelect } from "@/components/jobs/status-select";
 import { PageContainer, PageHeader } from "@/components/layout/page-header";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isAiConfigured } from "@/lib/ai/config";
 import { ACTIVE_STATUSES, JOB_STATUSES, MIN_RESUME_CHARS } from "@/lib/jobs/model";
+import { hasDueAutoSearch, unviewedAutoRuns } from "@/server/job-auto";
 import { getCareerProfile, listPostings } from "@/server/jobs";
 import { getI18n } from "@/server/user";
 
@@ -19,11 +21,15 @@ export const maxDuration = 300;
 const VERDICT_TONE = { strong: "success", good: "primary", stretch: "warning", weak: "danger" } as const;
 
 export default async function JobsPage() {
-  const [{ m, locale }, postings, profile] = await Promise.all([
+  const [{ m, locale }, postings, profile, due, unviewed] = await Promise.all([
     getI18n(),
     listPostings(),
     getCareerProfile(),
+    hasDueAutoSearch(),
+    unviewedAutoRuns(),
   ]);
+  const newCount = unviewed.reduce((n, u) => n + u.results.length, 0);
+  const hasProfile = profile.resume.trim().length >= MIN_RESUME_CHARS || Boolean(profile.targetRoles.trim());
   const J = m.jobs;
   const fmt = new Intl.DateTimeFormat(locale === "ru" ? "ru-RU" : "en-GB", {
     day: "numeric",
@@ -53,7 +59,22 @@ export default async function JobsPage() {
           ) : null
         }
       />
-      <JobsSubnav current="overview" labels={J.nav} />
+      <JobsSubnav
+        current="overview"
+        labels={{ ...J.nav, find: newCount ? `${J.nav.find} (${newCount})` : J.nav.find }}
+      />
+      <AutoSearchRunner due={due && aiEnabled && hasProfile} />
+      {newCount && unviewed[0] ? (
+        <Card
+          className="border-primary/30 bg-primary-soft mb-4 flex flex-wrap items-center gap-3 p-3"
+          data-testid="jobs-new-results"
+        >
+          <p className="flex-1 text-sm font-medium">{J.auto.newResults(newCount)}</p>
+          <Button asChild size="sm" variant="primary">
+            <Link href={`/jobs/find?search=${unviewed[0].id}`}>{J.auto.view}</Link>
+          </Button>
+        </Card>
+      ) : null}
       {!aiEnabled ? <p className="text-muted-foreground mb-3 text-xs">{J.aiDisabled}</p> : null}
       {profile.resume.trim().length < MIN_RESUME_CHARS ? (
         <Card

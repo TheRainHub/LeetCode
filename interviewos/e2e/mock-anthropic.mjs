@@ -115,6 +115,12 @@ const SEARCH_RESULTS = [
   { url: "https://jobs.example.org/listing/202", title: "Junior Backend Developer — Sample Logistics" },
   { url: "https://news.example.net/article", title: "Tech hiring in Prague" },
 ];
+/** Results for searches whose criteria mention "auto-test" (automatic-search spec). */
+const SEARCH_RESULTS_AUTO = [
+  { url: "https://careers.example.com/jobs/auto-1", title: "Platform Engineer Graduate — Example Cloud" },
+  { url: "https://careers.example.com/jobs/auto-2", title: "Developer Productivity Intern — Example Tools" },
+];
+
 const FETCHED_POSTING =
   "Backend Engineer (Graduate) at Example Payments, Prague (hybrid). You will build Java and TypeScript services for card payments, " +
   "write tests, and take part in on-call. Requirements: degree in computer science (or final year), Java or TypeScript, SQL, REST APIs. " +
@@ -167,12 +173,12 @@ function blocksToSse(body, blocks) {
   return events;
 }
 
-const searchBlocks = (id, query) => [
+const searchBlocks = (id, query, results = SEARCH_RESULTS) => [
   { type: "server_tool_use", id, name: "web_search", input: { query } },
   {
     type: "web_search_tool_result",
     tool_use_id: id,
-    content: SEARCH_RESULTS.map((r) => ({
+    content: results.map((r) => ({
       type: "web_search_result",
       url: r.url,
       title: r.title,
@@ -185,6 +191,17 @@ const searchBlocks = (id, query) => [
 function researchReply(body) {
   const system = String(body.system ?? "");
   const prompt = String(body.messages?.[0]?.content ?? "");
+  if (system.includes("job-search researcher") && prompt.includes("auto-test")) {
+    return blocksToSse(body, [
+      ...searchBlocks("srvtoolu_a", "platform engineer graduate Prague", SEARCH_RESULTS_AUTO),
+      {
+        type: "text",
+        text:
+          "1. Platform Engineer Graduate, Example Cloud — https://careers.example.com/jobs/auto-1\n" +
+          "2. Developer Productivity Intern, Example Tools — https://careers.example.com/jobs/auto-2",
+      },
+    ]);
+  }
   if (system.includes("job-search researcher")) {
     return blocksToSse(body, [
       ...searchBlocks("srvtoolu_1", "graduate software engineer Prague"),
@@ -243,7 +260,23 @@ function researchReply(body) {
 
 const MOCK_RESUME_LINE = "Built an internal integration service in TypeScript used by 3 teams";
 
-function jobsPayload(system) {
+function jobsPayload(system, content) {
+  if (system.includes("Convert job-search research notes") && content.includes("jobs/auto-1"))
+    return {
+      jobs: SEARCH_RESULTS_AUTO.map((r, i) => ({
+        title: r.title.split(" — ")[0],
+        company: r.title.split(" — ")[1],
+        location: "Prague",
+        workMode: "hybrid",
+        level: i === 0 ? "graduate" : "internship",
+        url: r.url,
+        summary: "Internal developer platform work.",
+        whyFit: "Backstage and CI experience.",
+        concerns: "",
+        deadline: "",
+      })),
+      notes: "Searched platform and developer-productivity roles.",
+    };
   if (system.includes("Convert job-search research notes"))
     return {
       jobs: [
@@ -407,7 +440,7 @@ const server = createServer((req, res) => {
             feedback: "- Mock review: clear requirements.\n- Missing: estimates that drive decisions.",
           }
         : isJobs
-          ? jobsPayload(system)
+          ? jobsPayload(system, String(body.messages?.[0]?.content ?? ""))
           : EVALUATION;
       res.writeHead(200, { "content-type": "application/json" });
       res.end(

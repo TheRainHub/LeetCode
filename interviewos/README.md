@@ -394,6 +394,22 @@ availability, work authorisation and languages — all entered by you).
   removed, and an analysis made before you edited your résumé is marked as outdated.
 - **Practise for this job:** a 45-minute AI mock interview (coding, backend, fullstack, system design
   or behavioural) whose interviewer sees the posting and asks from its requirements.
+- **Automatic search.** Save the criteria of a search as an automatic search (up to 5), each with
+  its own interval: every day, every 3 days or every week. A run reports only postings that did not
+  appear in earlier searches and are not saved yet; Job search then shows "N new postings" until you
+  open them. Runs are started:
+  - on Cloudflare by a Cron Trigger every hour (`wrangler.jsonc`, handled in `worker.mjs`), which
+    runs at most one due search per tick;
+  - on Vercel by a daily Vercel Cron (`vercel.json`; the Hobby plan allows one run a day);
+  - on any deployment, including `npm run dev`, when you open Job search while a search is due —
+    the run then happens on the page with its progress shown. **Run now** starts one immediately.
+
+  The scheduler calls `/api/cron/job-search`, which skips the normal access check and requires
+  `Authorization: Bearer <CRON_SECRET>` instead; without `CRON_SECRET` (at least 16 characters) the
+  scheduled path is off and only page visits run searches. Every run uses the Anthropic API like a
+  manual search. A search is claimed atomically, so the scheduler and a page visit never run it
+  twice; a run that crashed is retried after 20 minutes.
+
 - **Pipeline:** saved → preparing → applied → interviewing → offer / rejected / archived. Status
   changes are recorded when you make them; no dates are inferred.
 
@@ -539,6 +555,12 @@ unprotected on a hosted URL.
    npx wrangler secret put ANTHROPIC_API_KEY
    ```
 
+   For automatic job search, also set a long random `CRON_SECRET` (the hourly Cron Trigger uses it):
+
+   ```bash
+   npx wrangler secret put CRON_SECRET
+   ```
+
    Also set `APP_TIMEZONE` (e.g. `Europe/Prague`) and, without Hyperdrive, `DATABASE_URL` the same way.
 
 Open the address: Cloudflare asks for your e-mail and a code, then shows InterviewOS. Access blocks
@@ -552,7 +574,7 @@ Worker locally in the real Workers runtime (put local values in `.dev.vars`, see
 
 Free-plan limits and what was verified:
 
-- **Worker size**: the compressed Worker is about 2.5 MiB; OpenNext documents 3 MiB as the Workers Free
+- **Worker size**: the compressed Worker is about 2.6 MiB; OpenNext documents 3 MiB as the Workers Free
   limit. The build uses webpack (`open-next.config.ts`) because the Turbopack output duplicated
   server chunks and came to 3.6 MiB; charts and the whiteboard render only in the browser and code
   highlighting covers the languages the lessons use, which keeps the server bundle small.
@@ -564,7 +586,8 @@ Free-plan limits and what was verified:
   person uses.
 - Verified locally with Wrangler's Workers runtime (`wrangler dev` on the production build): pages,
   server actions, the per-request database connection, concurrent requests, the 503 for an
-  unprotected deployment, the Access token check and the streamed AI job search (against the mock API). An actual deployment to a Cloudflare account,
+  unprotected deployment, the Access token check, the streamed AI job search and the hourly Cron
+  Trigger running a due automatic search (`wrangler dev --test-scheduled`, against the mock API). An actual deployment to a Cloudflare account,
   Access login and Hyperdrive could not be run from the environment this was built in.
 
 ## Deploying to Vercel

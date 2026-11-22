@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { filterFoundJobs, groundAnalysis, isQuotedFrom, matchCompany, normalizeUrl } from "./grounding";
-import type { FoundJob, JobAnalysis } from "./model";
+import { autoSearchInputSchema, type FoundJob, type JobAnalysis, nextRunAfter } from "./model";
 
 const job = (over: Partial<FoundJob>): FoundJob => ({
   title: "Graduate Software Engineer",
@@ -124,5 +124,19 @@ describe("matchCompany", () => {
     expect(matchCompany("Make s.r.o.", tracks)).toBe("make");
     expect(matchCompany("Makeover Studio", tracks)).toBeNull();
     expect(matchCompany("", tracks)).toBeNull();
+  });
+});
+
+describe("automatic search schedule", () => {
+  it("computes the next run from the interval", () => {
+    const from = new Date("2026-11-22T10:00:00Z");
+    expect(nextRunAfter(from, 1).toISOString()).toBe("2026-11-23T10:00:00.000Z");
+    expect(nextRunAfter(from, 7).toISOString()).toBe("2026-11-29T10:00:00.000Z");
+  });
+  it("accepts only the offered intervals", () => {
+    const criteria = { roles: "x", locations: "", workModes: [], levels: [], focus: "" };
+    expect(autoSearchInputSchema.safeParse({ name: "a", criteria, intervalDays: 3 }).success).toBe(true);
+    expect(autoSearchInputSchema.safeParse({ name: "a", criteria, intervalDays: 2 }).success).toBe(false);
+    expect(autoSearchInputSchema.safeParse({ name: " ", criteria, intervalDays: 7 }).success).toBe(false);
   });
 });
