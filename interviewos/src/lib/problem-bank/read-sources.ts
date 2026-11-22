@@ -87,13 +87,30 @@ function mergeProblem(model: BankModel, row: CompanyRow) {
   if (row.tags.length > existing.tags.length) existing.tags = row.tags;
 }
 
+/**
+ * Top-level files of a source. A directory on disk, or a Git commit read without checking the
+ * files out (some sources have file names Windows cannot create, e.g. with ":").
+ */
+export interface SourceFiles {
+  names(): string[];
+  read(name: string): string;
+}
+
+export function directoryFiles(dir: string): SourceFiles {
+  return {
+    names: () => readdirSync(dir).filter((f) => statSync(join(dir, f)).isFile()),
+    read: (name) => readFileSync(join(dir, name), "utf8"),
+  };
+}
+
 /** Reads the pattern notes: one Markdown file per pattern, LeetCode links inside. */
-export function readPatterns(dir: string, model: BankModel): void {
-  for (const file of readdirSync(dir).sort()) {
+export function readPatterns(source: string | SourceFiles, model: BankModel): void {
+  const files = typeof source === "string" ? directoryFiles(source) : source;
+  for (const file of files.names().sort()) {
     if (!file.endsWith(".md")) continue;
     const parsed = parsePatternFilename(file);
     if (!parsed) continue;
-    const problems = extractPatternProblems(readFileSync(join(dir, file), "utf8"));
+    const problems = extractPatternProblems(files.read(file));
     for (const slug of problems) {
       if (!model.problems.has(slug)) {
         // Known only from the notes: difficulty and tags are unknown rather than guessed.

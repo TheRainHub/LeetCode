@@ -11,6 +11,7 @@
  * membership — never problem statements. User progress is never modified.
  */
 import "dotenv/config";
+import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { inArray, isNotNull, notInArray, sql as dsql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -18,7 +19,7 @@ import postgres from "postgres";
 import { directDatabaseUrl, usesTransactionPooler } from "../src/lib/db/url";
 import { BANK_SOURCES, COMPANY_DATASET_NAMES, PATTERN_TO_LESSON } from "../content/problem-bank";
 import * as s from "../src/lib/db/schema";
-import { prepareGitSource } from "./lib/git-source";
+import { gitCommitFiles, prepareGitSource } from "./lib/git-source";
 import {
   emptyModel,
   readCompanyLists,
@@ -198,13 +199,16 @@ async function main() {
   const meta = new Map<string, { commit: string | null; commitDate: Date | null }>();
   for (const src of BANK_SOURCES) {
     const dir = join(sourcesDir, src.dir);
-    const prepared = prepareGitSource(src.repoUrl, dir, { fetch, label: "bank" });
+    // The patterns repository has file names Windows cannot create (they contain ":"), so it is
+    // read straight from Git without checking the files out.
+    const isPatterns = src.key === "coding-patterns";
+    const prepared = prepareGitSource(src.repoUrl, dir, { fetch, label: "bank", checkout: !isPatterns });
     if (!prepared.ok) continue;
     if (src.key === "company-lists") {
       readCompanyLists(dir, model);
       read.companies = true;
     } else {
-      readPatterns(dir, model);
+      readPatterns(existsSync(join(dir, ".git")) ? gitCommitFiles(dir) : dir, model);
       read.patterns = true;
     }
     meta.set(src.key, { commit: prepared.commit, commitDate: prepared.commitDate });
