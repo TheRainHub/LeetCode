@@ -9,6 +9,7 @@ import { jobs } from "./messages/jobs";
 import { knowledge } from "./messages/knowledge";
 import { labs } from "./messages/labs";
 import { learn } from "./messages/learn";
+import { mentor } from "./messages/mentor";
 import { practice } from "./messages/practice";
 import { review } from "./messages/review";
 import { roadmap } from "./messages/roadmap";
@@ -38,6 +39,7 @@ const bundles = {
   companies: companiesMsg,
   experience,
   jobs,
+  mentor,
   analytics,
   settings,
   knowledge,

@@ -476,15 +476,32 @@ export async function continueConversation(threadId: number, onEvent: (e: Mentor
 
 /** Display rows: user messages and assistant text, plus the tools each assistant turn used. */
 export function displayMessages(rows: (typeof mentorMessages.$inferSelect)[]) {
+  type Block = {
+    type: string;
+    id?: string;
+    name?: string;
+    input?: unknown;
+    tool_use_id?: string;
+    is_error?: boolean;
+  };
+  const blocksOf = (m: (typeof rows)[number]) =>
+    Array.isArray(m.apiContent) ? (m.apiContent as Block[]) : [];
+  // Whether each tool call succeeded comes from the tool results stored in the hidden turns.
+  const failed = new Set<string>();
+  for (const m of rows)
+    if (m.hidden)
+      for (const b of blocksOf(m))
+        if (b.type === "tool_result" && b.is_error && b.tool_use_id) failed.add(b.tool_use_id);
   return rows
     .filter((m) => !m.hidden)
     .map((m) => {
-      const blocks = Array.isArray(m.apiContent)
-        ? (m.apiContent as { type: string; name?: string; input?: unknown }[])
-        : [];
-      const tools = blocks
+      const tools = blocksOf(m)
         .filter((b) => b.type === "tool_use")
-        .map((b) => ({ name: b.name ?? "", input: (b.input ?? {}) as Record<string, unknown> }));
+        .map((b) => ({
+          name: b.name ?? "",
+          input: (b.input ?? {}) as Record<string, unknown>,
+          ok: !(b.id && failed.has(b.id)),
+        }));
       return { id: m.id, role: m.role, content: m.content, tools, createdAt: m.createdAt };
     })
     .filter((m) => m.content || m.tools.length);

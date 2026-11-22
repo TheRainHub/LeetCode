@@ -127,7 +127,7 @@ const FETCHED_POSTING =
   "Nice to have: Kafka, Docker, cloud experience. Apply by 31 January 2027.";
 
 /** Turns finished content blocks into the SSE events of a streamed message. */
-function blocksToSse(body, blocks) {
+function blocksToSse(body, blocks, stopReason = "end_turn") {
   const events = [
     {
       type: "message_start",
@@ -152,7 +152,7 @@ function blocksToSse(body, blocks) {
     if (block.type === "text") {
       events.push({ type: "content_block_start", index, content_block: { type: "text", text: "" } });
       events.push({ type: "content_block_delta", index, delta: { type: "text_delta", text: block.text } });
-    } else if (block.type === "server_tool_use") {
+    } else if (block.type === "server_tool_use" || block.type === "tool_use") {
       events.push({ type: "content_block_start", index, content_block: { ...block, input: {} } });
       events.push({
         type: "content_block_delta",
@@ -166,7 +166,7 @@ function blocksToSse(body, blocks) {
   });
   events.push({
     type: "message_delta",
-    delta: { stop_reason: "end_turn", stop_sequence: null },
+    delta: { stop_reason: stopReason, stop_sequence: null },
     usage: { output_tokens: 200, server_tool_use: { web_search_requests: 1 } },
   });
   events.push({ type: "message_stop" });
@@ -256,6 +256,55 @@ function researchReply(body) {
       text: "Sources describe an online test, a technical interview and a final behavioural round.",
     },
   ]);
+}
+
+/* Mentor: first turn calls tools (one with an unknown lesson), then answers after the results. */
+let mentorToolCalls = 0;
+function mentorReply(body) {
+  const last = body.messages?.at(-1);
+  const content = Array.isArray(last?.content) ? last.content : [];
+  if (content.some((b) => b.type === "tool_result"))
+    return blocksToSse(body, [
+      { type: "text", text: "Mock mentor: the tasks are in your list. Tell me how they go." },
+    ]);
+  mentorToolCalls += 1;
+  const n = mentorToolCalls;
+  return blocksToSse(
+    body,
+    [
+      { type: "text", text: `Mock mentor reply ${n}: start with caching, then practise.` },
+      {
+        type: "tool_use",
+        id: `toolu_task_${n}`,
+        name: "assign_task",
+        input: {
+          title: `Study caching strategies ${n}`,
+          details: "Read the lesson and answer its quiz with at least 80%.",
+          kind: "lesson",
+          ref: "caching",
+          estimate_minutes: 45,
+        },
+      },
+      {
+        type: "tool_use",
+        id: `toolu_bad_${n}`,
+        name: "assign_task",
+        input: {
+          title: "Read a lesson that does not exist",
+          details: "",
+          kind: "lesson",
+          ref: "no-such-lesson",
+        },
+      },
+      {
+        type: "tool_use",
+        id: `toolu_note_${n}`,
+        name: "remember",
+        input: { note: `Prefers product companies (${n})` },
+      },
+    ],
+    "tool_use",
+  );
 }
 
 const MOCK_RESUME_LINE = "Built an internal integration service in TypeScript used by 3 teams";
@@ -419,6 +468,8 @@ const server = createServer((req, res) => {
       const usesWebTools =
         Array.isArray(body.tools) && body.tools.some((t) => /^web_(search|fetch)_/.test(t.type));
       if (body.stream && usesWebTools) return sse(res, researchReply(body));
+      if (body.stream && String(body.system ?? "").includes("long-term mentor"))
+        return sse(res, mentorReply(body));
       if (body.stream) return sse(res, chatReply(body));
       const system = typeof body.system === "string" ? body.system : "";
       const isJobs =

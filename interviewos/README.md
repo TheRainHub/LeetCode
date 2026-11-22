@@ -23,6 +23,7 @@ It is built for one person on one machine. Nothing is shared; there is no login.
 - [How progress is measured](#how-progress-is-measured)
 - [Problem bank (optional)](#problem-bank-optional)
 - [System design practice](#system-design-practice)
+- [Mentor](#mentor)
 - [Job search](#job-search)
 - [Tests and checks](#tests-and-checks)
 - [Content](#content)
@@ -366,6 +367,26 @@ npm run guides:import
   build environment, whose network blocks that host).
 - "Read" marks are self-reported and never count as practice evidence. `--no-fetch` and `--sources`
   work as for the problem bank; `GUIDES_IMPORT_ON_BUILD=false` skips it in the Vercel build.
+
+## Mentor
+
+**Personal → Mentor** is a long-running conversation with an AI mentor that knows your situation and
+keeps you moving. It sees a summary of your profile and CV, learning status by topic, practice results
+(coding attempts, problem bank, system design, mock interviews), job postings and its own tasks, and
+it is told to use only those facts and to ask when something is unknown.
+
+- **Assignments.** The mentor gives concrete tasks (30–120 minutes, with a done criterion) that appear in
+  the **Tasks** panel, linked to lessons, problems (InterviewOS or LeetCode) and design questions. The
+  server checks every link against the catalogue and rejects unknown ones, so the mentor has to fix
+  them; due dates are set only once you agree. You mark tasks done or skipped and can write how it
+  went — the mentor sees that in the next message and follows up.
+- **Memory.** The mentor saves short notes about your goals, stated deadlines, constraints and
+  agreements; they are listed under **What the mentor remembers**, and you can delete any of them.
+- **Conversations.** Start a new conversation at any time; tasks and memory carry over. History is
+  stored and replayed unchanged (append-only, with prompt caching); a conversation holds up to 120
+  messages.
+- Every message uses the Anthropic API (your message, CV and progress summary are sent). Tested
+  end to end against the local mock API (`e2e/13-mentor.spec.ts`), not against the real model.
 
 ## Job search
 

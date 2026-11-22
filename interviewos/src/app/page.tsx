@@ -1,4 +1,13 @@
-import { ArrowRight, BookOpen, Building2, CalendarClock, Flame, Layers, Target } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Building2,
+  CalendarClock,
+  Flame,
+  GraduationCap,
+  Layers,
+  Target,
+} from "lucide-react";
 import Link from "next/link";
 import { MarkUnavailableButton, TaskRow, type PlanTask } from "@/components/dashboard/plan-widgets";
 import { WeekChart } from "@/components/dashboard/week-chart-lazy";
@@ -21,6 +30,7 @@ import {
   getStreak,
   getUpcomingEvents,
 } from "@/server/insights";
+import { openMentorTaskCount } from "@/server/mentor";
 import { getNextAction } from "@/server/next-action";
 import { ensurePlanUpToDate, getActivePlan, getCapacityFn, getTasksBetween } from "@/server/scheduler";
 import { getUpcomingReviewCounts } from "@/server/srs";
@@ -57,6 +67,7 @@ export default async function DashboardPage() {
     reviews,
     companies,
     events,
+    mentorOpen,
   ] = await Promise.all([
     getActivePlan(),
     getTasksBetween(today, today),
@@ -71,6 +82,7 @@ export default async function DashboardPage() {
     getUpcomingReviewCounts(7),
     getCompanyReadiness(),
     getUpcomingEvents(45),
+    openMentorTaskCount(),
   ]);
 
   const capacity = capacityFn(today);
@@ -116,6 +128,16 @@ export default async function DashboardPage() {
           <p className="text-muted-foreground mt-1 text-sm">
             <span className="text-subtle-foreground">{d.nextUp}:</span> {nextLabel}
           </p>
+          {mentorOpen > 0 ? (
+            <Link
+              href="/mentor"
+              className="text-primary mt-1 inline-flex items-center gap-1 text-xs font-medium hover:underline"
+              data-testid="dashboard-mentor-tasks"
+            >
+              <GraduationCap className="size-3.5" aria-hidden />
+              {m.mentor.dashboardOpen(mentorOpen)}
+            </Link>
+          ) : null}
         </div>
         <Button asChild variant="primary" size="lg" data-testid="start-session">
           <Link href={next.href}>

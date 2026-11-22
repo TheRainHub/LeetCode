@@ -9,6 +9,7 @@ import {
   GitFork,
   Network,
   Code2,
+  GraduationCap,
   LayoutDashboard,
   Library,
   MessagesSquare,
@@ -39,6 +40,7 @@ export const MAIN_NAV: NavItem[] = [
 ];
 
 export const PERSONAL_NAV: NavItem[] = [
+  { href: "/mentor", key: "mentor", icon: GraduationCap, shortcut: "G M" },
   { href: "/jobs", key: "jobs", icon: BriefcaseBusiness, shortcut: "G J" },
   { href: "/schedule", key: "schedule", icon: CalendarDays, shortcut: "G T" },
   { href: "/experience", key: "experience", icon: Briefcase, shortcut: "G E" },
