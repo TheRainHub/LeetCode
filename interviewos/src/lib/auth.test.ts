@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { isAuthorized, isCronAuthorized, safeEqual } from "./auth";
 import { databaseUrl, directDatabaseUrl, usesTransactionPooler } from "./db/url";
@@ -41,7 +42,8 @@ describe("database URLs", () => {
 });
 
 describe("isCronAuthorized", () => {
-  const secret = "s3cret-value-for-cron-01";
+  // Generated per run: no credential-like literal in the repository.
+  const secret = randomUUID();
   it("accepts only the configured bearer secret", () => {
     expect(isCronAuthorized(`Bearer ${secret}`, secret)).toBe(true);
     expect(isCronAuthorized(`Bearer ${secret}x`, secret)).toBe(false);
